@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class BikeController : MonoBehaviour
 {
+    public static BikeController Instance;
+
     public WheelJoint2D backWheel;
     public WheelJoint2D frontWheel;
     public Transform backWheelTransform;
@@ -38,6 +41,17 @@ public class BikeController : MonoBehaviour
     // Wheelie counter
     private float wheelieGracePeriod = 0.33f; // in seconds
     private float wheelieGraceEndTime;
+
+
+    // Speed boost
+    private bool isSpeedBoosted = false;
+    private float speedBoostEndTime = 0f;
+    public float normalMotorSpeed;
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     void Start()
     {
@@ -73,6 +87,15 @@ public class BikeController : MonoBehaviour
             }
             else
             {
+                // Limit the flipping speed when in the air and pressing space
+                float currentRotationSpeed = rb.angularVelocity;
+                float maxRotationSpeed = 500f; // Adjust this value as needed
+
+                if (Mathf.Abs(currentRotationSpeed) > maxRotationSpeed)
+                {
+                    rb.angularVelocity = Mathf.Sign(currentRotationSpeed) * maxRotationSpeed;
+                }
+
                 rb.AddTorque(flipTorque);
             }
         }
@@ -160,6 +183,15 @@ public class BikeController : MonoBehaviour
                 wheelieGraceEndTime = 0;
             }
         }
+
+        // check for speed boost
+        if (isSpeedBoosted && Time.time > speedBoostEndTime)
+        {
+            isSpeedBoosted = false;
+            motorSpeed = currentMotorSpeed;
+        }
+
+        // Rest of the code...
     }
 
     private bool IsGrounded()
@@ -183,6 +215,55 @@ public class BikeController : MonoBehaviour
         // Slightly lift up the bike to avoid intersection with the ground
         transform.position += new Vector3(0, 0.3f, 0);
     }
+
+    private bool isBoosting = false; // Flag to track if the boost is active
+    private float boostMotorSpeed; // The target motor speed during the boost
+
+    public void ApplySpeedBoost(SpeedBoost.SpeedBoostData data)
+    {
+        if (!isBoosting)
+        {
+            isBoosting = true;
+            boostMotorSpeed = motorSpeed + data.Amount;
+            StartCoroutine(BoostCoroutine(data.Amount, data.Duration));
+        }
+    }
+
+    private IEnumerator BoostCoroutine(float amount, float duration)
+    {
+        float elapsedTime = 0f;
+        Vector2 initialUpVector = transform.up;
+        Vector2 boostPosition = backWheelTransform.position; // Position to apply the boost force
+
+        while (elapsedTime < duration)
+        {
+            float progress = elapsedTime / duration;
+            float currentMotorSpeed = Mathf.Lerp(motorSpeed, boostMotorSpeed, progress);
+
+            // Calculate the direction of the boost
+            Vector2 boostDirection = transform.right; // assuming the front of the bike is its right side
+
+            // Apply the boost force to the bike's rigidbody at the boost position
+            rb.AddForceAtPosition(boostDirection * amount * rb.mass, boostPosition, ForceMode2D.Force);
+
+            // Counteract the leaning effect by applying an opposite force
+            Vector2 currentUpVector = transform.up;
+            Vector2 leanForce = -Vector2.Dot(currentUpVector, initialUpVector) * transform.forward * amount * rb.mass;
+            rb.AddForceAtPosition(leanForce, boostPosition, ForceMode2D.Force);
+
+            // Apply limited rotation force during the boost
+            float rotationForceMultiplier = isSpeedBoosted ? 0.3f : 1f;
+            rb.AddTorque(-flipTorque * rotationForceMultiplier);
+
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        isBoosting = false;
+        motorSpeed = boostMotorSpeed; // Set the motor speed to the boosted speed
+        isSpeedBoosted = false;
+    }
+
 
     private void FixedUpdate()
     {
