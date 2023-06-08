@@ -9,7 +9,7 @@ public class BikeController : MonoBehaviour
     public WheelJoint2D frontWheel;
     public Transform backWheelTransform;
     public Transform frontWheelTransform;
-    public float groundCheckDistance = 0.1f;
+    public float groundCheckDistance = 1f;
     public LayerMask groundLayer;
     public float motorSpeed;
     public float maxTorque;
@@ -17,7 +17,7 @@ public class BikeController : MonoBehaviour
     public float accelerationTime;
     public float flipTorque;
     public float doublePressTime = 0.3f;
-    public float flipDelay = 1f; // time in seconds to wait before flipping the bike
+    public float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
     public Collider2D bikeBody; // the bike's body collider
 
     WheelJoint2D wj;
@@ -31,6 +31,13 @@ public class BikeController : MonoBehaviour
     public int flipCount = 0; // Flip counter
     private float lastZRotation = 0f;
     private float rotationCounter = 0;
+
+    private bool isWheelie = false;
+    private float wheelieStartTime = 0f;
+
+    // Wheelie counter
+    private float wheelieGracePeriod = 0.33f; // in seconds
+    private float wheelieGraceEndTime;
 
     void Start()
     {
@@ -48,7 +55,7 @@ public class BikeController : MonoBehaviour
         {
             accelerationStartTime = Time.time;
             wj.useMotor = true;
-            Debug.Log("Accelerating");
+            //Debug.Log("Accelerating");
         }
 
         if (Input.GetKey(KeyCode.Space))
@@ -73,7 +80,7 @@ public class BikeController : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Space))
         {
             wj.useMotor = false;
-            Debug.Log("Stop Motor");
+            //Debug.Log("Stop Motor");
         }
 
         if (Input.GetKeyUp(KeyCode.R))
@@ -108,6 +115,51 @@ public class BikeController : MonoBehaviour
         }
 
         lastZRotation = transform.eulerAngles.z;
+
+        // Wheelie Counter
+        RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+
+        if (IsRearWheelGrounded() && hitFront.collider == null)
+        {
+            if (!isWheelie)
+            {
+                isWheelie = true;
+                wheelieGraceEndTime = Time.time + wheelieGracePeriod;
+            }
+            else if (isWheelie && Time.time > wheelieGraceEndTime)
+            {
+                if (wheelieStartTime == 0)
+                {
+                    wheelieStartTime = Time.time;
+                }
+            }
+        }
+        else
+        {
+            if (isWheelie && wheelieStartTime != 0)
+            {
+                // Check if the bike landed upside down
+                if (transform.eulerAngles.z > 90 && transform.eulerAngles.z < 270)
+                {
+                    Debug.Log("Bike landed upside down. Wheelie not counted.");
+                    wheelieStartTime = 0;
+                }
+                else
+                {
+                    isWheelie = false;
+                    float wheelieTime = Time.time - wheelieStartTime;
+                    Debug.Log("Wheelie time: " + wheelieTime + " seconds");
+                    wheelieStartTime = 0;
+                }
+                wheelieGraceEndTime = 0;
+                isWheelie = false;
+            }
+            else if (isWheelie && wheelieStartTime == 0)
+            {
+                isWheelie = false;
+                wheelieGraceEndTime = 0;
+            }
+        }
     }
 
     private bool IsGrounded()
@@ -117,13 +169,19 @@ public class BikeController : MonoBehaviour
         return hitBack.collider != null || hitFront.collider != null;
     }
 
+    private bool IsRearWheelGrounded()
+    {
+        RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+        return hitBack.collider != null;
+    }
+
     private void Flip()
     {
         // Set the bike to an upright position
         transform.rotation = Quaternion.Euler(0, 0, 0);
 
         // Slightly lift up the bike to avoid intersection with the ground
-        transform.position += new Vector3(0, 0.5f, 0);
+        transform.position += new Vector3(0, 0.3f, 0);
     }
 
     private void FixedUpdate()
