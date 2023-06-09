@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour
     public TMPro.TextMeshProUGUI flipCountText;
     public TMPro.TextMeshProUGUI wheelieTimeText;
 
+    private float totalWheelieTime = 0f;
+
     private float timer;
     private BikeController bikeController; // Reference to the BikeController component
 
@@ -54,13 +56,25 @@ public class GameManager : MonoBehaviour
         flipCountText.text = "Flips: " + flipCount;
     }
 
+    public void AccumulateWheelieTime(float wheelieTime)
+    {
+        totalWheelieTime += wheelieTime;
+        UpdateWheelieTimeText();
+    }
+
+
+
+
     private void UpdateWheelieTimeText()
     {
-        // Get the wheelie time from the BikeController script
-        float wheelieTime = bikeController.GetWheelieTime();
-        TimeSpan timeSpan = TimeSpan.FromSeconds(wheelieTime);
-        string wheelieTimeString = string.Format("{0:D2}:{1:D2}", timeSpan.Seconds, timeSpan.Milliseconds / 10);
-        wheelieTimeText.text = "Wheelie Time: " + wheelieTimeString;
+        int totalWheelieTimeSeconds = (int)totalWheelieTime;
+        int totalWheelieTimeMilliseconds = (int)((totalWheelieTime - totalWheelieTimeSeconds) * 1000);
+
+        string wheelieTimeString = string.Format("{0:D2}.{1:D3}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds);
+        wheelieTimeText.text = "Total Wheelie Time: " + wheelieTimeString;
     }
+
+
+
 
 }

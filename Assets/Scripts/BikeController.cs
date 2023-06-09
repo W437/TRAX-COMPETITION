@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public class BikeController : MonoBehaviour
 {
     public static BikeController Instance;
+    public GameManager GameManager;
 
     public WheelJoint2D backWheel;
     public WheelJoint2D frontWheel;
@@ -21,7 +22,7 @@ public class BikeController : MonoBehaviour
     public float flipTorque;
     public float doublePressTime = 0.3f;
     public float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
-    public Collider2D bikeBody; // the bike's body collider
+    public CapsuleCollider2D bikeBody; // the bike's body collider
 
     WheelJoint2D wj;
     JointMotor2D mo;
@@ -40,19 +41,17 @@ public class BikeController : MonoBehaviour
     public SpriteRenderer backWheelRenderer;
     public TrailRenderer bikeTrailRenderer;
     private Coroutine currentFlickerCoroutine = null;
+    private float maxAirRotationSpeed = 500f; // Adjust this value as needed
+    private int intermediateFlipCount = 0;
+    private bool hasLanded = false;
 
-    private Color originalBikeColor;
-    private Color originalFrontWheelColor;
-    private Color originalBackWheelColor;
-    private Color originalTrailColor;
-
+    // Wheelie sys
+    private float wheelieGracePeriod = 0.13f; // in seconds
+    private float wheelieGraceEndTime;
+    private bool isBodyTouchingGround = false;
     private bool isWheelie = false;
     private float wheelieStartTime = 0f;
     private float totalWheelieTime = 0f;
-
-    // Wheelie counter
-    private float wheelieGracePeriod = 0.33f; // in seconds
-    private float wheelieGraceEndTime;
 
 
     // Speed boost
@@ -64,7 +63,11 @@ public class BikeController : MonoBehaviour
     // bike trail
     private float defaultTrailTime;
 
-
+    // Store the original color of the bike
+    private Color originalBikeColor;
+    private Color originalFrontWheelColor;
+    private Color originalBackWheelColor;
+    private Color originalTrailColor;
 
     private void Awake()
     {
@@ -78,60 +81,36 @@ public class BikeController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         lastZRotation = transform.eulerAngles.z;
 
-        // Bike Colors
+
+        // Bike Trail
+        defaultTrailTime = bikeTrailRenderer.time;
+
+
+        // Store the original color of the bike
         originalBikeColor = bikeBodyRenderer.color;
         originalFrontWheelColor = frontWheelRenderer.color;
         originalBackWheelColor = backWheelRenderer.color;
         originalTrailColor = bikeTrailRenderer.startColor;
-
-        // Bike Trail
-        defaultTrailTime = bikeTrailRenderer.time;
     }
 
     private void Update()
     {
-        bool isGrounded = IsGrounded();
-        bool isMovingBackward = rb.velocity.x < 0; // Check if the bike is moving backward based on the rigidbody's velocity
 
+        // Input Handling
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             accelerationStartTime = Time.time;
             wj.useMotor = true;
-            //Debug.Log("Accelerating");
         }
 
         if (Input.GetKey(KeyCode.Mouse0))
         {
-            if (isGrounded && !isSpeedBoosted)
-            {
-                float elapsedTime = Time.time - accelerationStartTime;
-                float progress = elapsedTime / accelerationTime;
-
-                currentMotorSpeed = Mathf.Lerp(mo.motorSpeed, motorSpeed, progress);
-
-                mo.motorSpeed = currentMotorSpeed;
-                mo.maxMotorTorque = maxTorque;
-                wj.motor = mo;
-            }
-            else
-            {
-                // Limit the flipping speed when in the air and pressing space
-                float currentRotationSpeed = rb.angularVelocity;
-                float maxRotationSpeed = 500f; // Adjust this value as needed
-
-                if (Mathf.Abs(currentRotationSpeed) > maxRotationSpeed)
-                {
-                    rb.angularVelocity = Mathf.Sign(currentRotationSpeed) * maxRotationSpeed;
-                }
-
-                rb.AddTorque(flipTorque);
-            }
+            HandleMotor();
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse0))
         {
             wj.useMotor = false;
-            //Debug.Log("Stop Motor");
         }
 
         if (Input.GetKeyUp(KeyCode.R))
@@ -139,7 +118,56 @@ public class BikeController : MonoBehaviour
             SceneManager.LoadScene(0);
         }
 
+
         // Check if the bike body is in contact with the ground
+        CheckGroundContact();
+
+        // Flip Counter
+        HandleFlips();
+
+        // Wheelie System
+        HandleWheelie();
+
+        // Speed boost
+        CheckSpeedBoost();
+
+        // Trail based on bike velocity
+        HandleTrail();
+
+        // Rest of the code...
+    }
+
+
+    void HandleMotor()
+    {
+        bool isGrounded = IsGrounded();
+        if (isGrounded && !isSpeedBoosted)
+        {
+            float elapsedTime = Time.time - accelerationStartTime;
+            float progress = elapsedTime / accelerationTime;
+
+            currentMotorSpeed = Mathf.Lerp(mo.motorSpeed, motorSpeed, progress);
+
+            mo.motorSpeed = currentMotorSpeed;
+            mo.maxMotorTorque = maxTorque;
+            wj.motor = mo;
+        }
+        else
+        {
+            // Limit the flipping speed when in the air and pressing space
+            float currentRotationSpeed = rb.angularVelocity;
+
+            if (Mathf.Abs(currentRotationSpeed) > maxAirRotationSpeed)
+            {
+                rb.angularVelocity = Mathf.Sign(currentRotationSpeed) * maxAirRotationSpeed;
+            }
+
+            rb.AddTorque(flipTorque);
+        }
+    }
+
+    void CheckGroundContact()
+    {
         if (Physics2D.IsTouchingLayers(bikeBody, groundLayer))
         {
             if (Time.time - lastAirTime > flipDelay)
@@ -151,21 +179,53 @@ public class BikeController : MonoBehaviour
         {
             lastAirTime = Time.time;
         }
+    }
 
-        // Flip Counter
-        float rotationDiff = transform.eulerAngles.z - lastZRotation;
-        if (rotationDiff > 180f) rotationDiff -= 360f;
-        else if (rotationDiff < -180f) rotationDiff += 360f;
 
-        rotationCounter += rotationDiff;
-        if (Mathf.Abs(rotationCounter) >= 360f)
+    void HandleFlips()
+    {
+        bool isGrounded = IsGrounded();
+        if (hasLanded)
         {
-            rotationCounter = 0;
-            flipCount++;
-            Debug.Log("Flip Count: " + flipCount);
+            hasLanded = false;
+            if (intermediateFlipCount > 0)
+            {
+                flipCount += intermediateFlipCount;
+                Debug.Log("Final Flip Count: " + flipCount);
+                intermediateFlipCount = 0;
+            }
+        }
+        else if (!isBodyTouchingGround || (isBodyTouchingGround && !isGrounded))
+        {
+            float rotationDiff = transform.eulerAngles.z - lastZRotation;
+            if (rotationDiff > 180f) rotationDiff -= 360f;
+            else if (rotationDiff < -180f) rotationDiff += 360f;
+
+            rotationCounter += rotationDiff;
+            if (Mathf.Abs(rotationCounter) >= 360f)
+            {
+                rotationCounter = 0;
+                intermediateFlipCount++;
+                Debug.Log("Intermediate Flip Count: " + intermediateFlipCount);
+            }
         }
 
         lastZRotation = transform.eulerAngles.z;
+    }
+
+
+    void HandleWheelie()
+    {
+        // Wheelie System (Resets if body collides w/ ground, records if in progress and loses contact w/ ground)
+
+        // Check for wheelie
+        if (isWheelie && wheelieStartTime != 0 && isBodyTouchingGround)
+        {
+            //Debug.Log("Bike body hit the ground. Wheelie not counted.");
+            isWheelie = false;
+            wheelieStartTime = 0;
+            isBodyTouchingGround = false; // Reset the flag
+        }
 
         // Wheelie Counter
         RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
@@ -187,43 +247,58 @@ public class BikeController : MonoBehaviour
         }
         else
         {
+            bool hasJumped = (hitFront.collider == null && !IsRearWheelGrounded());
+
+            RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
             if (isWheelie && wheelieStartTime != 0)
             {
-                if (transform.eulerAngles.z > 90 && transform.eulerAngles.z < 270)
-                {
-                    Debug.Log("Bike landed upside down. Wheelie not counted.");
-                    wheelieStartTime = 0;
-                }
-                else
+                // Check if the bike lands on two wheels or has jumped while wheelie in progress
+                if (hitBack.collider != null || hasJumped)
                 {
                     isWheelie = false;
                     float wheelieTime = Time.time - wheelieStartTime;
                     if (wheelieTime > wheelieGracePeriod)
                     {
-                        totalWheelieTime += wheelieTime;
+                        //Debug.Log("Wheelie time: " + FormatTime(wheelieTime));
+                        GameManager.Instance.AccumulateWheelieTime(wheelieTime);
                     }
-                    Debug.Log("Wheelie time: " + FormatTime(wheelieTime));
-                    Debug.Log("Total wheelie time: " + FormatTime(totalWheelieTime));
+                    else
+                    {
+                        //Debug.Log("Wheelie time too short. Wheelie not counted.");
+                    }
+
                     wheelieStartTime = 0;
                 }
-                wheelieGraceEndTime = 0;
-                isWheelie = false;
             }
             else if (isWheelie && wheelieStartTime == 0)
             {
                 isWheelie = false;
                 wheelieGraceEndTime = 0;
             }
-        }
 
-        // Check for speed boost
+            if (!isWheelie && !hasJumped && hitBack.collider != null)
+            {
+                // The bike has landed on both wheels after a flip or a jump
+                hasLanded = true;
+            }
+        }
+    }
+
+
+
+    void CheckSpeedBoost()
+    {
         if (isSpeedBoosted && Time.time > speedBoostEndTime)
         {
             isSpeedBoosted = false;
             motorSpeed = currentMotorSpeed;
         }
+    }
 
-        // Enable/disable the trail based on bike velocity
+    void HandleTrail()
+    {
+        bool isGrounded = IsGrounded();
+
         if (isGrounded)
         {
             if (rb.velocity.x > 0 && !bikeTrailRenderer.emitting)
@@ -235,16 +310,12 @@ public class BikeController : MonoBehaviour
                 StartCoroutine(FadeTrailOut());
             }
         }
-
-
-        // Rest of the code...
     }
 
     private IEnumerator FadeTrailIn()
     {
         float elapsedTime = 0f;
         float initialTime = bikeTrailRenderer.time;
-        // Enable the trail emission
         bikeTrailRenderer.emitting = true;
 
         // Gradually increase the trail time
@@ -274,7 +345,6 @@ public class BikeController : MonoBehaviour
             yield return null;
         }
 
-        // Disable the trail emission
         bikeTrailRenderer.emitting = false;
     }
 
@@ -294,6 +364,10 @@ public class BikeController : MonoBehaviour
 
     private void Flip()
     {
+
+        // Reset the intermediate flip count
+        intermediateFlipCount = 0;
+
         // If a previous flip is still in progress
         if (currentFlickerCoroutine != null)
         {
@@ -317,14 +391,14 @@ public class BikeController : MonoBehaviour
         }
         else
         {
-            // Default behaviour if no ground was hit
+            // Default behavior if no ground was hit
             transform.position += new Vector3(0, 1f, 0);
         }
 
         // Start the respawn coroutine
-
         currentFlickerCoroutine = StartCoroutine(RespawnCoroutine());
     }
+
 
 
     private IEnumerator RespawnCoroutine()
@@ -339,11 +413,6 @@ public class BikeController : MonoBehaviour
         // Disable the bike's collider
         bikeBody.enabled = false;
 
-        // Store the original color of the bike
-        Color originalBikeColor = bikeBodyRenderer.color;
-        Color originalFrontWheelColor = frontWheelRenderer.color;
-        Color originalBackWheelColor = backWheelRenderer.color;
-        Color originalTrailColor = bikeTrailRenderer.startColor;
 
         // Loop while the flicker duration hasn't passed
         while (Time.time - startTime < flickerDuration)
@@ -441,7 +510,22 @@ public class BikeController : MonoBehaviour
 
     private string FormatTime(float time)
     {
-        TimeSpan timeSpan = TimeSpan.FromSeconds(time);
-        return string.Format("{0:D2}:{1:D2}", timeSpan.Seconds, timeSpan.Milliseconds / 10);
+        int seconds = (int)time;
+        int milliseconds = (int)((time - seconds) * 1000);
+
+        return string.Format("{0:D2}.{1:D3}", seconds, milliseconds);
     }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // check if the collided object is on the ground layer
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            isBodyTouchingGround = true;
+        }
+    }
+
+
+
+
 }
