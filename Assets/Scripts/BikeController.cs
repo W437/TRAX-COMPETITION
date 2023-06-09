@@ -72,7 +72,10 @@ public class BikeController : MonoBehaviour
     // Speed Boost System
     private bool isSpeedBoosted = false;
     private float speedBoostEndTime = 0f;
-    [SerializeField] private float normalMotorSpeed;
+    private float normalMotorSpeed;
+    private bool isBoosting = false; // Flag to track if the boost is active
+    private float boostMotorSpeed; // The target motor speed during the boost
+
 
     // Bike Trail System
     private float defaultTrailTime;
@@ -83,7 +86,7 @@ public class BikeController : MonoBehaviour
     private Color originalBackWheelColor;
     private Color originalTrailColor;
 
-
+    // ----- VAR END ----- //
 
     private void Awake()
     {
@@ -154,7 +157,7 @@ public class BikeController : MonoBehaviour
         if (mouseClicks == 2)
         {
             mouseClicks = 0;
-            if (!IsGrounded()) // We only care if the bike is in the air
+            if (!_isGrounded) // We only care if the bike is in the air
             {
                 // Save the direction that the bike is facing (assuming that the bike is facing its local up direction)
                 doubleClickForceDirection = Vector2.right;
@@ -207,6 +210,7 @@ public class BikeController : MonoBehaviour
     }
 
 
+
     void HandleBike()
     {
         bool isGrounded = IsGrounded();
@@ -240,6 +244,8 @@ public class BikeController : MonoBehaviour
         }
     }
 
+
+
     void CheckGroundContact()
     {
         if (Physics2D.IsTouchingLayers(bikeBody, groundLayer))
@@ -254,6 +260,7 @@ public class BikeController : MonoBehaviour
             lastAirTime = Time.time;
         }
     }
+
 
 
     void HandleFlips()
@@ -286,6 +293,7 @@ public class BikeController : MonoBehaviour
 
         lastZRotation = transform.eulerAngles.z;
     }
+
 
 
     void HandleWheelie()
@@ -366,6 +374,8 @@ public class BikeController : MonoBehaviour
         }
     }
 
+
+
     void HandleTrail()
     {
         bool isGrounded = IsGrounded();
@@ -382,6 +392,8 @@ public class BikeController : MonoBehaviour
             }
         }
     }
+
+
 
     private IEnumerator FadeTrail(bool fadeIn)
     {
@@ -415,11 +427,15 @@ public class BikeController : MonoBehaviour
         return hitBack.collider != null || hitFront.collider != null;
     }
 
+
+
     private bool IsRearWheelGrounded()
     {
         RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
         return hitBack.collider != null;
     }
+
+
 
     private void Flip()
     {
@@ -444,6 +460,7 @@ public class BikeController : MonoBehaviour
 
         currentFlickerCoroutine = StartCoroutine(RespawnCoroutine());
     }
+
 
 
     private IEnumerator RespawnCoroutine()
@@ -486,8 +503,6 @@ public class BikeController : MonoBehaviour
     }
 
 
-    private bool isBoosting = false; // Flag to track if the boost is active
-    private float boostMotorSpeed; // The target motor speed during the boost
 
     public void ApplySpeedBoost(SpeedBoost.SpeedBoostData data)
     {
@@ -498,6 +513,8 @@ public class BikeController : MonoBehaviour
             StartCoroutine(BoostCoroutine(data.Amount, data.Duration));
         }
     }
+
+
 
     private IEnumerator BoostCoroutine(float amount, float duration)
     {
@@ -534,6 +551,8 @@ public class BikeController : MonoBehaviour
         isSpeedBoosted = false;
     }
 
+
+
     IEnumerator RotateBikeToFaceForward(float duration)
     {
         Vector3 startRotation = transform.eulerAngles;
@@ -561,6 +580,8 @@ public class BikeController : MonoBehaviour
         return totalWheelieTime;
     }
 
+
+
     private string FormatTime(float time)
     {
         int seconds = (int)time;
@@ -568,6 +589,8 @@ public class BikeController : MonoBehaviour
 
         return string.Format("{0:D2}.{1:D3}", seconds, milliseconds);
     }
+
+
 
     void OnCollisionEnter2D(Collision2D collision)
     {
