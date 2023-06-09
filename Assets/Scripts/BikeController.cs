@@ -24,6 +24,408 @@ public class BikeController : MonoBehaviour
     public float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
     public CapsuleCollider2D bikeBody; // the bike's body collider
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     WheelJoint2D wj;
     JointMotor2D mo;
     Rigidbody2D rb;
@@ -335,7 +737,6 @@ public class BikeController : MonoBehaviour
         float elapsedTime = 0f;
         float initialTime = bikeTrailRenderer.time;
 
-        // Gradually decrease the trail time
         while (elapsedTime < 0.5f)
         {
             float time = Mathf.Lerp(initialTime, 0f, elapsedTime);
@@ -364,53 +765,35 @@ public class BikeController : MonoBehaviour
 
     private void Flip()
     {
-
-        // Reset the intermediate flip count
         intermediateFlipCount = 0;
 
         // If a previous flip is still in progress
         if (currentFlickerCoroutine != null)
-        {
             StopCoroutine(currentFlickerCoroutine);
-        }
 
-        // Use a Raycast to detect the ground position
         RaycastHit2D groundHit = Physics2D.Raycast(transform.position, -Vector2.up, Mathf.Infinity, groundLayer);
 
-        // Check if the ground was hit
         if (groundHit.collider != null)
         {
-            // Set the position of the bike to be 1 unit above the ground
             transform.position = new Vector3(transform.position.x, groundHit.point.y + 1f, transform.position.z);
 
             // Calculate the angle of the slope where the bike is landing
             float slopeAngle = Mathf.Atan2(groundHit.normal.y, groundHit.normal.x) * Mathf.Rad2Deg;
-
-            // Adjust the bike's rotation to match the slope
             transform.rotation = Quaternion.Euler(0, 0, slopeAngle - 90);
         }
         else
-        {
-            // Default behavior if no ground was hit
             transform.position += new Vector3(0, 1f, 0);
-        }
 
-        // Start the respawn coroutine
         currentFlickerCoroutine = StartCoroutine(RespawnCoroutine());
     }
 
 
-
     private IEnumerator RespawnCoroutine()
     {
-        // Duration variables
         float flickerDuration = 2f;
         float disableColliderDuration = 0.2f;
-
-        // Save the time at the start of the method
         float startTime = Time.time;
 
-        // Disable the bike's collider
         bikeBody.enabled = false;
 
 
@@ -419,9 +802,7 @@ public class BikeController : MonoBehaviour
         {
             // Check if the disableColliderDuration has passed, if so re-enable the bike's collider
             if (!bikeBody.enabled && Time.time - startTime > disableColliderDuration)
-            {
                 bikeBody.enabled = true;
-            }
 
             // Make the bike and its components transparent
             bikeBodyRenderer.color = new Color(originalBikeColor.r, originalBikeColor.g, originalBikeColor.b, 0.5f);
