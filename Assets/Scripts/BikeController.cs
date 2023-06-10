@@ -1,3 +1,4 @@
+using MoreMountains.Feedbacks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,13 +10,15 @@ public class BikeController : MonoBehaviour
     // Singleton Instance
     public static BikeController Instance;
 
+    public MMFeedbacks StatsJuice;
+
     // External References
-    [SerializeField] private GameManager GameManager;
+    private GameManager GameManager;
     [SerializeField] private WheelJoint2D backWheel;
     [SerializeField] private WheelJoint2D frontWheel;
     [SerializeField] private Transform backWheelTransform;
     [SerializeField] private Transform frontWheelTransform;
-    [SerializeField] private CapsuleCollider2D bikeBody; // the bike's body collider
+    [SerializeField] private CapsuleCollider2D bikeBody;
     [SerializeField] private SpriteRenderer bikeBodyRenderer;
     [SerializeField] private SpriteRenderer frontWheelRenderer;
     [SerializeField] private SpriteRenderer backWheelRenderer;
@@ -28,15 +31,18 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float downwardForce;
     [SerializeField] private float accelerationTime;
     [SerializeField] private float groundCheckDistance = 1f;
+    [SerializeField] private float initialMaxTorque = 0.5f; // Starting torque
     private float currentMotorSpeed = 0f;
-    private int faultCount = 0;
     private float initialMotorSpeed;
-    float initialMaxTorque = 0.5f;  // Starting torque
+    private float accelerationStartTime;
 
-    // This should be defined as a field in your class
-    float accelerationStartTime;
-
-
+    // PlayerPrefs Save Data
+    float bestTime = 0;
+    int totalFlips = 0;
+    int totalWheelieTime = 0;
+    float bestSingleWheelieTime = 0;
+    int faults = 0;
+    int totalfaults = 0;
 
     // Physics System
     private WheelJoint2D wj;
@@ -56,7 +62,7 @@ public class BikeController : MonoBehaviour
     private float originalAngularDrag;
     private Coroutine rotateBikeCoroutine = null;
     private float flickStartTime;
-
+     
     // Flip System
     public int flipCount = 0; // Flip counter
     [SerializeField] private float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
@@ -65,8 +71,11 @@ public class BikeController : MonoBehaviour
     private float rotationCounter = 0;
     private int internalFlipCount = 0;
     private bool hasLanded = false;
-    private float maxAirRotationSpeed = 500f; // Adjust this value as needed
+    [SerializeField] private float maxAirRotationSpeed = 650f; // Adjust this value as needed
     private Coroutine currentFlickerCoroutine = null;
+    bool hasBeenUpsideDown = false;
+
+
 
     // Wheelie System
     private float wheelieGracePeriod = 0.13f; // in seconds
@@ -74,7 +83,6 @@ public class BikeController : MonoBehaviour
     private bool isBodyTouchingGround = false;
     private bool isWheelie = false;
     private float wheelieStartTime = 0f;
-    private float totalWheelieTime = 0f;
 
     // Speed Boost System
     private bool isSpeedBoosted = false;
@@ -119,6 +127,7 @@ public class BikeController : MonoBehaviour
 
     private void FixedUpdate()
     {
+
         if (isDoubleMousePressed)
         {
             rb.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
@@ -148,6 +157,7 @@ public class BikeController : MonoBehaviour
 
     private void Update()
     {
+
         bool _isGrounded = IsGrounded();
 
         // Detect double click
@@ -181,15 +191,15 @@ public class BikeController : MonoBehaviour
 
         //-----------------------------------  Input
 
+        if (Input.GetKey(KeyCode.Mouse0))
+        {
+            HandleBike();
+        }
+
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
             accelerationStartTime = Time.time;
             wj.useMotor = true;
-        }
-
-        if (Input.GetKey(KeyCode.Mouse0))
-        {
-            HandleBike();
         }
 
         if (Input.GetKeyUp(KeyCode.Mouse0))
@@ -217,13 +227,12 @@ public class BikeController : MonoBehaviour
     }
 
 
-
     void HandleBike()
     {
         bool isGrounded = IsGrounded();
         if (isBeingPushedForward) // Add this condition
         {
-            rb.angularVelocity = 0; // Reset angular velocity
+            //rb.angularVelocity = 0; // Reset angular velocity
             // Don't apply torque while pushing forward
         }
         if (isGrounded && !isSpeedBoosted)
@@ -231,9 +240,8 @@ public class BikeController : MonoBehaviour
             float elapsedTime = Time.time - accelerationStartTime;
             float progress = elapsedTime / accelerationTime;
 
-            // For quadratic or cubic easing
             float easedProgress = progress * progress; // Quadratic easing
-            // float easedProgress = progress * progress * progress; // Cubic easing
+            //float easedProgress = progress * progress * progress; // Cubic easing
 
             mo.maxMotorTorque = Mathf.Lerp(initialMaxTorque, maxTorque, easedProgress);
             mo.motorSpeed = motorSpeed;
@@ -285,6 +293,18 @@ public class BikeController : MonoBehaviour
             {
                 flipCount += internalFlipCount;
                 Debug.Log("Final Flip Count: " + flipCount);
+                PlayerPrefs.SetInt("FLIPS", flipCount);
+                PlayerPrefs.Save();
+
+                float _mostFlipCount = PlayerPrefs.GetInt("MOST_FLIP_COUNT");
+
+                if (flipCount > _mostFlipCount)
+                {
+                    PlayerPrefs.SetInt("MOST_FLIP_COUNT", flipCount);
+                    PlayerPrefs.Save();
+                }
+
+
                 internalFlipCount = 0;
             }
         }
@@ -295,11 +315,21 @@ public class BikeController : MonoBehaviour
             else if (rotationDiff < -180f) rotationDiff += 360f;
 
             rotationCounter += rotationDiff;
-            if (Mathf.Abs(rotationCounter) >= 360f)
+
+            // Check if the bike has been upside down
+            if (transform.eulerAngles.z > 90 && transform.eulerAngles.z < 270)
+            {
+                hasBeenUpsideDown = true;
+            }
+
+            // Only count a flip if the bike has been upside down and completed a full rotation
+            if (hasBeenUpsideDown && Mathf.Abs(rotationCounter) >= 360f)
             {
                 rotationCounter = 0;
                 internalFlipCount++;
+                StatsJuice.PlayFeedbacks();
                 Debug.Log("Intermediate Flip Count: " + internalFlipCount);
+                hasBeenUpsideDown = false; // Reset for the next flip
             }
         }
 
@@ -352,6 +382,17 @@ public class BikeController : MonoBehaviour
                     if (wheelieTime > wheelieGracePeriod)
                     {
                         //Debug.Log("Wheelie time: " + FormatTime(wheelieTime));
+                        PlayerPrefs.SetFloat("WHEELIE_TIME", wheelieTime);
+                        PlayerPrefs.Save();
+
+                        float _bestWheelieTime = PlayerPrefs.GetFloat("BEST_WHEELIE_TIME");
+
+                        if(totalWheelieTime > _bestWheelieTime)
+                        {
+                            PlayerPrefs.SetFloat("BEST_WHEELIE_TIME", wheelieTime);
+                            PlayerPrefs.Save();
+                        }
+
                         GameManager.Instance.AccumulateWheelieTime(wheelieTime);
                     }
                     else
@@ -451,8 +492,10 @@ public class BikeController : MonoBehaviour
 
     private void Flip()
     {
+        PlayerPrefs.SetInt("Faults", faults);
+        PlayerPrefs.Save();
         internalFlipCount = 0;
-        faultCount++;
+        faults++;
         GameManager.Instance.UpdateFaultCountText();
 
         // If a previous flip is still in progress
@@ -598,7 +641,7 @@ public class BikeController : MonoBehaviour
 
     public int GetFaultCount()
     {
-        return faultCount;
+        return faults;
     }
 
 
