@@ -30,6 +30,7 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 1f;
     private float currentMotorSpeed = 0f;
     private float accelerationStartTime;
+    private int faultCount = 0;
 
     // Physics System
     private WheelJoint2D wj;
@@ -440,6 +441,8 @@ public class BikeController : MonoBehaviour
     private void Flip()
     {
         internalFlipCount = 0;
+        faultCount++;
+        GameManager.Instance.UpdateFaultCountText();
 
         // If a previous flip is still in progress
         if (currentFlickerCoroutine != null)
@@ -578,6 +581,13 @@ public class BikeController : MonoBehaviour
     public float GetWheelieTime()
     {
         return totalWheelieTime;
+    }
+
+
+
+    public int GetFaultCount()
+    {
+        return faultCount;
     }
 
 

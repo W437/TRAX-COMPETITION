@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public TMPro.TextMeshProUGUI timerText;
     public TMPro.TextMeshProUGUI flipCountText;
     public TMPro.TextMeshProUGUI wheelieTimeText;
+    public TMPro.TextMeshProUGUI faultCountText;
 
     private float totalWheelieTime = 0f;
 
@@ -54,6 +55,14 @@ public class GameManager : MonoBehaviour
         // Get the flip count from the BikeController script
         int flipCount = bikeController.flipCount;
         flipCountText.text = "Flips: " + flipCount;
+    }
+
+
+    public void UpdateFaultCountText()
+    {
+        // Get the flip count from the BikeController script
+        int faultCount = bikeController.GetFaultCount();
+        faultCountText.text = "Faults: " + faultCount;
     }
 
     public void AccumulateWheelieTime(float wheelieTime)
