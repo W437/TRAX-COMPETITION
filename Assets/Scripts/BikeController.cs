@@ -24,13 +24,19 @@ public class BikeController : MonoBehaviour
     // Bike Properties
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float motorSpeed;
-    [SerializeField] private float maxTorque;
+    [SerializeField] private float maxTorque = 5f;
     [SerializeField] private float downwardForce;
     [SerializeField] private float accelerationTime;
     [SerializeField] private float groundCheckDistance = 1f;
     private float currentMotorSpeed = 0f;
-    private float accelerationStartTime;
     private int faultCount = 0;
+    private float initialMotorSpeed;
+    float initialMaxTorque = 0.5f;  // Starting torque
+
+    // This should be defined as a field in your class
+    float accelerationStartTime;
+
+
 
     // Physics System
     private WheelJoint2D wj;
@@ -225,12 +231,17 @@ public class BikeController : MonoBehaviour
             float elapsedTime = Time.time - accelerationStartTime;
             float progress = elapsedTime / accelerationTime;
 
-            currentMotorSpeed = Mathf.Lerp(mo.motorSpeed, motorSpeed, progress);
+            // For quadratic or cubic easing
+            float easedProgress = progress * progress; // Quadratic easing
+            // float easedProgress = progress * progress * progress; // Cubic easing
 
-            mo.motorSpeed = currentMotorSpeed;
-            mo.maxMotorTorque = maxTorque;
+            mo.maxMotorTorque = Mathf.Lerp(initialMaxTorque, maxTorque, easedProgress);
+            mo.motorSpeed = motorSpeed;
             wj.motor = mo;
         }
+
+
+
         else if (!isBeingPushedForward)
         {
             // Limit the flipping speed when in the air and pressing space
