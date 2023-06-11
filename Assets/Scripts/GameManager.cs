@@ -72,8 +72,6 @@ public class GameManager : MonoBehaviour
     }
 
 
-
-
     private void UpdateWheelieTimeText()
     {
         int totalWheelieTimeSeconds = (int)totalWheelieTime;

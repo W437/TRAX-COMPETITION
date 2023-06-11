@@ -16,6 +16,7 @@ public class BikeController : MonoBehaviour
     private GameManager GameManager;
     [SerializeField] private WheelJoint2D backWheel;
     [SerializeField] private WheelJoint2D frontWheel;
+    [SerializeField] private CircleCollider2D rearWheelCollider;
     [SerializeField] private Transform backWheelTransform;
     [SerializeField] private Transform frontWheelTransform;
     [SerializeField] private CapsuleCollider2D bikeBody;
@@ -101,6 +102,10 @@ public class BikeController : MonoBehaviour
     private Color originalBackWheelColor;
     private Color originalTrailColor;
 
+
+
+
+    private float maxAirHeight;
     // ----- VAR END ----- //
 
     private void Awake()
@@ -157,6 +162,8 @@ public class BikeController : MonoBehaviour
 
     private void Update()
     {
+        maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
+
 
         bool _isGrounded = IsGrounded();
 
@@ -416,7 +423,19 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    public float CalculateMaxSpeed()
+    {
+        float wheelRadius = rearWheelCollider.radius;
 
+        // Calculate the wheel's circumference (C = 2 * pi * r).
+        float wheelCircumference = 2 * Mathf.PI * wheelRadius;
+
+        // Calculate the bike's maximum speed (Max speed = motor speed * wheel circumference).
+        // This assumes no external forces (like drag, friction, etc.) and that the bike's motor can reach its maximum speed.
+        float maxSpeed = Mathf.Abs(mo.motorSpeed) * wheelCircumference;
+
+        return maxSpeed;
+    }
 
     void CheckSpeedBoost()
     {
@@ -473,7 +492,7 @@ public class BikeController : MonoBehaviour
 
 
 
-    private bool IsGrounded()
+    public bool IsGrounded()
     {
         RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
         RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
@@ -482,10 +501,16 @@ public class BikeController : MonoBehaviour
 
 
 
-    private bool IsRearWheelGrounded()
+    public bool IsRearWheelGrounded()
     {
         RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
         return hitBack.collider != null;
+    }
+
+    public bool IsFrontWheelGrounded()
+    {
+        RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+        return hitFront.collider != null;
     }
 
 
@@ -522,7 +547,7 @@ public class BikeController : MonoBehaviour
 
     private IEnumerator RespawnCoroutine()
     {
-        float flickerDuration = 2f;
+        float flickerDuration = 0.5f;
         float disableColliderDuration = 0.2f;
         float startTime = Time.time;
 
@@ -656,13 +681,25 @@ public class BikeController : MonoBehaviour
 
 
 
+
     void OnCollisionEnter2D(Collision2D collision)
     {
         // check if the collided object is on the ground layer
         if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
             isBodyTouchingGround = true;
+
+            // Determine the landing force based on the maximum height achieved
+            float landingForce = BikeParticles.Instance.CalculateLandingForce(maxAirHeight, transform.position.y);
+
+            // Play the landing particle effect
+            BikeParticles.Instance.PlayLandingParticles(landingForce);
+
+            // Reset the maximum height
+            maxAirHeight = transform.position.y;
         }
+
+
     }
 
 }
