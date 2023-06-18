@@ -486,9 +486,9 @@ PlayerSettings:
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
   enableCrashReportAPI: 0
-  cameraUsageDescription: 
-  locationUsageDescription: 
-  microphoneUsageDescription: 
+  cameraUsageDescription: test
+  locationUsageDescription: test
+  microphoneUsageDescription: test
   bluetoothUsageDescription: 
   switchNMETAOverride: 
   switchNetLibKey: 

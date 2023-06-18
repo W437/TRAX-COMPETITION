@@ -2,18 +2,19 @@ using MoreMountains.Feedbacks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using static BikeController;
+using static GameManager;
 
 public class BikeController : MonoBehaviour
 {
     // Singleton Instance
     public static BikeController Instance;
-
     public MMFeedbacks StatsJuice;
 
     // External References
-    private GameManager GameManager;
     [SerializeField] private WheelJoint2D backWheel;
     [SerializeField] private WheelJoint2D frontWheel;
     [SerializeField] private CircleCollider2D rearWheelCollider;
@@ -119,6 +120,7 @@ public class BikeController : MonoBehaviour
         mo = new JointMotor2D();
         rb = GetComponent<Rigidbody2D>();
         lastZRotation = transform.eulerAngles.z;
+        rb.isKinematic = true;
 
         // Bike Trail
         defaultTrailTime = bikeTrailRenderer.time;
@@ -132,104 +134,108 @@ public class BikeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-
-        if (isDoubleMousePressed)
+        if(GameManager.Instance.gameState == GameState.Playing)
         {
-            rb.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
-            isDoubleMousePressed = false;
-            isBeingPushedForward = true;
-            flickStartTime = Time.time; // Set the flick start time
-
-            if (rotateBikeCoroutine != null)
+            if (isDoubleMousePressed)
             {
-                StopCoroutine(rotateBikeCoroutine);
+                rb.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
+                isDoubleMousePressed = false;
+                isBeingPushedForward = true;
+                flickStartTime = Time.time; // Set the flick start time
+
+                if (rotateBikeCoroutine != null)
+                {
+                    StopCoroutine(rotateBikeCoroutine);
+                }
+                rotateBikeCoroutine = StartCoroutine(RotateBikeToFaceForward(0.5f));
             }
-            rotateBikeCoroutine = StartCoroutine(RotateBikeToFaceForward(0.5f));
-        }
-        else if (isBeingPushedForward)
-        {
-            // Check if 0.3 seconds has passed since the start of the forward push
-            if (Time.time >= flickStartTime + 0.5f)
+            else if (isBeingPushedForward)
             {
-                isBeingPushedForward = false; // Stop pushing forward
-                rb.angularDrag = originalAngularDrag; // reset angularDrag to its original value
-                rb.angularVelocity = 0f;
-                rb.constraints = RigidbodyConstraints2D.None;
+                // Check if 0.3 seconds has passed since the start of the forward push
+                if (Time.time >= flickStartTime + 0.5f)
+                {
+                    isBeingPushedForward = false; // Stop pushing forward
+                    rb.angularDrag = originalAngularDrag; // reset angularDrag to its original value
+                    rb.angularVelocity = 0f;
+                    rb.constraints = RigidbodyConstraints2D.None;
 
+                }
             }
         }
     }
 
     private void Update()
     {
-        maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
-
-
-        bool _isGrounded = IsGrounded();
-
-        // Detect double click
-        if (Input.GetKeyDown(KeyCode.Mouse0))
+        if(GameManager.Instance.gameState == GameState.Playing)
         {
-            mouseClicks++;
-            if (mouseClicks == 1)
-                mouseClickTimer = Time.time;
-        }
+            rb.isKinematic = false;
+            maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
+            bool _isGrounded = IsGrounded();
 
-        if (mouseClicks > 0 && Time.time - mouseClickTimer > doublePressTime)
-            mouseClicks = 0;
-
-        if (mouseClicks == 2)
-        {
-            mouseClicks = 0;
-            if (!_isGrounded) // We only care if the bike is in the air
+            // Detect double click
+            if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                // Save the direction that the bike is facing (assuming that the bike is facing its local up direction)
-                doubleClickForceDirection = Vector2.right;
-                doubleClickRotation = transform.rotation;
-                isDoubleMousePressed = true;
-                isBeingPushedForward = true;
-                originalAngularDrag = rb.angularDrag;
-                rb.angularDrag = 1f; // a high value to strongly resist rotation
-                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
+                mouseClicks++;
+                if (mouseClicks == 1)
+                    mouseClickTimer = Time.time;
             }
+
+            if (mouseClicks > 0 && Time.time - mouseClickTimer > doublePressTime)
+                mouseClicks = 0;
+
+            if (mouseClicks == 2)
+            {
+                mouseClicks = 0;
+                if (!_isGrounded) // We only care if the bike is in the air
+                {
+                    // Save the direction that the bike is facing (assuming that the bike is facing its local up direction)
+                    doubleClickForceDirection = Vector2.right;
+                    doubleClickRotation = transform.rotation;
+                    isDoubleMousePressed = true;
+                    isBeingPushedForward = true;
+                    originalAngularDrag = rb.angularDrag;
+                    rb.angularDrag = 1f; // a high value to strongly resist rotation
+                    rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+                }
+            }
+
+
+            //-----------------------------------  Input
+
+            if (Input.GetKey(KeyCode.Mouse0))
+            {
+                HandleBike();
+            }
+
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+            {
+                accelerationStartTime = Time.time;
+                wj.useMotor = true;
+            }
+
+            if (Input.GetKeyUp(KeyCode.Mouse0))
+            {
+                wj.useMotor = false;
+            }
+
+            if (Input.GetKeyUp(KeyCode.R))
+            {
+                SceneManager.LoadScene(0);
+            }
+
+            //--------------------
+
+            CheckGroundContact();
+
+            HandleFlips();
+
+            HandleWheelie();
+
+            CheckSpeedBoost();
+
+            HandleTrail();
         }
-
-
-        //-----------------------------------  Input
-
-        if (Input.GetKey(KeyCode.Mouse0))
-        {
-            HandleBike();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
-            accelerationStartTime = Time.time;
-            wj.useMotor = true;
-        }
-
-        if (Input.GetKeyUp(KeyCode.Mouse0))
-        {
-            wj.useMotor = false;
-        }
-
-        if (Input.GetKeyUp(KeyCode.R))
-        {
-            SceneManager.LoadScene(0);
-        }
-
-        //--------------------
-
-        CheckGroundContact();
-
-        HandleFlips();
-
-        HandleWheelie();
-
-        CheckSpeedBoost();
-
-        HandleTrail();
 
     }
 
@@ -678,8 +684,6 @@ public class BikeController : MonoBehaviour
 
         return string.Format("{0:D2}.{1:D3}", seconds, milliseconds);
     }
-
-
 
 
     void OnCollisionEnter2D(Collision2D collision)

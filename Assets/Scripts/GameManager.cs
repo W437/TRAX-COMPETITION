@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static GameManager;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,9 +14,9 @@ public class GameManager : MonoBehaviour
     public TMPro.TextMeshProUGUI faultCountText;
 
     private float totalWheelieTime = 0f;
+    public GameState gameState;
 
-    private float timer;
-    private BikeController bikeController; // Reference to the BikeController component
+    private float timer; 
 
     private void Awake()
     {
@@ -23,46 +25,57 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Reset the timer
         timer = 0f;
-
-        // Get the BikeController component
-        bikeController = BikeController.Instance;
+        SetGameState(GameState.Playing);
     }
 
     private void Update()
     {
-        // Update the timer
-        timer += Time.deltaTime;
-        UpdateTimerText();
+        // Manage Game State
 
-        // Update the flip count
-        UpdateFlipCountText();
+        switch (gameState)
+        {
+            case GameState.Paused:
+                // Pause game logic here
+                break;
 
-        // Update the wheelie time
-        UpdateWheelieTimeText();
+            case GameState.Playing:
+
+                timer += Time.deltaTime;
+                UpdateTimerText();
+                UpdateFlipCountText();
+                UpdateWheelieTimeText();
+
+                break;
+
+            case GameState.Menu:
+                // Menu display logic here
+                break;
+        }
+
+
     }
 
     private void UpdateTimerText()
     {
         TimeSpan timeSpan = TimeSpan.FromSeconds(timer);
         string timerString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
-        timerText.text = "Time: " + timerString;
+        timerText.text = "" + timerString;
     }
 
     private void UpdateFlipCountText()
     {
         // Get the flip count from the BikeController script
-        int flipCount = bikeController.flipCount;
-        flipCountText.text = "Flips: " + flipCount;
+        int flipCount = BikeController.Instance.flipCount;
+        flipCountText.text = "" + flipCount;
     }
 
 
     public void UpdateFaultCountText()
     {
         // Get the flip count from the BikeController script
-        int faultCount = bikeController.GetFaultCount();
-        faultCountText.text = "Faults: " + faultCount;
+        int faultCount = BikeController.Instance.GetFaultCount();
+        faultCountText.text = "" + faultCount;
     }
 
     public void AccumulateWheelieTime(float wheelieTime)
@@ -78,10 +91,57 @@ public class GameManager : MonoBehaviour
         int totalWheelieTimeMilliseconds = (int)((totalWheelieTime - totalWheelieTimeSeconds) * 1000);
 
         string wheelieTimeString = string.Format("{0:D2}.{1:D3}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds);
-        wheelieTimeText.text = "Total Wheelie Time: " + wheelieTimeString;
+        wheelieTimeText.text = "" + wheelieTimeString + "s";
+    }
+
+
+    public void RestartLevel()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    private void LevelFinish()
+    {
+
+    }
+
+    private void OnGameOver()
+    {
+
+    }
+
+    public enum GameState
+    {
+        Paused,
+        Playing,
+        Menu
+    }
+
+    public void SetGameState(GameState newState)
+    {
+        var gameState = newState;
+        if (gameState == GameState.Paused)
+        {
+        }
+        else if (gameState == GameState.Playing)
+        {
+
+        }
+        else if (gameState == GameState.Menu)
+        {
+            // Logic to go back to menu
+            // Possibly load a menu scene or enable menu UI
+        }
+    }
+
+    public void StartLevel(int level)
+    {
+        MenuController.Instance.Menu.SetActive(false);
+        SetGameState(GameState.Playing);
     }
 
 
 
 
 }
+

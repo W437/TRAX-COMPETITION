@@ -2,6 +2,7 @@ using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static GameManager;
 
 public class CameraController : MonoBehaviour
 {
@@ -16,36 +17,39 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
-        bool grounded = BikeController.Instance.IsGrounded();
-        Debug.Log("grounded?: " + grounded);
-        RaycastHit hit;
-        Vector3 raycastDirection = -transform.up;
-
-        if (Physics.Raycast(transform.position, raycastDirection, out hit, Mathf.Infinity, groundLayer))
+        if(GameManager.Instance.gameState == GameState.Playing)
         {
-            Debug.DrawRay(transform.position, raycastDirection * hit.distance, Color.red, 5f);
+            bool grounded = BikeController.Instance.IsGrounded();
+            Debug.Log("grounded?: " + grounded);
+            RaycastHit hit;
+            Vector3 raycastDirection = -transform.up;
 
-            if (!grounded)
+            if (Physics.Raycast(transform.position, raycastDirection, out hit, Mathf.Infinity, groundLayer))
+            {
+                Debug.DrawRay(transform.position, raycastDirection * hit.distance, Color.red, 5f);
+
+                if (!grounded)
+                {
+                    if (checkAirborneHeightCoroutine != null)
+                    {
+                        StopCoroutine(checkAirborneHeightCoroutine);
+                    }
+                    checkAirborneHeightCoroutine = StartCoroutine(CheckAirborneHeight(hit.distance));
+                }
+            }
+
+            if (grounded && zoomCoroutine == null)
             {
                 if (checkAirborneHeightCoroutine != null)
                 {
                     StopCoroutine(checkAirborneHeightCoroutine);
+                    checkAirborneHeightCoroutine = null;
                 }
-                checkAirborneHeightCoroutine = StartCoroutine(CheckAirborneHeight(hit.distance));
+                zoomCoroutine = StartCoroutine(ZoomInCoroutine());
             }
-        }
 
-        if (grounded && zoomCoroutine == null)
-        {
-            if (checkAirborneHeightCoroutine != null)
-            {
-                StopCoroutine(checkAirborneHeightCoroutine);
-                checkAirborneHeightCoroutine = null;
-            }
-            zoomCoroutine = StartCoroutine(ZoomInCoroutine());
+            wasGrounded = grounded;
         }
-
-        wasGrounded = grounded;
     }
 
     IEnumerator CheckAirborneHeight(float distanceToGround)

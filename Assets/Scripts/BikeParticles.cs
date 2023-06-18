@@ -31,7 +31,7 @@ public class BikeParticles : MonoBehaviour
     {
         Instance = this;
     }
-
+ 
     private void Start()
     {
         Debug.Log(BikeController.Instance.CalculateMaxSpeed());
