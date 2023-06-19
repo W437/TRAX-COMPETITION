@@ -20,7 +20,7 @@ public class CameraController : MonoBehaviour
         if(GameManager.Instance.gameState == GameState.Playing)
         {
             bool grounded = BikeController.Instance.IsGrounded();
-            Debug.Log("grounded?: " + grounded);
+            //Debug.Log("grounded?: " + grounded);
             RaycastHit hit;
             Vector3 raycastDirection = -transform.up;
 

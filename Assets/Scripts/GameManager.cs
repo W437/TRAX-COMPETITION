@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         timer = 0f;
-        SetGameState(GameState.Playing);
+        SetGameState(GameState.Menu);
     }
 
     private void Update()
@@ -59,9 +59,11 @@ public class GameManager : MonoBehaviour
     private void UpdateTimerText()
     {
         TimeSpan timeSpan = TimeSpan.FromSeconds(timer);
-        string timerString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds);
+        int millisecondFirstTwoDigits = timeSpan.Milliseconds / 10;
+        string timerString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Minutes, timeSpan.Seconds, millisecondFirstTwoDigits);
         timerText.text = "" + timerString;
     }
+
 
     private void UpdateFlipCountText()
     {
@@ -90,7 +92,17 @@ public class GameManager : MonoBehaviour
         int totalWheelieTimeSeconds = (int)totalWheelieTime;
         int totalWheelieTimeMilliseconds = (int)((totalWheelieTime - totalWheelieTimeSeconds) * 1000);
 
-        string wheelieTimeString = string.Format("{0:D2}.{1:D3}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds);
+        string wheelieTimeString;
+
+        if (totalWheelieTimeMilliseconds >= 100)
+        {
+            wheelieTimeString = string.Format("{0:D2}.{1:D2}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds / 10);
+        }
+        else
+        {
+            wheelieTimeString = string.Format("{0:D2}.{1:00}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds);
+        }
+
         wheelieTimeText.text = "" + wheelieTimeString + "s";
     }
 
@@ -112,14 +124,14 @@ public class GameManager : MonoBehaviour
 
     public enum GameState
     {
-        Paused,
+        Menu,
         Playing,
-        Menu
+        Paused
     }
 
     public void SetGameState(GameState newState)
     {
-        var gameState = newState;
+        gameState = newState;
         if (gameState == GameState.Paused)
         {
         }
@@ -136,7 +148,8 @@ public class GameManager : MonoBehaviour
 
     public void StartLevel(int level)
     {
-        MenuController.Instance.Menu.SetActive(false);
+        MenuController.Instance.Panel_MainMenu.SetActive(false);
+        MenuController.Instance.Panel_GameHUD.SetActive(true);
         SetGameState(GameState.Playing);
     }
 

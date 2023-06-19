@@ -3,8 +3,7 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Ground
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -12,8 +11,8 @@ TagManager:
   - Ground
   - Water
   - UI
+  - Foreground
   - Player
-  - Trail
   - 
   - 
   - 
@@ -39,12 +38,27 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: sky
+    uniqueID: 345378761
+    locked: 0
+  - name: layer1
+    uniqueID: 2206639385
+    locked: 0
+  - name: layer2
+    uniqueID: 1446085789
+    locked: 0
+  - name: layer3
+    uniqueID: 184618663
+    locked: 0
+  - name: layer4
+    uniqueID: 2098215755
+    locked: 0
+  - name: layer5
+    uniqueID: 3836802543
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Trail
-    uniqueID: 3886816125
-    locked: 0
-  - name: Player
-    uniqueID: 56374531
+  - name: foreground
+    uniqueID: 3588493567
     locked: 0
