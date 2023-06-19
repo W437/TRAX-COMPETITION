@@ -37,6 +37,7 @@ public class BikeController : MonoBehaviour
     private float currentMotorSpeed = 0f;
     private float initialMotorSpeed;
     private float accelerationStartTime;
+    private bool isAccelerating = false;
 
     // PlayerPrefs Save Data
     float bestTime = 0;
@@ -134,7 +135,7 @@ public class BikeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if(GameManager.Instance.gameState == GameState.Playing)
+        if (GameManager.Instance.gameState == GameState.Playing)
         {
             if (isDoubleMousePressed)
             {
@@ -172,8 +173,7 @@ public class BikeController : MonoBehaviour
             maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
             bool _isGrounded = IsGrounded();
 
-            // Detect double click
-            if (Input.GetKeyDown(KeyCode.Mouse0))
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
                 mouseClicks++;
                 if (mouseClicks == 1)
@@ -183,7 +183,7 @@ public class BikeController : MonoBehaviour
             if (mouseClicks > 0 && Time.time - mouseClickTimer > doublePressTime)
                 mouseClicks = 0;
 
-            if (mouseClicks == 2)
+            if (mouseClicks >= 2)
             {
                 mouseClicks = 0;
                 if (!_isGrounded) // We only care if the bike is in the air
@@ -196,28 +196,35 @@ public class BikeController : MonoBehaviour
                     originalAngularDrag = rb.angularDrag;
                     rb.angularDrag = 1f; // a high value to strongly resist rotation
                     rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
                 }
             }
 
 
+
             //-----------------------------------  Input
 
-            if (Input.GetKey(KeyCode.Mouse0))
+            if (Input.touchCount > 0)
             {
-                HandleBike();
+                Touch touch = Input.GetTouch(0);
+
+                if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                {
+                    HandleBike();
+                }
+
+
+                if (touch.phase == TouchPhase.Began)
+                {
+                    accelerationStartTime = Time.time;
+                    wj.useMotor = true;
+                }
+
+                if (touch.phase == TouchPhase.Ended)
+                {
+                    wj.useMotor = false;
+                }
             }
 
-            if (Input.GetKeyDown(KeyCode.Mouse0))
-            {
-                accelerationStartTime = Time.time;
-                wj.useMotor = true;
-            }
-
-            if (Input.GetKeyUp(KeyCode.Mouse0))
-            {
-                wj.useMotor = false;
-            }
 
             if (Input.GetKeyUp(KeyCode.R))
             {

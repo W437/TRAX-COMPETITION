@@ -27,7 +27,7 @@ public class LevelEnd : MonoBehaviour
             Debug.Log("Finish Collision");
             collided = true;
             // Perform actions when the player collides with the finish line
-            MenuController.Instance.OnLevelEnd();
+            ScreenManager.Instance.OnLevelEnd();
         }
     }
 }

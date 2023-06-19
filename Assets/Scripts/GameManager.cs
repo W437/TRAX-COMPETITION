@@ -8,6 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    [Header("Game HUD")]
     public TMPro.TextMeshProUGUI timerText;
     public TMPro.TextMeshProUGUI flipCountText;
     public TMPro.TextMeshProUGUI wheelieTimeText;
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour
     private float totalWheelieTime = 0f;
     public GameState gameState;
 
-    private float timer; 
+    private float timer;
 
     private void Awake()
     {
@@ -141,20 +142,13 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Menu)
         {
-            // Logic to go back to menu
+            // Logic to go back to menusd
             // Possibly load a menu scene or enable menu UI
         }
     }
 
-    public void StartLevel(int level)
-    {
-        MenuController.Instance.Panel_MainMenu.SetActive(false);
-        MenuController.Instance.Panel_GameHUD.SetActive(true);
-        SetGameState(GameState.Playing);
-    }
 
 
 
 
 }
-
