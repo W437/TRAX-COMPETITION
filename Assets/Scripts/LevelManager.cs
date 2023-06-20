@@ -37,7 +37,7 @@ public class LevelManager : MonoBehaviour
 
     public void StartLevel(int level)
     {
-        ScreenManager.Instance.Panel_MainMenu.SetActive(false);
+        ScreenManager.Instance.TweenMainMenu(false);
         ScreenManager.Instance.Panel_GameHUD.SetActive(true);
         GameManager.Instance.SetGameState(GameState.Playing);
     }

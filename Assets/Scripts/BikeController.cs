@@ -34,6 +34,7 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float accelerationTime;
     [SerializeField] private float groundCheckDistance = 1f;
     [SerializeField] private float initialMaxTorque = 0.5f; // Starting torque
+    [SerializeField] private Collider2D groundCheckCollider;
     private float currentMotorSpeed = 0f;
     private float initialMotorSpeed;
     private float accelerationStartTime;
@@ -135,38 +136,19 @@ public class BikeController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (GameManager.Instance.gameState == GameState.Playing)
+        if (isAccelerating)
         {
-            if (isDoubleMousePressed)
-            {
-                rb.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
-                isDoubleMousePressed = false;
-                isBeingPushedForward = true;
-                flickStartTime = Time.time; // Set the flick start time
-
-                if (rotateBikeCoroutine != null)
-                {
-                    StopCoroutine(rotateBikeCoroutine);
-                }
-                rotateBikeCoroutine = StartCoroutine(RotateBikeToFaceForward(0.5f));
-            }
-            else if (isBeingPushedForward)
-            {
-                // Check if 0.3 seconds has passed since the start of the forward push
-                if (Time.time >= flickStartTime + 0.5f)
-                {
-                    isBeingPushedForward = false; // Stop pushing forward
-                    rb.angularDrag = originalAngularDrag; // reset angularDrag to its original value
-                    rb.angularVelocity = 0f;
-                    rb.constraints = RigidbodyConstraints2D.None;
-
-                }
-            }
+            HandleBike();
+        }
+        else
+        {
+            wj.useMotor = false;
         }
     }
 
     private void Update()
     {
+
         if(GameManager.Instance.gameState == GameState.Playing)
         {
             rb.isKinematic = false;
@@ -199,31 +181,88 @@ public class BikeController : MonoBehaviour
                 }
             }
 
+            // Boost Forward
 
+            if (isDoubleMousePressed)
+            {
+                rb.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
+                isDoubleMousePressed = false;
+                isBeingPushedForward = true;
+                flickStartTime = Time.time; // Set the flick start time
+
+                if (rotateBikeCoroutine != null)
+                {
+                    StopCoroutine(rotateBikeCoroutine);
+                }
+                rotateBikeCoroutine = StartCoroutine(RotateBikeToFaceForward(0.5f));
+            }
+            else if (isBeingPushedForward)
+            {
+                // Check if 0.3 seconds has passed since the start of the forward push
+                if (Time.time >= flickStartTime + 0.5f)
+                {
+                    isBeingPushedForward = false; // Stop pushing forward
+                    rb.angularDrag = originalAngularDrag; // reset angularDrag to its original value
+                    rb.angularVelocity = 0f;
+                    rb.constraints = RigidbodyConstraints2D.None;
+
+                }
+            }
 
             //-----------------------------------  Input
 
-            if (Input.touchCount > 0)
+            if (Input.touchCount > 0 || Input.GetMouseButton(0))
             {
-                Touch touch = Input.GetTouch(0);
-
-                if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                // Touch on screen or mouse click
+                if (Input.touchCount > 0)
                 {
-                    HandleBike();
+                    Touch touch = Input.GetTouch(0);
+
+                    if (touch.phase == TouchPhase.Began)
+                    {
+                        accelerationStartTime = Time.time;
+                        wj.useMotor = true;
+                    }
+
+                    if (touch.phase == TouchPhase.Ended)
+                    {
+                        wj.useMotor = false;
+                        isAccelerating = false;
+                    }
+
+                    // Call HandleBike for both moved and stationary phases
+                    if (touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary)
+                    {
+                        isAccelerating = true;
+                    }
                 }
-
-
-                if (touch.phase == TouchPhase.Began)
+                else // Mouse input
                 {
-                    accelerationStartTime = Time.time;
-                    wj.useMotor = true;
-                }
-
-                if (touch.phase == TouchPhase.Ended)
-                {
-                    wj.useMotor = false;
+                    if (Input.GetMouseButtonDown(0)) // Mouse click started
+                    {
+                        accelerationStartTime = Time.time;
+                        wj.useMotor = true;
+                        isAccelerating = true;
+                    }
+                    else if (Input.GetMouseButtonUp(0)) // Mouse click ended
+                    {
+                        wj.useMotor = false;
+                        isAccelerating = false;
+                    }
+                    else if (Input.GetMouseButton(0)) // Mouse click continuing
+                    {
+                        isAccelerating = true;
+                    }
                 }
             }
+            else
+            {
+                // No input, ensure isAccelerating is false
+                isAccelerating = false;
+            }
+
+
+
 
 
             if (Input.GetKeyUp(KeyCode.R))
@@ -242,6 +281,7 @@ public class BikeController : MonoBehaviour
             CheckSpeedBoost();
 
             HandleTrail();
+
         }
 
     }
@@ -250,7 +290,7 @@ public class BikeController : MonoBehaviour
     void HandleBike()
     {
         bool isGrounded = IsGrounded();
-        if (isBeingPushedForward) // Add this condition
+        if (isBeingPushedForward)
         {
             //rb.angularVelocity = 0; // Reset angular velocity
             // Don't apply torque while pushing forward
@@ -260,8 +300,7 @@ public class BikeController : MonoBehaviour
             float elapsedTime = Time.time - accelerationStartTime;
             float progress = elapsedTime / accelerationTime;
 
-            float easedProgress = progress * progress; // Quadratic easing
-            //float easedProgress = progress * progress * progress; // Cubic easing
+            float easedProgress = 0.5f * (1 - Mathf.Cos(progress * Mathf.PI)); // Sine easing
 
             mo.maxMotorTorque = Mathf.Lerp(initialMaxTorque, maxTorque, easedProgress);
             mo.motorSpeed = motorSpeed;
@@ -272,7 +311,7 @@ public class BikeController : MonoBehaviour
 
         else if (!isBeingPushedForward)
         {
-            // Limit the flipping speed when in the air and pressing space
+            // Limit the flipping speed when in the air
             float currentRotationSpeed = rb.angularVelocity;
 
             if (Mathf.Abs(currentRotationSpeed) > maxAirRotationSpeed)
@@ -504,12 +543,19 @@ public class BikeController : MonoBehaviour
     }
 
 
+    public float GetBikeSpeed()
+    {
+        return rb.velocity.magnitude;
+    }
+
+
 
     public bool IsGrounded()
     {
-        RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
-        RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
-        return hitBack.collider != null || hitFront.collider != null;
+        //RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+        //RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+        //return hitBack.collider != null || hitFront.collider != null;
+        return groundCheckCollider.IsTouchingLayers(groundLayer);
     }
 
 
@@ -556,6 +602,11 @@ public class BikeController : MonoBehaviour
         currentFlickerCoroutine = StartCoroutine(RespawnCoroutine());
     }
 
+
+    public float GetVerticalVelocity()
+    {
+        return rb.velocity.y;
+    }
 
 
     private IEnumerator RespawnCoroutine()

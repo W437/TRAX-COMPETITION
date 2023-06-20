@@ -1,75 +1,130 @@
 using Cinemachine;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using static GameManager;
 
 public class CameraController : MonoBehaviour
 {
+    // Duration of the transition
+    public float transitionDuration = 1.5f;
+
+    // Target values
+    private float targetOrthographicSize;
+    private float targetScreenX;
+
+    // Time passed since transition start
+    private float transitionTime;
+
+    // Reference to the VirtualCamera
     public CinemachineVirtualCamera virtualCamera;
-    public float maxZoomOutHeight;
-    public float normalFOV = 60;
-    public float maxFOV = 90;
-    public LayerMask groundLayer;
-    private Coroutine zoomCoroutine;
-    private Coroutine checkAirborneHeightCoroutine;
-    private bool wasGrounded;
+
+    // Reference to the Composer
+    public CinemachineFramingTransposer composer;
+
+    // Previous jumping state
+    private bool wasJumping;
+
+    private float velocityCheckDelay = 0.3f;
+    private bool checkingVelocity = false;
+
+    private void Start()
+    {
+        composer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        // Set initial values
+        targetOrthographicSize = virtualCamera.m_Lens.OrthographicSize;
+        targetScreenX = composer.m_ScreenX;
+
+        // Initialize transition time
+        transitionTime = transitionDuration;
+
+        // Initialize jumping state
+        wasJumping = !BikeController.Instance.IsGrounded();
+    }
 
     private void Update()
     {
-        if(GameManager.Instance.gameState == GameState.Playing)
+        // Check if the bike is in the air
+        bool isJumping = !BikeController.Instance.IsGrounded();
+        Debug.Log("IsJump: " + isJumping);
+
+        // If jumping state has changed, update the targets and reset the transition
+        if (isJumping != wasJumping)
         {
-            bool grounded = BikeController.Instance.IsGrounded();
-            //Debug.Log("grounded?: " + grounded);
-            RaycastHit hit;
-            Vector3 raycastDirection = -transform.up;
-
-            if (Physics.Raycast(transform.position, raycastDirection, out hit, Mathf.Infinity, groundLayer))
+            // Set the target based on the bike's state
+            if (!checkingVelocity)
             {
-                Debug.DrawRay(transform.position, raycastDirection * hit.distance, Color.red, 5f);
-
-                if (!grounded)
-                {
-                    if (checkAirborneHeightCoroutine != null)
-                    {
-                        StopCoroutine(checkAirborneHeightCoroutine);
-                    }
-                    checkAirborneHeightCoroutine = StartCoroutine(CheckAirborneHeight(hit.distance));
-                }
+                StartCoroutine(DelayedVelocityCheck(isJumping));
+            }
+            else if(!isJumping)
+            {
+                targetOrthographicSize = 5.5f;
+                targetScreenX = 0.258f;
             }
 
-            if (grounded && zoomCoroutine == null)
+            // Reset transition
+            transitionTime = 0f;
+        }
+
+        if (transitionTime < transitionDuration)
+        {
+            // Increase time passed
+            transitionTime += Time.deltaTime;
+
+            // Calculate eased progress
+            float progress = transitionTime / transitionDuration;
+
+            // Apply ease-in-out function based on the current state
+            if (isJumping)
             {
-                if (checkAirborneHeightCoroutine != null)
-                {
-                    StopCoroutine(checkAirborneHeightCoroutine);
-                    checkAirborneHeightCoroutine = null;
-                }
-                zoomCoroutine = StartCoroutine(ZoomInCoroutine());
+                // Cubic ease-out function
+                progress = -0.5f * (Mathf.Cos(Mathf.PI * progress) - 1);
+            }
+            else
+            {
+                // Cubic ease-in function
+                progress = Mathf.Pow(progress, 3);
             }
 
-            wasGrounded = grounded;
+            // Apply smooth changes to camera
+            virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(virtualCamera.m_Lens.OrthographicSize, targetOrthographicSize, progress);
+            composer.m_ScreenX = Mathf.Lerp(composer.m_ScreenX, targetScreenX, progress);
         }
-    }
-
-    IEnumerator CheckAirborneHeight(float distanceToGround)
-    {
-        yield return new WaitForSeconds(0.2f);
-        float heightRatio = Mathf.Clamp01(distanceToGround / maxZoomOutHeight);
-        virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(normalFOV, maxFOV, heightRatio);
-    }
-
-    IEnumerator ZoomInCoroutine()
-    {
-        float elapsedTime = 0f;
-        float zoomInDuration = 0.5f;
-        float initialFOV = virtualCamera.m_Lens.FieldOfView;
-        while (elapsedTime < zoomInDuration)
+        else
         {
-            elapsedTime += Time.deltaTime;
-            virtualCamera.m_Lens.FieldOfView = Mathf.Lerp(initialFOV, normalFOV, elapsedTime / zoomInDuration);
-            yield return null;
+            // Set to target to prevent tiny fluctuations due to math precision
+            virtualCamera.m_Lens.OrthographicSize = targetOrthographicSize;
+            composer.m_ScreenX = targetScreenX;
         }
-        zoomCoroutine = null;
+
+        // Update the jumping state for the next frame
+        wasJumping = isJumping;
+    }
+
+    private IEnumerator DelayedVelocityCheck(bool jumped)
+    {
+        checkingVelocity = true;
+
+        // Wait for the specified delay
+        yield return new WaitForSeconds(velocityCheckDelay);
+
+        // Only start zooming out if bike is moving upwards
+        if (jumped && BikeController.Instance.GetVerticalVelocity() > 0)
+        {
+            targetOrthographicSize = 6.85f;
+            targetScreenX = 0.45f;
+
+            // Reset transition
+            transitionTime = 0f;
+        }
+        else if (!jumped)
+        {
+            targetOrthographicSize = 5.5f;
+            targetScreenX = 0.258f;
+
+            // Reset transition
+            transitionTime = 0f;
+        }
+
+        checkingVelocity = false;
     }
 }
+
