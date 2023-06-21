@@ -7,6 +7,8 @@ public class LevelEnd : MonoBehaviour
     public static LevelEnd Instance;
     private bool collided = false;
     public GameObject playerCollider;
+    public ParticleSystem finishLineParticles;  // Drag your Particle System here in the Inspector
+
 
     // Start is called before the first frame update
     void Start()
@@ -27,6 +29,7 @@ public class LevelEnd : MonoBehaviour
             Debug.Log("Finish Collision");
             collided = true;
             // Perform actions when the player collides with the finish line
+            finishLineParticles.Play();
             ScreenManager.Instance.OnLevelEnd();
         }
     }

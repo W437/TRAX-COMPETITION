@@ -38,8 +38,8 @@ public class LevelManager : MonoBehaviour
     public void StartLevel(int level)
     {
         ScreenManager.Instance.TweenMainMenu(false);
-        ScreenManager.Instance.Panel_GameHUD.SetActive(true);
         GameManager.Instance.SetGameState(GameState.Playing);
+        ScreenManager.Instance.TweenGameHUD(true);
     }
     // Other functions to handle level progression, scoring, etc.
 }

@@ -23,7 +23,7 @@ public class CameraController : MonoBehaviour
     // Previous jumping state
     private bool wasJumping;
 
-    private float velocityCheckDelay = 0.3f;
+    private float velocityCheckDelay = 0.2f;
     private bool checkingVelocity = false;
 
     private void Start()
@@ -38,13 +38,14 @@ public class CameraController : MonoBehaviour
 
         // Initialize jumping state
         wasJumping = !BikeController.Instance.IsGrounded();
+
+        Random.InitState((int)Random.Range(0f, 100f));
     }
 
     private void Update()
     {
         // Check if the bike is in the air
         bool isJumping = !BikeController.Instance.IsGrounded();
-        Debug.Log("IsJump: " + isJumping);
 
         // If jumping state has changed, update the targets and reset the transition
         if (isJumping != wasJumping)
@@ -57,7 +58,7 @@ public class CameraController : MonoBehaviour
             else if(!isJumping)
             {
                 targetOrthographicSize = 5.5f;
-                targetScreenX = 0.258f;
+                targetScreenX = 0.13f;
             }
 
             // Reset transition
@@ -104,13 +105,13 @@ public class CameraController : MonoBehaviour
         checkingVelocity = true;
 
         // Wait for the specified delay
-        yield return new WaitForSeconds(velocityCheckDelay);
+        yield return new WaitForSeconds(velocityCheckDelay + Random.Range(-0.05f, 0.1f));
 
         // Only start zooming out if bike is moving upwards
         if (jumped && BikeController.Instance.GetVerticalVelocity() > 0)
         {
             targetOrthographicSize = 6.85f;
-            targetScreenX = 0.45f;
+            targetScreenX = 0.40f;
 
             // Reset transition
             transitionTime = 0f;
@@ -118,7 +119,7 @@ public class CameraController : MonoBehaviour
         else if (!jumped)
         {
             targetOrthographicSize = 5.5f;
-            targetScreenX = 0.258f;
+            targetScreenX = 0.13f;
 
             // Reset transition
             transitionTime = 0f;

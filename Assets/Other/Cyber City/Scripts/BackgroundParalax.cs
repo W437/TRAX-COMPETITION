@@ -11,6 +11,8 @@ public class BackgroundParalax : MonoBehaviour
 
     public float startSensitivity = 0;
     public float endSensitivity = 0.4f;
+    public float horizontalSpawnOffsetUnits = 5f; // 500 pixels converted to Unity units
+
 
     private Vector2 lastPos = Vector2.zero;
     private Vector2 delta = Vector2.zero;
@@ -157,18 +159,17 @@ public class BackgroundParalax : MonoBehaviour
     private GameObject spawnSprite(SpriteRenderer sample, SpriteRenderer sprite, float shift, int layer)
     {
         var sampleTransform = sample.transform;
-
         var newObject = Instantiate(sprite.gameObject, sampleTransform.position, sprite.transform.rotation);
-        
         var position = newObject.transform.position;
-        newObject.transform.position = new Vector3(position.x, sprite.transform.position.y, position.z);
 
+        newObject.transform.position = new Vector3(position.x, sprite.transform.position.y, position.z);
         newObject.SetActive(true);
 
-        newObject.transform.Translate(shift * (CameraUtils.getWidth(sprite) + CameraUtils.getWidth(sample) + getExtraOffset(layer)), 0, 0,
-            Space.Self);
+        // Adjusting the x-axis translation by the offset
+        newObject.transform.Translate((shift * (CameraUtils.getWidth(sprite) + CameraUtils.getWidth(sample) + getExtraOffset(layer))) + (horizontalSpawnOffsetUnits * shift), 0, 0, Space.World);
         return newObject;
     }
+
 
     protected virtual float getExtraOffset(int id)
     {

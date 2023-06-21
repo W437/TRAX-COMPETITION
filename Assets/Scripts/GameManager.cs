@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using static GameManager;
 
 public class GameManager : MonoBehaviour
 {
@@ -26,7 +25,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        timer = 0f;
+        ResetLevelStats();
         SetGameState(GameState.Menu);
     }
 
@@ -53,8 +52,14 @@ public class GameManager : MonoBehaviour
                 // Menu display logic here
                 break;
         }
+    }
 
-
+    public void ResetLevelStats()
+    {
+        timer = 0f;
+        BikeController.Instance.faults = 0;
+        BikeController.Instance.totalWheelieTime = 0;
+        BikeController.Instance.flipCount = 0;
     }
 
     private void UpdateTimerText()
@@ -64,7 +69,6 @@ public class GameManager : MonoBehaviour
         string timerString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Minutes, timeSpan.Seconds, millisecondFirstTwoDigits);
         timerText.text = "" + timerString;
     }
-
 
     private void UpdateFlipCountText()
     {
@@ -87,7 +91,6 @@ public class GameManager : MonoBehaviour
         UpdateWheelieTimeText();
     }
 
-
     private void UpdateWheelieTimeText()
     {
         int totalWheelieTimeSeconds = (int)totalWheelieTime;
@@ -104,9 +107,20 @@ public class GameManager : MonoBehaviour
             wheelieTimeString = string.Format("{0:D2}.{1:00}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds);
         }
 
-        wheelieTimeText.text = "" + wheelieTimeString + "s";
+        wheelieTimeText.text = "" + wheelieTimeString + "";
     }
 
+    public void PauseGame()
+    {
+        SetGameState(GameState.Paused);
+        ScreenManager.Instance.TweenPauseGame(true);
+    }
+
+    public void ResumeGame()
+    {
+        SetGameState(GameState.Playing);
+        ScreenManager.Instance.TweenPauseGame(false);
+    }
 
     public void RestartLevel()
     {
@@ -117,12 +131,12 @@ public class GameManager : MonoBehaviour
     {
 
     }
-
+    
     private void OnGameOver()
     {
 
     }
-
+    
     public enum GameState
     {
         Menu,
@@ -135,15 +149,15 @@ public class GameManager : MonoBehaviour
         gameState = newState;
         if (gameState == GameState.Paused)
         {
+            BikeController.Instance.PauseBike();
         }
         else if (gameState == GameState.Playing)
         {
-
+            BikeController.Instance.ResumeBike();
         }
         else if (gameState == GameState.Menu)
         {
-            // Logic to go back to menusd
-            // Possibly load a menu scene or enable menu UI
+            BikeController.Instance.RB_Bike.isKinematic = true;
         }
     }
 
