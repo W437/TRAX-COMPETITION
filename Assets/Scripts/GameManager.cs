@@ -153,10 +153,12 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Playing)
         {
+            ScreenManager.Instance.TweenGameHUD(true);
             BikeController.Instance.ResumeBike();
         }
         else if (gameState == GameState.Menu)
         {
+            ScreenManager.Instance.TweenMainMenu(true);
             BikeController.Instance.RB_Bike.isKinematic = true;
         }
     }

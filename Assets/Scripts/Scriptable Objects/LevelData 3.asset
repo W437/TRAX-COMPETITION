@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ca84d256e6b6e2448923fb2bafc9c2e7, type: 3}
   m_Name: LevelData 3
   m_EditorClassIdentifier: 
+  levelPrefab: {fileID: 140010263091938090, guid: 0d74e0eaf0b3d2f41a84b3560dd445e8, type: 3}
   levelNumber: 3
   star1Time: 35000
   star2Time: 32000

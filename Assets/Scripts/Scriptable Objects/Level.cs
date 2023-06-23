@@ -1,8 +1,9 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "LevelData", menuName = "Game/LevelData")]
-public class LevelData : ScriptableObject
+public class Level : ScriptableObject
 {
+    public GameObject levelPrefab;
     public int levelNumber;
     public float star1Time;
     public float star2Time;

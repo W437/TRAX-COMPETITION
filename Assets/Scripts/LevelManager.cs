@@ -1,13 +1,15 @@
-using UnityEngine;
 using static GameManager;
+using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance; // Singleton instance
 
-    public LevelData[] levels; // Assign in Unity Editor
+    public Level[] levels; // Assign in Unity Editor
 
-    private int currentLevel = 0;
+    public int currentLevel = 0;
+    private GameObject currentLevelInstance;
+    private BikeController bikeController;
 
     private void Awake()
     {
@@ -20,9 +22,12 @@ public class LevelManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        // You may want to get a reference to the BikeController here
+        bikeController = FindObjectOfType<BikeController>();
     }
 
-    public LevelData GetCurrentLevelData()
+    public Level GetCurrentLevelData()
     {
         if (currentLevel < levels.Length)
         {
@@ -37,9 +42,36 @@ public class LevelManager : MonoBehaviour
 
     public void StartLevel(int level)
     {
-        ScreenManager.Instance.TweenMainMenu(false);
-        GameManager.Instance.SetGameState(GameState.Playing);
-        ScreenManager.Instance.TweenGameHUD(true);
+        // Check if the level number is valid
+        if (level >= 0 && level < levels.Length)
+        {
+            currentLevel = level;
+
+            // Delete the previous level instance if it exists
+            if (currentLevelInstance != null)
+            {
+                Destroy(currentLevelInstance);
+            }
+
+            // Instantiate the new level
+            currentLevelInstance = Instantiate(levels[currentLevel].levelPrefab);
+
+            // Find the bike's starting position in the new level instance
+            Transform bikeStartPosition = currentLevelInstance.transform.GetChild(0);
+
+            // Set the bike's position to the starting position for the level
+            bikeController.transform.position = bikeStartPosition.position;
+
+            ScreenManager.Instance.TweenMainMenu(false);
+            GameManager.Instance.SetGameState(GameState.Playing);
+            ScreenManager.Instance.TweenGameHUD(true);
+            GameManager.Instance.ResetLevelStats();
+        }
+        else
+        {
+            Debug.LogError("Invalid level number: " + level);
+        }
     }
+
     // Other functions to handle level progression, scoring, etc.
 }

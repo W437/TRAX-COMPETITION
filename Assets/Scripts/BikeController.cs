@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using static BikeController;
 using static GameManager;
 
 public class BikeController : MonoBehaviour
 {
     // Singleton Instance
     public static BikeController Instance;
+
     public MMFeedbacks StatsJuice;
 
     const string WHEELIE_DISTANCE = "WHEELIE_DISTANCE";
@@ -41,10 +41,10 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float initialMaxTorque = 0.5f; // Starting torque
     [SerializeField] private Collider2D groundCheckCollider;
 
-    Vector2 wheelieStartPosition;
-    float wheelieTimeAccumulated = 0;
-    bool isAirborne = false;
-    float pauseStartTime = 0;
+    private Vector2 wheelieStartPosition;
+    private float wheelieTimeAccumulated = 0;
+    private bool isAirborne = false;
+    private float pauseStartTime = 0;
 
     private float currentMotorSpeed = 0f;
     private float initialMotorSpeed;
@@ -96,7 +96,7 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float flipTorque;
     private float lastZRotation = 0f;
     private float rotationCounter = 0;
-    private int internalFlipCount = 0;
+    public int internalFlipCount = 0;
     private bool hasLanded = false;
     [SerializeField] private float maxAirRotationSpeed = 650f; // Adjust this value as needed
     private Coroutine currentFlickerCoroutine = null;
@@ -105,11 +105,11 @@ public class BikeController : MonoBehaviour
 
 
     // Wheelie System
-    private float wheelieGracePeriod = 0.10f; // in seconds
+    private float wheelieGracePeriod = 0f; // in seconds
     private float wheelieGraceEndTime;
     private bool isBodyTouchingGround = false;
     private bool isWheelie = false;
-    private float wheelieStartTime = 0f;
+    public float wheelieStartTime = 0f;
 
     // Speed Boost System
     private bool isSpeedBoosted = false;
@@ -278,9 +278,6 @@ public class BikeController : MonoBehaviour
             }
 
 
-
-
-
             if (Input.GetKeyUp(KeyCode.R))
             {
                 SceneManager.LoadScene(0);
@@ -312,9 +309,7 @@ public class BikeController : MonoBehaviour
             CheckSpeedBoost();
 
             HandleTrail();
-
         }
-
     }
 
 
@@ -374,6 +369,7 @@ public class BikeController : MonoBehaviour
         RB_Bike.isKinematic = true;
     }
 
+
     public void ResumeBike()
     {
         RB_Bike.isKinematic = false;
@@ -390,7 +386,6 @@ public class BikeController : MonoBehaviour
         RB_Bike.angularVelocity = prevAngularVelocity;
         BikeJointMotor.motorSpeed = prevMotorSpeed;
     }
-
 
 
     void CheckGroundContact()
@@ -470,6 +465,7 @@ public class BikeController : MonoBehaviour
         Invoke(nameof(BeginWheelie), wheelieGracePeriod);
     }
 
+
     void BeginWheelie()
     {
         if (isWheelie) // In case the wheelie got cancelled before the grace period
@@ -477,6 +473,7 @@ public class BikeController : MonoBehaviour
             wheelieStartTime = Time.time;
         }
     }
+
 
     void PauseWheelie()
     {
@@ -487,6 +484,7 @@ public class BikeController : MonoBehaviour
             wheelieStartTime = 0;
         }
     }
+    
 
     void EndWheelie()
     {
@@ -513,6 +511,16 @@ public class BikeController : MonoBehaviour
                 GameManager.Instance.AccumulateWheelieTime(points); // Adjust the AccumulateWheelieTime function accordingly
 
                 wheelieStartTime = 0;
+            }
+
+            RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+            RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
+
+            bool hasJumped = (hitFront.collider == null && !IsRearWheelGrounded());
+
+            if (!isWheelie && !hasJumped && hitBack.collider != null)
+            {
+                hasLanded = true;
             }
         }
     }
@@ -689,7 +697,6 @@ public class BikeController : MonoBehaviour
     }
 
 
-
     public void ApplySpeedBoost(SpeedBoost.SpeedBoostData data)
     {
         if (!isBoosting)
@@ -699,7 +706,6 @@ public class BikeController : MonoBehaviour
             StartCoroutine(BoostCoroutine(data.Amount, data.Duration));
         }
     }
-
 
 
     private IEnumerator BoostCoroutine(float amount, float duration)
@@ -738,7 +744,6 @@ public class BikeController : MonoBehaviour
     }
 
 
-
     IEnumerator RotateBikeToFaceForward(float duration)
     {
         Vector3 startRotation = transform.eulerAngles;
@@ -760,19 +765,16 @@ public class BikeController : MonoBehaviour
     }
 
 
-
     public float GetWheelieTime()
     {
         return totalWheelieTime;
     }
 
 
-
     public int GetFaultCount()
     {
         return faults;
     }
-
 
 
     private string FormatTime(float time)
@@ -800,8 +802,6 @@ public class BikeController : MonoBehaviour
             // Reset the maximum height
             maxAirHeight = transform.position.y;
         }
-
-
     }
 
 }

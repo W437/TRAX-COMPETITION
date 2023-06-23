@@ -13,6 +13,14 @@ public class BackgroundParalax : MonoBehaviour
     public float endSensitivity = 0.4f;
     public float horizontalSpawnOffsetUnits = 5f; // 500 pixels converted to Unity units
 
+    public Transform sun;
+    public Transform finishLine;
+    private float totalDistance;
+    private Vector3 initialSunPosition;
+    private Vector3 playerStartPosition;
+    private Camera playerCamera;
+
+
 
     private Vector2 lastPos = Vector2.zero;
     private Vector2 delta = Vector2.zero;
@@ -21,6 +29,11 @@ public class BackgroundParalax : MonoBehaviour
 
     void Start()
     {
+        totalDistance = Mathf.Abs(finishLine.position.x - playerCam.position.x);
+        playerStartPosition = playerCam.position;
+        initialSunPosition = sun.position;
+        playerCamera = playerCam.GetComponent<Camera>();
+
         lastPos = playerCam.position;
         backgroundLayers = new List<LinkedList<SpriteRenderer>>(backgrounds.Length);
 
@@ -56,13 +69,41 @@ public class BackgroundParalax : MonoBehaviour
 
         matchOverlayWithCamera();
 
-       
         moveParalax();
 
         spawnInView();
 
         clearInvisible();
+
+        UpdateSunPosition();
     }
+
+    private void UpdateSunPosition()
+    {
+        // Calculate the distance the player has moved from the starting position along the X axis
+        float distanceMoved = Mathf.Abs(playerCam.position.x - playerStartPosition.x);
+
+        // Get a normalized value representing how far the player has moved towards the finish
+        float progress = Mathf.Clamp01(distanceMoved / totalDistance);
+
+        // Convert the sun's position to viewport space
+        Vector3 sunViewportPosition = playerCamera.WorldToViewportPoint(sun.position);
+
+        // Set the sun's new viewport x position based on the progress
+        sunViewportPosition.x = 1 - progress;
+
+        // Convert the sun's viewport position back to world space, keeping a fixed Z value
+        Vector3 newSunPosition = playerCamera.ViewportToWorldPoint(sunViewportPosition);
+        newSunPosition.z = sun.position.z;
+
+        // Update the sun's position
+        sun.position = newSunPosition;
+    }
+
+
+
+
+
 
     private void clearInvisible()
     {

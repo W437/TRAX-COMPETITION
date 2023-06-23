@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -9,12 +10,17 @@ public class ScreenManager : MonoBehaviour
 {
     public static ScreenManager Instance;
 
+    [Header("Levels Section")]
+    public GameObject levelUnitPrefab;
+    public Transform LevelsView;
+    public Button B_LevelsMenuBack;
 
     [Header("Game Panels")]
     public GameObject Panel_MainMenu;
     public GameObject Panel_GameHUD;
     public GameObject Panel_GameOver;
     public GameObject Panel_Paused;
+    public GameObject Panel_Levels;
 
     [Header("Game HUD Elements")]
     public Button B_PauseGame;
@@ -22,6 +28,12 @@ public class ScreenManager : MonoBehaviour
     public GameObject TimerBar;
     public GameObject WheelieBar;
     public GameObject FlipsBar;
+
+    public TextMeshProUGUI wheelieText;
+    public TextMeshProUGUI flipText;
+    public Transform frontWheel;
+    public Transform backWheel;
+    public LineRenderer lineRenderer;
 
     [Header("Main Menu Elements")]
     public Button B_MainLeaderboard;
@@ -55,6 +67,7 @@ public class ScreenManager : MonoBehaviour
     public Button B_Paused_Menu;
 
 
+
     private void Awake()
     {
         Instance = this;
@@ -64,8 +77,6 @@ public class ScreenManager : MonoBehaviour
     void Start()
     {
         // ---------- Initial UI pos
-
-
 
         // Main Menu
         var obj = B_Start.transform.localPosition;
@@ -139,21 +150,24 @@ public class ScreenManager : MonoBehaviour
 
 
         // ---------- ON GAME LAUNCH
+        //TweenMainMenu(false);
 
-        // Tween Menu
-        TweenMainMenu(true);
 
         // Main Menu
-        B_Start.onClick.AddListener(delegate { LevelManager.Instance.StartLevel(0); });
+        B_Start.onClick.AddListener(delegate { LoadLevelsScreen(true); });
 
         // Paused Screen
         B_PauseGame.onClick.AddListener( PauseGame );
 
         B_Paused_Resume.onClick.AddListener( ResumeGame );
 
-        B_Paused_Restart.onClick.AddListener(delegate { LevelManager.Instance.StartLevel(1); });
+        B_Paused_Restart.onClick.AddListener(delegate { LevelManager.Instance.StartLevel(LevelManager.Instance.currentLevel); });
 
-        B_Paused_Menu.onClick.AddListener(delegate { GoToMainMenu(); });
+        B_Paused_Menu.onClick.AddListener(delegate 
+        {
+            TweenGameHUD(false);
+            GoToMainMenu();
+        });
 
 
         // Level End
@@ -161,12 +175,21 @@ public class ScreenManager : MonoBehaviour
         B_Restart.onClick.AddListener(OnRestartClicked);
         B_NextLvl.onClick.AddListener(delegate { OnBackClicked(Panel_GameOver); });
         B_Back.onClick.AddListener(OnRestartClicked);
+
+
+        // Levels Section
+        B_Paused_Menu.onClick.AddListener(delegate { GoToMainMenu(); });
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+
     }
 
     private void GoToMainMenu()
     {
-        TweenPauseGame(false);
-        TweenGameHUD(false);
         TweenMainMenu(true);
     }
 
@@ -180,6 +203,42 @@ public class ScreenManager : MonoBehaviour
     {
         GameManager.Instance.SetGameState(GameState.Playing);
         TweenPauseGame(false);
+    }
+
+    public void TweenLevelsMenu()
+    {
+
+    }
+
+    public void LoadLevelsScreen(bool In)
+    {
+        if (!Panel_Levels.activeSelf)
+        {
+            Panel_Levels.SetActive(true);
+        }
+        TweenMainMenu(false);
+
+        int i = 1;
+        foreach (var item in LevelManager.Instance.levels)
+        {
+            GameObject levelUnitInstance = Instantiate(levelUnitPrefab, LevelsView);
+            TMPro.TextMeshProUGUI[] childTexts = levelUnitInstance.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+
+            LevelEntry levelEntry = levelUnitInstance.GetComponent<LevelEntry>();
+
+            levelEntry.SetLevel(i);
+
+            levelEntry.T_LevelName.text = "Level " + i;
+            levelEntry.T_Faults.text = 12 + "";
+            levelEntry.T_Timer.text = "1:51:54";
+            i++;
+        }
+
+    }
+
+    public void RemoveLevelsPanel()
+    {
+        Panel_Levels.SetActive(false);
     }
 
     public void TweenPauseGame(bool In)
@@ -307,9 +366,4 @@ public class ScreenManager : MonoBehaviour
         T_Flips.text = "" + flipCount;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
