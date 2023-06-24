@@ -30,7 +30,7 @@ public class LevelEntry : MonoBehaviour
     private void OnPlayButtonClick()
     {
         // Start the level associated with this button
-        ScreenManager.Instance.RemoveLevelsPanel();
+        ScreenManager.Instance.TweenLevelsSection(false);
         LevelManager.Instance.StartLevel(level);
     }
 }

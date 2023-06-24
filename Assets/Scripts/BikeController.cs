@@ -45,6 +45,7 @@ public class BikeController : MonoBehaviour
     private float wheelieTimeAccumulated = 0;
     private bool isAirborne = false;
     private float pauseStartTime = 0;
+    public float wheeliePoints;
 
     private float currentMotorSpeed = 0f;
     private float initialMotorSpeed;
@@ -128,6 +129,10 @@ public class BikeController : MonoBehaviour
     private Color originalBackWheelColor;
     private Color originalTrailColor;
 
+    public float menuBikeSpeed = 0f;
+    public float menuBikeMaxSpeed = 1f;
+    public float accelerationTimer;
+    public bool shouldMove = false;
 
     private float maxAirHeight;
     // ----- VAR END ----- //
@@ -160,6 +165,19 @@ public class BikeController : MonoBehaviour
         else
         {
             BikeWheelJoint.useMotor = false;
+        }
+
+        if(GameManager.Instance.gameState == GameState.Menu && shouldMove)
+        {
+            accelerationTimer += Time.fixedDeltaTime;
+            // Calculate the current speed based on the elapsed time
+            menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
+            // Apply the speed
+            RB_Bike.velocity = new Vector2(menuBikeSpeed, RB_Bike.velocity.y);
+        }
+        else
+        {
+            accelerationTimer = 0;
         }
     }
 
@@ -495,20 +513,20 @@ public class BikeController : MonoBehaviour
             {
                 float wheelieTime = Time.time - wheelieStartTime;
                 float wheelieDistance = Vector2.Distance(wheelieStartPosition, backWheelTransform.position);
-                float points = wheelieTime * wheelieDistance;
+                wheeliePoints = wheelieTime * wheelieDistance;
 
-                PlayerPrefs.SetFloat(WHEELIE_DISTANCE, points);
+                PlayerPrefs.SetFloat(WHEELIE_DISTANCE, wheeliePoints);
                 PlayerPrefs.Save();
 
                 float _bestWheelieDistance = PlayerPrefs.GetFloat(BEST_WHEELIE_DISTANCE);
 
-                if (points > _bestWheelieDistance)
+                if (wheeliePoints > _bestWheelieDistance)
                 {
-                    PlayerPrefs.SetFloat(BEST_WHEELIE_DISTANCE, points);
+                    PlayerPrefs.SetFloat(BEST_WHEELIE_DISTANCE, wheeliePoints);
                     PlayerPrefs.Save();
                 }
 
-                GameManager.Instance.AccumulateWheelieTime(points); // Adjust the AccumulateWheelieTime function accordingly
+                GameManager.Instance.AccumulateWheelieTime(wheeliePoints); // Adjust the AccumulateWheelieTime function accordingly
 
                 wheelieStartTime = 0;
             }
@@ -785,6 +803,10 @@ public class BikeController : MonoBehaviour
         return string.Format("{0:D2}.{1:D3}", seconds, milliseconds);
     }
 
+    public void MoveAtConstantSpeed()
+    {
+        RB_Bike.AddForce(new Vector2(105f, 0), ForceMode2D.Force);
+    }
 
     void OnCollisionEnter2D(Collision2D collision)
     {

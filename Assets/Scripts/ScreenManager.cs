@@ -12,8 +12,12 @@ public class ScreenManager : MonoBehaviour
 
     [Header("Levels Section")]
     public GameObject levelUnitPrefab;
+    public GameObject LevelsBG;
+    public GameObject LevelsSection;
     public Transform LevelsView;
     public Button B_LevelsMenuBack;
+    private List<GameObject> instantiatedLevels = new List<GameObject>();
+
 
     [Header("Game Panels")]
     public GameObject Panel_MainMenu;
@@ -65,6 +69,19 @@ public class ScreenManager : MonoBehaviour
     public Button B_Paused_Restart;
     public Button B_Paused_Resume;
     public Button B_Paused_Menu;
+
+    [Header("Screen Transitions")]
+    public string startTransitionName;
+    public string endTransitionName;
+    public GameObject startTransition;
+    public GameObject endTransition;
+
+    public Animator startTransitionAnimator;
+    public Animator endTransitionAnimator;
+
+    private const float startTransitionDuration = 1f; // Your start animation duration in seconds
+    private const float endTransitionDuration = 1f;   // Your end animation duration in seconds
+
 
 
 
@@ -149,8 +166,20 @@ public class ScreenManager : MonoBehaviour
         Overlay_Paused.color = new Color(0, 0, 0, 0);
 
 
+        // Levels Section
+        obj = LevelsBG.transform.localPosition;
+        LevelsBG.transform.localPosition =
+            new Vector2(850f, obj.y);
+
+        obj = LevelsSection.transform.localPosition;
+        LevelsSection.transform.localPosition =
+            new Vector2(-700f, obj.y);
+
+
         // ---------- ON GAME LAUNCH
         //TweenMainMenu(false);
+        startTransition.SetActive(false);
+        endTransition.SetActive(false);
 
 
         // Main Menu
@@ -165,8 +194,10 @@ public class ScreenManager : MonoBehaviour
 
         B_Paused_Menu.onClick.AddListener(delegate 
         {
+            TweenPauseGame(false);
             TweenGameHUD(false);
             GoToMainMenu();
+            GameManager.Instance.ResetLevelStats();
         });
 
 
@@ -178,7 +209,11 @@ public class ScreenManager : MonoBehaviour
 
 
         // Levels Section
-        B_Paused_Menu.onClick.AddListener(delegate { GoToMainMenu(); });
+        B_LevelsMenuBack.onClick.AddListener(delegate 
+        {
+            TweenLevelsSection(false);
+            GoToMainMenu();
+        });
     }
 
 
@@ -188,6 +223,50 @@ public class ScreenManager : MonoBehaviour
 
     }
 
+    public void TweenLevelsSection(bool In)
+    {
+        if (In)
+        {
+            LeanTween.moveX(LevelsBG.GetComponent<RectTransform>(), 0f, 0.85f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(LevelsSection.GetComponent<RectTransform>(), -20f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveY(B_LevelsMenuBack.GetComponent<RectTransform>(), -100f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
+        }
+        else
+        {
+            LeanTween.moveX(LevelsBG.GetComponent<RectTransform>(), 850f, 0.85f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(LevelsSection.GetComponent<RectTransform>(), -700f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveY(B_LevelsMenuBack.GetComponent<RectTransform>(), -350f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(
+                delegate ()
+                {
+                    Panel_Levels.SetActive(false);
+                });
+        }
+    }
+
+    public IEnumerator PlayStartTransition()
+    {
+        startTransition.SetActive(true);
+        yield return new WaitForSeconds(startTransitionDuration);
+    }
+
+    public IEnumerator PlayEndTransition()
+    {
+        ScreenManager.Instance.startTransition.SetActive(false);  // Deactivate the Start animation
+        ScreenManager.Instance.endTransition.SetActive(true);
+        yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
+        ScreenManager.Instance.endTransition.SetActive(false);   // Deactivate the End animation
+    }
+
+    public float GetStartTransitionDuration()
+    {
+        return startTransitionDuration;
+    }
+
+    public float GetEndTransitionDuration()
+    {
+        return endTransitionDuration;
+    }
+
     private void GoToMainMenu()
     {
         TweenMainMenu(true);
@@ -195,6 +274,7 @@ public class ScreenManager : MonoBehaviour
 
     public void PauseGame()
     {
+        BikeController.Instance.PauseBike();
         GameManager.Instance.SetGameState(GameState.Paused);
         TweenPauseGame(true);
     }
@@ -205,10 +285,6 @@ public class ScreenManager : MonoBehaviour
         TweenPauseGame(false);
     }
 
-    public void TweenLevelsMenu()
-    {
-
-    }
 
     public void LoadLevelsScreen(bool In)
     {
@@ -216,9 +292,20 @@ public class ScreenManager : MonoBehaviour
         {
             Panel_Levels.SetActive(true);
         }
+
+        TweenLevelsSection(true);
         TweenMainMenu(false);
 
-        int i = 1;
+        // Destroy existing levels
+        foreach (GameObject instantiatedLevel in instantiatedLevels)
+        {
+            Destroy(instantiatedLevel);
+        }
+
+        // Clear the list
+        instantiatedLevels.Clear();
+
+        int i = 0;
         foreach (var item in LevelManager.Instance.levels)
         {
             GameObject levelUnitInstance = Instantiate(levelUnitPrefab, LevelsView);
@@ -228,12 +315,15 @@ public class ScreenManager : MonoBehaviour
 
             levelEntry.SetLevel(i);
 
-            levelEntry.T_LevelName.text = "Level " + i;
+            levelEntry.T_LevelName.text = "Level " + (i+1);
             levelEntry.T_Faults.text = 12 + "";
             levelEntry.T_Timer.text = "1:51:54";
+
+            // Add this level to our list
+            instantiatedLevels.Add(levelUnitInstance);
+
             i++;
         }
-
     }
 
     public void RemoveLevelsPanel()
@@ -269,7 +359,6 @@ public class ScreenManager : MonoBehaviour
     }
 
 
-
     public void TweenGameHUD(bool In)
     {
         if (In)
@@ -283,11 +372,11 @@ public class ScreenManager : MonoBehaviour
         }
         else
         {
-            LeanTween.moveX(TimerBar.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(WheelieBar.GetComponent<RectTransform>(), -45.79999f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(FlipsBar.GetComponent<RectTransform>(), -67.5f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(FaultsBar.GetComponent<RectTransform>(), 100f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(B_PauseGame.GetComponent<RectTransform>(), -370f, 0.5f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
+            LeanTween.moveX(TimerBar.GetComponent<RectTransform>(), -300f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(WheelieBar.GetComponent<RectTransform>(), -345.8f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(FlipsBar.GetComponent<RectTransform>(), -367.5f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(FaultsBar.GetComponent<RectTransform>(), 300f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(B_PauseGame.GetComponent<RectTransform>(), -670f, 0.5f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
                 delegate ()
                 {
                     Panel_GameHUD.SetActive(false);
@@ -337,6 +426,7 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+
     private void OnRestartClicked()
     {
         SceneManager.LoadScene(0);
@@ -365,5 +455,7 @@ public class ScreenManager : MonoBehaviour
         var flipCount = GameManager.Instance.flipCountText.text;
         T_Flips.text = "" + flipCount;
     }
+
+
 
 }
