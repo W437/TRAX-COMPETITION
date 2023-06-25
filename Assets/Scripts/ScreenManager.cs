@@ -48,8 +48,14 @@ public class ScreenManager : MonoBehaviour
     public GameObject GameLogo;
     public GameObject LvlsFinishedBar;
     public GameObject Overlay_Menu;
-    public TMPro.TextMeshProUGUI T_Coins;
-    public TMPro.TextMeshProUGUI T_LvlsFinished;
+    public TextMeshProUGUI T_Coins;
+    public TextMeshProUGUI T_LvlsFinished;
+    public Rigidbody2D RB_MenuBike;
+    public GameObject MenuBike;
+    public GameObject MenuPlatform;
+    public float menuBikeSpeed = 0f;
+    public float menuBikeMaxSpeed = 7.5f;
+    public float accelerationTimer;
 
     [Header("Level End Buttons")]
     public Button B_Leaderboard;
@@ -58,14 +64,14 @@ public class ScreenManager : MonoBehaviour
     public Button B_Back;
 
     [Header("Level End Text")]
-    public TMPro.TextMeshProUGUI T_LevelTime;
-    public TMPro.TextMeshProUGUI T_Faults;
-    public TMPro.TextMeshProUGUI T_Wheelie;
-    public TMPro.TextMeshProUGUI T_Flips;
+    public TextMeshProUGUI T_LevelTime;
+    public TextMeshProUGUI T_Faults;
+    public TextMeshProUGUI T_Wheelie;
+    public TextMeshProUGUI T_Flips;
 
     [Header("Paused Screen Elements")]
     public Image Overlay_Paused;
-    public TMPro.TextMeshProUGUI T_PausedText;
+    public TextMeshProUGUI T_PausedText;
     public Button B_Paused_Restart;
     public Button B_Paused_Resume;
     public Button B_Paused_Menu;
@@ -78,11 +84,9 @@ public class ScreenManager : MonoBehaviour
 
     public Animator startTransitionAnimator;
     public Animator endTransitionAnimator;
-
+    private float accelerationTime;
     private const float startTransitionDuration = 1f; // Your start animation duration in seconds
     private const float endTransitionDuration = 1f;   // Your end animation duration in seconds
-
-
 
 
     private void Awake()
@@ -218,9 +222,21 @@ public class ScreenManager : MonoBehaviour
 
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-
+        if (GameManager.Instance.gameState == GameState.Menu)
+        {
+            accelerationTimer += Time.fixedDeltaTime;
+            // Calculate the current speed based on the elapsed time
+            menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
+            // Apply the speed
+            RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y);
+            Debug.Log("Velocity: " + RB_MenuBike.velocity);
+        }
+        else
+        {
+            accelerationTimer = 0;
+        }
     }
 
     public void TweenLevelsSection(bool In)
@@ -270,6 +286,7 @@ public class ScreenManager : MonoBehaviour
     private void GoToMainMenu()
     {
         TweenMainMenu(true);
+        GameManager.Instance.SetGameState(GameState.Menu);
     }
 
     public void PauseGame()
@@ -293,8 +310,8 @@ public class ScreenManager : MonoBehaviour
             Panel_Levels.SetActive(true);
         }
 
-        TweenLevelsSection(true);
         TweenMainMenu(false);
+        TweenLevelsSection(true);
 
         // Destroy existing levels
         foreach (GameObject instantiatedLevel in instantiatedLevels)
@@ -391,6 +408,10 @@ public class ScreenManager : MonoBehaviour
         if (In)
         {
             Panel_MainMenu.SetActive(true);
+            MenuPlatform.SetActive(true);
+            MenuBike.SetActive(true);
+            CameraController.Instance.SwitchToMenuCamera();
+
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0.5f, 1f);
             LeanTween.moveY(GameLogo.GetComponent<RectTransform>(), 650f, 0.5f).setEase(LeanTweenType.easeInOutQuad);
             LeanTween.scale(GameLogo, new Vector2(0.35f, 0.35f), 0.7f)

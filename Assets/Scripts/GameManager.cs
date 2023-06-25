@@ -1,12 +1,20 @@
+using Cinemachine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Cinemachine.DocumentationSortingAttribute;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public Bike[] BikeList;
+    public GameObject currentBikeInstance;
+    private PlayerData playerData;
+    [SerializeField] GameObject playerObject;
 
     [Header("Game HUD")]
     public TMPro.TextMeshProUGUI timerText;
@@ -36,6 +44,19 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // New PlayerData initialization code:
+        playerData = SaveSystem.LoadPlayerData();
+
+        if (playerData == null)
+        {
+            playerData = new PlayerData();
+            playerData.coins = 125; // Starting coins
+            playerData.unlockedBikes = new int[] { 0 }; // Assuming the default bike's ID is 0
+            playerData.selectedBikeId = 0;
+
+            SaveSystem.SavePlayerData(playerData);
+        }
+
         ResetLevelStats();
         SetGameState(GameState.Menu);
         initialCountdownTextPosition = countdownText.transform.position;
@@ -67,6 +88,11 @@ public class GameManager : MonoBehaviour
                 // The countdown logic has been moved to SetGameState(), so nothing is needed here
                 break;
         }
+    }
+
+    public PlayerData GetPlayerData()
+    {
+        return playerData;
     }
 
     public void ResetLevelStats()
@@ -215,10 +241,6 @@ public class GameManager : MonoBehaviour
 
         // Start game
         BikeController.Instance.ResumeBike();
-        BikeController.Instance.RB_Bike.velocity = Vector2.zero;
-        BikeController.Instance.RB_Bike.angularVelocity = 0f;
-        BikeController.Instance.accelerationTimer = 0f;
-        BikeController.Instance.shouldMove = false;
         SetGameState(GameState.Playing);
     }
 
@@ -233,25 +255,77 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Playing)
         {
-
+            CameraController.Instance.SwitchToGameCamera();
         }
         else if (gameState == GameState.Menu)
         {
-            BikeController.Instance.RB_Bike.position = new Vector2(-131.52f, -8.24f);
-            BikeController.Instance.accelerationTimer = 0;
-            BikeController.Instance.shouldMove = true;
+            BikeController.Instance.PlayerBike.SetActive(false);
+            CameraController.Instance.SwitchToMenuCamera();
+
+            // Disable the bike's rigidbody physics
+            Rigidbody2D bikeRigidbody = BikeController.Instance.PlayerBike.GetComponent<Rigidbody2D>();
+            bikeRigidbody.velocity = Vector2.zero;
+            bikeRigidbody.angularVelocity = 0f;
+            bikeRigidbody.isKinematic = true;
+
+            // Set the bike's position relative to the platform
+            Vector2 platformPosition = ScreenManager.Instance.MenuPlatform.transform.position;
+            Vector2 bikePosition = new Vector2(platformPosition.x, platformPosition.y + 2f);
+            ScreenManager.Instance.MenuBike.transform.position = bikePosition;
+
+            // Reset the bike's rotation
+            BikeController.Instance.PlayerBike.transform.rotation = Quaternion.identity;
+
+            // Activate the bike game object
+            BikeController.Instance.PlayerBike.SetActive(true);
+
             ScreenManager.Instance.TweenMainMenu(true);
-            //BikeController.Instance.PauseBike();
+
+            // Optional: Reset any other variables or states specific to the menu screen
         }
         else if (gameState == GameState.Starting)
         {
             //BikeController.Instance.PauseBike();
-
+            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
+            ScreenManager.Instance.MenuPlatform.SetActive(false);
+            ScreenManager.Instance.MenuBike.SetActive(false);
+            CameraController.Instance.SwitchToGameCamera();
             // Call the Countdown Coroutine when the GameState is set to Starting
             StartCoroutine(CountdownRoutine());
         }
     }
 
+
+    public void LoadPlayerBike(int bikeId)
+    {
+        PlayerData data = SaveSystem.LoadPlayerData();
+        if (!data.unlockedBikes.Contains(bikeId))
+        {
+            Debug.Log("Bike not unlocked!");
+            return;
+        }
+
+        if (currentBikeInstance != null)
+        {
+            Destroy(currentBikeInstance);
+        }
+
+        // Find the index of the bikeId in the unlockedBikes array
+        int bikeIndex = Array.IndexOf(data.unlockedBikes, bikeId);
+        if (bikeIndex == -1)
+        {
+            Debug.Log("Bike not found in unlockedBikes array!");
+            return;
+        }
+
+        // Instantiate the new bike
+        currentBikeInstance = Instantiate(BikeList[bikeIndex].bikePrefab, playerObject.transform);
+        currentBikeInstance.SetActive(true);
+
+        // Set the game camera to follow the current bike instance
+        CinemachineVirtualCamera virtualCamera = CameraController.Instance.gameCamera;
+        virtualCamera.Follow = currentBikeInstance.transform;
+    }
 
 
 

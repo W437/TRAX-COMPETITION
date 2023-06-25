@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LevelEntry : MonoBehaviour
+public class LevelEntry : MonoBehaviour 
 {
     public int level;
     public Button leaderboardButton;

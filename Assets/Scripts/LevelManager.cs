@@ -7,27 +7,24 @@ using System.Collections;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance; // Singleton instance
+    public Transform levelsGameObject;
 
     public Level[] levels; // Assign in Unity Editor
 
     public int currentLevel = 0;
     private GameObject currentLevelInstance;
-    private BikeController bikeController;
 
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
-        else
+        else if (Instance != this)
         {
-            Destroy(gameObject);
+            Debug.LogError("More than one instance of GameManager found!");
+            Destroy(this.gameObject);
         }
-
-        // You may want to get a reference to the BikeController here
-        bikeController = FindObjectOfType<BikeController>();
     }
 
 
@@ -52,6 +49,7 @@ public class LevelManager : MonoBehaviour
         {
             currentLevel = level;
             StartCoroutine(StartLevelTransition(level));
+            CameraController.Instance.SwitchToGameCamera();
         }
         else
         {
@@ -63,7 +61,6 @@ public class LevelManager : MonoBehaviour
     private IEnumerator StartLevelTransition(int level)
     {
         yield return ScreenManager.Instance.PlayStartTransition();
-        bikeController.shouldMove = false; // Make sure the bike doesn't move during the transition
         LoadLevel(level);
         yield return new WaitForSeconds(0.5f);  // optional delay
         StartCoroutine(ScreenManager.Instance.PlayEndTransition());
@@ -79,26 +76,32 @@ public class LevelManager : MonoBehaviour
         }
 
         // Instantiate the new level
-        currentLevelInstance = Instantiate(levels[currentLevel].levelPrefab);
+        currentLevelInstance = Instantiate(levels[currentLevel].levelPrefab, levelsGameObject);
         currentLevelInstance.SetActive(true);
+
+        // Fetch PlayerData to get the selected bike ID
+        PlayerData playerData = GameManager.Instance.GetPlayerData();
+
+        // Instantiate the bike
+        GameManager.Instance.LoadPlayerBike(playerData.selectedBikeId);
+
 
         // Find the bike's starting position in the new level instance
         Transform bikeStartPosition = currentLevelInstance.transform.GetChild(0);
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
-        bikeController.transform.position = bikeStartPosition.position;
-        bikeController.transform.rotation = bikeStartPosition.rotation;
 
-        BikeController.Instance.RB_Bike.velocity = Vector2.zero;
-        BikeController.Instance.RB_Bike.angularVelocity = 0f;
-        BikeController.Instance.accelerationTimer = 0f;
-        BikeController.Instance.shouldMove = false;
+        BikeController.Instance.PlayerBike.SetActive(true);
+        BikeController.Instance.transform.position = bikeStartPosition.position;
+        BikeController.Instance.transform.rotation = bikeStartPosition.rotation;
+
         BikeController.Instance.PauseBike();
 
         ScreenManager.Instance.TweenMainMenu(false);
         GameManager.Instance.SetGameState(GameState.Starting);
         ScreenManager.Instance.TweenGameHUD(true);
         GameManager.Instance.ResetLevelStats();
+        CameraController.Instance.SwitchToGameCamera();
     }
 
 }

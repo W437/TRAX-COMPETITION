@@ -18,6 +18,7 @@ public class BikeController : MonoBehaviour
     const string BEST_WHEELIE_DISTANCE = "BEST_WHEELIE_DISTANCE";
 
     // External References
+    public GameObject PlayerBike;
     [SerializeField] private WheelJoint2D backWheel;
     [SerializeField] private WheelJoint2D frontWheel;
     [SerializeField] private Rigidbody2D RB_backWheel;
@@ -129,10 +130,6 @@ public class BikeController : MonoBehaviour
     private Color originalBackWheelColor;
     private Color originalTrailColor;
 
-    public float menuBikeSpeed = 0f;
-    public float menuBikeMaxSpeed = 1f;
-    public float accelerationTimer;
-    public bool shouldMove = false;
 
     private float maxAirHeight;
     // ----- VAR END ----- //
@@ -165,19 +162,6 @@ public class BikeController : MonoBehaviour
         else
         {
             BikeWheelJoint.useMotor = false;
-        }
-
-        if(GameManager.Instance.gameState == GameState.Menu && shouldMove)
-        {
-            accelerationTimer += Time.fixedDeltaTime;
-            // Calculate the current speed based on the elapsed time
-            menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
-            // Apply the speed
-            RB_Bike.velocity = new Vector2(menuBikeSpeed, RB_Bike.velocity.y);
-        }
-        else
-        {
-            accelerationTimer = 0;
         }
     }
 
@@ -466,7 +450,7 @@ public class BikeController : MonoBehaviour
             {
                 rotationCounter = 0;
                 internalFlipCount++;
-                StatsJuice.PlayFeedbacks();
+                //StatsJuice.PlayFeedbacks();
                 Debug.Log("Intermediate Flip Count: " + internalFlipCount);
                 hasBeenUpsideDown = false; // Reset for the next flip
             }

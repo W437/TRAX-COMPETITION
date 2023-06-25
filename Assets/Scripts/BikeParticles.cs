@@ -34,7 +34,6 @@ public class BikeParticles : MonoBehaviour
  
     private void Start()
     {
-        Debug.Log(BikeController.Instance.CalculateMaxSpeed());
         maxBikeSpeed = 10f;
     }
 

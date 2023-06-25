@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "LevelData", menuName = "Game/LevelData")]
+[CreateAssetMenu(fileName = "LevelData", menuName = "Game/Level Data")]
 public class Level : ScriptableObject
 {
     public GameObject levelPrefab;
