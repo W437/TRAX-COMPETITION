@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class BikeParticles : MonoBehaviour
@@ -6,11 +7,10 @@ public class BikeParticles : MonoBehaviour
 
     [SerializeField] private ParticleSystem dirtParticles;
     [SerializeField] private ParticleSystem landingParticles;
-    [SerializeField] private Rigidbody2D rearWheelRigidbody;
-    [SerializeField] private Rigidbody2D frontWheelRigidbody;
-    [SerializeField] private Rigidbody2D bikeRigidbody;
-    [SerializeField] private Transform rearWheel;
     [SerializeField] private LayerMask groundLayer;
+    public BikeComponents bikeComponents;
+
+
     private float speedThreshold = 0.2f;
     private float minEmissionRate = 35f;
     private float maxEmissionRate = 100f;
@@ -24,25 +24,29 @@ public class BikeParticles : MonoBehaviour
     private float maxBikeSpeed;
     private float maxAirHeight;
 
-    private bool isFrontWheelTouchingGround = false;
-    private bool isBackWheelTouchingGround = false;
-
     private void Awake()
     {
         Instance = this;
+        BikeController.Instance.OnPlayerBikeChanged += HandlePlayerBikeChanged;
     }
  
     private void Start()
     {
         maxBikeSpeed = 10f;
+
     }
 
     void Update()
     {
-        // Cast a ray downwards from the rear wheel to find the ground.
-        RaycastHit2D rearHit = Physics2D.Raycast(rearWheel.position, -Vector2.up, Mathf.Infinity, groundLayer);
-        RaycastHit2D bikeHit = Physics2D.Raycast(bikeRigidbody.position, -Vector2.up, Mathf.Infinity, groundLayer);
+        if (bikeComponents == null)
+        {
+            Debug.LogError("BikeParticles: BikeComponents is null!");
+            return;
+        }
 
+        // Cast a ray downwards from the rear wheel to find the ground.
+        RaycastHit2D rearHit = Physics2D.Raycast(bikeComponents.BackWheelTransform.position, -Vector2.up, Mathf.Infinity, groundLayer);
+        RaycastHit2D bikeHit = Physics2D.Raycast(bikeComponents.RB_Bike.position, -Vector2.up, Mathf.Infinity, groundLayer);
 
         if (rearHit.collider != null)
         {
@@ -50,13 +54,13 @@ public class BikeParticles : MonoBehaviour
             dirtParticles.transform.position = rearHit.point + Vector2.up * 0.05f;
         }
 
-        if (rearHit.collider != null)
+        if (bikeHit.collider != null)
         {
             // If the ray hit the ground, update the position of the Particle System to the hit point.
             landingParticles.transform.position = bikeHit.point + Vector2.up * 0.1f;
         }
 
-        float speed = rearWheelRigidbody.velocity.x;
+        float speed = bikeComponents.RB_BackWheel.velocity.x;
         float speedRatio = Mathf.Clamp01(speed / maxBikeSpeed);
 
         var emission = dirtParticles.emission;
@@ -90,13 +94,11 @@ public class BikeParticles : MonoBehaviour
         }
     }
 
+
     bool IsInAir()
     {
-        //GameManager.Instance.airtime
         return !BikeController.Instance.IsRearWheelGrounded();
-        // Implement this method to check if the bike is in the air.
     }
-
 
     public float CalculateLandingForce(float maxAirHeight, float currentHeight)
     {
@@ -119,5 +121,53 @@ public class BikeParticles : MonoBehaviour
         landingParticles.Play();
     }
 
+
+    private void OnDestroy()
+    {
+        BikeController.Instance.OnPlayerBikeChanged -= HandlePlayerBikeChanged;
+    }
+
+    private void OnEnable()
+    {
+        BikeController.Instance.OnPlayerBikeChanged += HandlePlayerBikeChanged;
+    }
+
+    private void OnDisable()
+    {
+        BikeController.Instance.OnPlayerBikeChanged -= HandlePlayerBikeChanged;
+    }
+
+    public void HandlePlayerBikeChanged()
+    {
+        StartCoroutine(WaitForBikeComponents());
+    }
+
+    private IEnumerator WaitForBikeComponents()
+    {
+        // Wait until the bike components are initialized
+        while (BikeController.Instance.GetCurrentBikeComponents() == null)
+        {
+            yield return null;
+        }
+
+        bikeComponents = BikeController.Instance.GetCurrentBikeComponents();
+    }
+
+    private IEnumerator InitializeBikeComponents()
+    {
+        // Wait for the next frame to ensure the bike prefab is instantiated
+        yield return null;
+
+        if (BikeController.Instance.PlayerBike != null)
+        {
+            bikeComponents = BikeController.Instance.PlayerBike.GetComponentInChildren<BikeComponents>();
+        }
+        else
+        {
+            bikeComponents = null;
+        }
+
+        // Do anything else you need to do when PlayerBike changes
+    }
 
 }

@@ -12,7 +12,7 @@ public class LevelManager : MonoBehaviour
     public Level[] levels; // Assign in Unity Editor
 
     public int currentLevel = 0;
-    private GameObject currentLevelInstance;
+    public GameObject currentLevelInstance;
 
     private void Awake()
     {

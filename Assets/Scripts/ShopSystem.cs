@@ -18,7 +18,7 @@ public class ShopSystem : MonoBehaviour
 
     public void BuyBike(int bikeId)
     {
-        Bike bikeToBuy = bikes.FirstOrDefault(b => b.id == bikeId);
+        Bike bikeToBuy = bikes.FirstOrDefault(b => b.bikeId == bikeId);
         if (bikeToBuy == null)
         {
             Debug.LogError("No bike found with ID: " + bikeId);

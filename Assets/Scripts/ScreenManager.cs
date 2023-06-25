@@ -35,9 +35,6 @@ public class ScreenManager : MonoBehaviour
 
     public TextMeshProUGUI wheelieText;
     public TextMeshProUGUI flipText;
-    public Transform frontWheel;
-    public Transform backWheel;
-    public LineRenderer lineRenderer;
 
     [Header("Main Menu Elements")]
     public Button B_MainLeaderboard;

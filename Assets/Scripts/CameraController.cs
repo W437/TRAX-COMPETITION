@@ -46,7 +46,8 @@ public class CameraController : MonoBehaviour
         transitionTime = transitionDuration;
 
         // Initialize jumping state
-        wasJumping = !BikeController.Instance.IsGrounded();
+        if (GameManager.Instance.gameState == GameManager.GameState.Playing)
+            wasJumping = !BikeController.Instance.IsGrounded();
 
         Random.InitState((int)Random.Range(0f, 100f));
     }

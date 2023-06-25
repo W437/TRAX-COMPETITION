@@ -121,13 +121,13 @@ GameObject:
   m_Component:
   - component: {fileID: 7845807050704558624}
   - component: {fileID: 7845807050704558650}
+  - component: {fileID: 5460275022783769605}
   - component: {fileID: 7845807050704558629}
   - component: {fileID: 7845807050704558631}
   - component: {fileID: 7845807050704558630}
   - component: {fileID: 7845807050704558651}
   - component: {fileID: 7845807050704558648}
   - component: {fileID: 7845807050704558654}
-  - component: {fileID: 7845807050704558655}
   m_Layer: 7
   m_Name: 2
   m_TagString: Player
@@ -206,6 +206,31 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &5460275022783769605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7845807050704558627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d552efedc34c5d148a0c93cd0c7801da, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  BackWheel: {fileID: 7845807050704558631}
+  FrontWheel: {fileID: 7845807050704558630}
+  RB_BackWheel: {fileID: 7845807052116743868}
+  RB_FrontWheel: {fileID: 7845807051469140674}
+  RB_Bike: {fileID: 7845807050704558629}
+  RearWheelCollider: {fileID: 7845807052116743871}
+  BackWheelTransform: {fileID: 7845807052116743870}
+  FrontWheelTransform: {fileID: 7845807051469140684}
+  BikeBody: {fileID: 7845807050704558651}
+  BikeBodyRenderer: {fileID: 7845807050704558650}
+  FrontWheelRenderer: {fileID: 7845807051469140675}
+  BackWheelRenderer: {fileID: 7845807052116743869}
+  BikeTrailRenderer: {fileID: 7845807051680473117}
 --- !u!50 &7845807050704558629
 Rigidbody2D:
   serializedVersion: 4
@@ -475,55 +500,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &7845807050704558655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7845807050704558627}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283873a034cfcbf46aefa45eed804d33, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  StatsJuice: {fileID: 0}
-  PlayerBike: {fileID: 7845807050704558627}
-  backWheel: {fileID: 7845807050704558631}
-  frontWheel: {fileID: 7845807050704558630}
-  RB_backWheel: {fileID: 7845807052116743868}
-  RB_frontWheel: {fileID: 7845807051469140674}
-  rearWheelCollider: {fileID: 7845807052116743871}
-  backWheelTransform: {fileID: 7845807052116743870}
-  frontWheelTransform: {fileID: 7845807051469140684}
-  bikeBody: {fileID: 7845807050704558651}
-  bikeBodyRenderer: {fileID: 7845807050704558650}
-  frontWheelRenderer: {fileID: 7845807051469140675}
-  backWheelRenderer: {fileID: 7845807052116743869}
-  bikeTrailRenderer: {fileID: 7845807051680473117}
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 264
-  motorSpeed: -5500
-  maxTorque: 1
-  downwardForce: 50
-  accelerationTime: 3
-  groundCheckDistance: 0.2
-  initialMaxTorque: 0.5
-  groundCheckCollider: {fileID: 7845807050319465294}
-  wheeliePoints: 0
-  totalWheelieTime: 0
-  wheelieDistance: 0
-  faults: 0
-  BikeWheelJoint: {fileID: 7845807050704558631}
-  RB_Bike: {fileID: 7845807050704558629}
-  doublePressTime: 0.15
-  flipCount: 0
-  flipDelay: 0.41
-  flipTorque: 0.2
-  internalFlipCount: 0
-  maxAirRotationSpeed: 500
-  wheelieStartTime: 0
 --- !u!1 &7845807051469140687
 GameObject:
   m_ObjectHideFlags: 0

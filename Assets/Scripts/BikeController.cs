@@ -9,6 +9,7 @@ using static GameManager;
 
 public class BikeController : MonoBehaviour
 {
+    #region Variables
     // Singleton Instance
     public static BikeController Instance;
 
@@ -18,35 +19,42 @@ public class BikeController : MonoBehaviour
     const string BEST_WHEELIE_DISTANCE = "BEST_WHEELIE_DISTANCE";
 
     // External References
-    public GameObject PlayerBike;
-    [SerializeField] private WheelJoint2D backWheel;
-    [SerializeField] private WheelJoint2D frontWheel;
-    [SerializeField] private Rigidbody2D RB_backWheel;
-    [SerializeField] private Rigidbody2D RB_frontWheel;
-    [SerializeField] private CircleCollider2D rearWheelCollider;
-    [SerializeField] private Transform backWheelTransform;
-    [SerializeField] private Transform frontWheelTransform;
-    [SerializeField] private CapsuleCollider2D bikeBody;
-    [SerializeField] private SpriteRenderer bikeBodyRenderer;
-    [SerializeField] private SpriteRenderer frontWheelRenderer;
-    [SerializeField] private SpriteRenderer backWheelRenderer;
-    [SerializeField] private TrailRenderer bikeTrailRenderer;
+    public Bike bikeData;
+    [SerializeField] private Bike[] bikes;
+    private BikeComponents currentBikeComponents;
+    public event Action OnPlayerBikeChanged;
+    //public GameObject PlayerBike { get; private set; }
+    private WheelJoint2D backWheel;
+    private WheelJoint2D frontWheel;
+    private Rigidbody2D RB_backWheel;
+    private Rigidbody2D RB_frontWheel;
+    private CircleCollider2D rearWheelCollider;
+    private Transform backWheelTransform;
+    private Transform frontWheelTransform;
+    private CapsuleCollider2D bikeBody;
+    private SpriteRenderer bikeBodyRenderer;
+    private SpriteRenderer frontWheelRenderer;
+    private SpriteRenderer backWheelRenderer;
+    private TrailRenderer bikeTrailRenderer;
 
-    // Bike Properties
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private float motorSpeed;
-    [SerializeField] private float maxTorque = 5f;
-    [SerializeField] private float downwardForce;
-    [SerializeField] private float accelerationTime;
-    [SerializeField] private float groundCheckDistance = 1f;
-    [SerializeField] private float initialMaxTorque = 0.5f; // Starting torque
-    [SerializeField] private Collider2D groundCheckCollider;
+    
+    private LayerMask groundLayer;
+    private float motorSpeed;
+    private float maxTorque = 5f;
+    private float downwardForce;
+    private float accelerationTime;
+    private float groundCheckDistance = 1f;
+    private float initialMaxTorque = 0.5f; // Starting torque
+    private Collider2D groundCheckCollider;
 
     private Vector2 wheelieStartPosition;
     private float wheelieTimeAccumulated = 0;
     private bool isAirborne = false;
     private float pauseStartTime = 0;
     public float wheeliePoints;
+
+    // Bike fields
+
 
     private float currentMotorSpeed = 0f;
     private float initialMotorSpeed;
@@ -91,7 +99,7 @@ public class BikeController : MonoBehaviour
     private float originalAngularDrag;
     private Coroutine rotateBikeCoroutine = null;
     private float flickStartTime;
-     
+
     // Flip System
     public int flipCount = 0; // Flip counter
     [SerializeField] private float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
@@ -132,7 +140,24 @@ public class BikeController : MonoBehaviour
 
 
     private float maxAirHeight;
-    // ----- VAR END ----- //
+    // ----- VAR END ----- // 
+    #endregion
+
+    private GameObject _playerBike;
+
+    public GameObject PlayerBike
+    {
+        get
+        {
+            return _playerBike;
+        }
+        set
+        {
+            _playerBike = value;
+            // Trigger the event when PlayerBike is set.
+            OnPlayerBikeChanged?.Invoke();
+        }
+    }
 
     private void Awake()
     {
@@ -144,13 +169,6 @@ public class BikeController : MonoBehaviour
         lastZRotation = transform.eulerAngles.z;
 
         // Bike Trail
-        defaultTrailTime = bikeTrailRenderer.time;
-
-        // Store the original color of the bike
-        originalBikeColor = bikeBodyRenderer.color;
-        originalFrontWheelColor = frontWheelRenderer.color;
-        originalBackWheelColor = backWheelRenderer.color;
-        originalTrailColor = bikeTrailRenderer.startColor;
     }
 
     private void FixedUpdate()
@@ -161,7 +179,10 @@ public class BikeController : MonoBehaviour
         }
         else
         {
-            BikeWheelJoint.useMotor = false;
+            if (backWheel != null)
+            {
+                backWheel.useMotor = false;
+            }
         }
     }
 
@@ -311,6 +332,60 @@ public class BikeController : MonoBehaviour
             CheckSpeedBoost();
 
             HandleTrail();
+        }
+    }
+
+
+    public BikeComponents GetCurrentBikeComponents()
+    {
+        if (PlayerBike != null && (currentBikeComponents == null || currentBikeComponents.gameObject != PlayerBike))
+        {
+            currentBikeComponents = PlayerBike.GetComponent<BikeComponents>();
+        }
+
+        return currentBikeComponents;
+    }
+
+    public void SetPlayerBike(Bike bikeData)
+    {
+        BikeComponents bikeComponents = bikeData.bikeComponents;
+        if (bikeComponents != null)
+        {
+            // Get the components from the BikeComponents script
+            backWheel = bikeComponents.BackWheel;
+            frontWheel = bikeComponents.FrontWheel;
+            RB_backWheel = bikeComponents.RB_BackWheel;
+            RB_frontWheel = bikeComponents.RB_FrontWheel;
+            rearWheelCollider = bikeComponents.RearWheelCollider;
+            backWheelTransform = bikeComponents.BackWheelTransform;
+            frontWheelTransform = bikeComponents.FrontWheelTransform;
+            bikeBody = bikeComponents.BikeBody;
+            bikeBodyRenderer = bikeComponents.BikeBodyRenderer;
+            frontWheelRenderer = bikeComponents.FrontWheelRenderer;
+            backWheelRenderer = bikeComponents.BackWheelRenderer;
+            bikeTrailRenderer = bikeComponents.BikeTrailRenderer;
+
+            // Assuming that BikeData also contains the below variables
+            groundLayer = bikeData.GroundLayer;
+            motorSpeed = bikeData.MotorSpeed;
+            maxTorque = bikeData.MaxTorque;
+            downwardForce = bikeData.DownwardForce;
+            accelerationTime = bikeData.AccelerationTime;
+            groundCheckDistance = bikeData.GroundCheckDistance;
+            initialMaxTorque = bikeData.InitialMaxTorque;
+            groundCheckCollider = bikeData.GroundCheckCollider;
+
+            //Stop defaultTrailTime = bikeTrailRenderer.time;
+
+            // Store the original color of the bike
+            originalBikeColor = bikeData.BikeBodyRenderer.color;
+            originalFrontWheelColor = bikeData.FrontWheelRenderer.color;
+            originalBackWheelColor = bikeData.BackWheelRenderer.color;
+            originalTrailColor = bikeData.BikeTrailRenderer.startColor;
+        }
+        else
+        {
+            Debug.LogError("SetPlayerBike: No BikeComponents script found on bike game object!");
         }
     }
 

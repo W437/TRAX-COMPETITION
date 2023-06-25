@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e9e273f729099442961ca919d5a6c63, type: 3}
+  m_Name: BikeData 1
+  m_EditorClassIdentifier: 
+  bikeId: 0
+  price: 0
+  bikePrefab: {fileID: 7845807050704558627, guid: 30439385f6b53f34db5e62eed90996fe, type: 3}
+  maxSpeed: 10
+  mass: 0
+  angularDrag: 0
+  bikeTrailRenderer: {fileID: 0}
+  bikeComponents: {fileID: 0}
+  BackWheel: {fileID: 0}
+  FrontWheel: {fileID: 0}
+  RB_BackWheel: {fileID: 0}
+  RB_FrontWheel: {fileID: 0}
+  RearWheelCollider: {fileID: 0}
+  BackWheelTransform: {fileID: 0}
+  FrontWheelTransform: {fileID: 0}
+  BikeBody: {fileID: 0}
+  BikeBodyRenderer: {fileID: 0}
+  FrontWheelRenderer: {fileID: 0}
+  BackWheelRenderer: {fileID: 0}
+  BikeTrailRenderer: {fileID: 0}
+  GroundLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  MotorSpeed: 0
+  MaxTorque: 0
+  DownwardForce: 0
+  AccelerationTime: 0
+  GroundCheckDistance: 0
+  InitialMaxTorque: 0
+  GroundCheckCollider: {fileID: 0}
