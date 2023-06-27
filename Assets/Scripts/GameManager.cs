@@ -52,11 +52,26 @@ public class GameManager : MonoBehaviour
         playerData = SaveSystem.LoadPlayerData();
 
         SetGameState(GameState.Menu);
+
     }
 
     private void Start()
     {
         initialCountdownTextPosition = countdownText.transform.position;
+
+
+        // Initiate Player Bike - based on players selected traits.
+
+        int selectedBikeId = playerData.selectedBikeId;
+        int selectedTrailId = playerData.selectedTrailId;
+
+        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
+
+        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+
+        ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
     }
 
 
@@ -265,8 +280,9 @@ public class GameManager : MonoBehaviour
                 GameManager.Instance.CurrentBikeInstance.SetActive(false);
             }
 
-            ScreenManager.Instance.RB_MenuBike.position = new Vector2(0, 0);
-            ScreenManager.Instance.RB_MenuPlatform.position = new Vector2(-4, 0);
+            //ShopManager.Instance.CurrentPlayerBike.transform.position = new Vector2(0, 0);
+
+            //ScreenManager.Instance.RB_MenuPlatform.position = new Vector2(-4, 0);
             ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
             CameraController.Instance.SwitchToMenuCamera();
@@ -284,16 +300,16 @@ public class GameManager : MonoBehaviour
         else if (gameState == GameState.Starting)
         {
             //BikeController.Instance.PauseBike();
-            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
+            //ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
             if (!CurrentBikeInstance.activeSelf)
             {
                 CurrentBikeInstance.SetActive(true);
             }
 
-            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
+            //ScreenManager.Instance.RB_MenuBike.isKinematic = true;
             ScreenManager.Instance.MenuPlatform.SetActive(false);
-            ScreenManager.Instance.MenuBike.SetActive(false);
+            //ScreenManager.Instance.MenuBike.SetActive(false);
             CameraController.Instance.SwitchToGameCamera();
             // Call the Countdown Coroutine when the GameState is set to Starting
             StartCoroutine(CountdownRoutine());

@@ -21,7 +21,7 @@ public class ShopManager : MonoBehaviour
 
     int currentBikeIndex = 0;
     int currentTrailIndex = 0;
-    public GameObject CurrentPlayerBike; // The current displayed prefab
+
     bool isBikeMode = true; // If true, we're cycling bikes. If false, we're cycling trails
 
     private void Awake()
@@ -200,27 +200,38 @@ public class ShopManager : MonoBehaviour
         Vector3 oldPosition = RB_MenuBike.transform.position;
         Vector2 oldVelocity = RB_MenuBike.velocity;
 
-        if (CurrentPlayerBike != null) Destroy(CurrentPlayerBike);
+
+        var currBike = ScreenManager.Instance.CurrentPlayerBike;
+
+
+        Debug.Log("Current bike: " + currBike);
+
+        if (currBike != null)
+        {
+            Debug.Log("Destroying old bike");
+            Destroy(currBike);
+        }
 
         // Instantiate at the old position
-        CurrentPlayerBike = Instantiate(prefab, oldPosition, Quaternion.identity);
-        CameraController.Instance.menuCamera.Follow = CurrentPlayerBike.transform;
-        CameraController.Instance.shopCamera.Follow = CurrentPlayerBike.transform;
+        currBike = Instantiate(prefab, oldPosition, Quaternion.identity);
+        currBike.transform.SetParent(MenuBike.transform);
+        CameraController.Instance.menuCamera.Follow = currBike.transform;
+        CameraController.Instance.shopCamera.Follow = currBike.transform;
 
         // Exclude the unnecessary components from the instantiated bike
-        BikeComponents bikeComponents = CurrentPlayerBike.GetComponent<BikeComponents>();
+        BikeComponents bikeComponents = currBike.GetComponent<BikeComponents>();
         if (bikeComponents != null)
         {
             Destroy(bikeComponents);
         }
 
-        BikeParticles playerParticles = CurrentPlayerBike.GetComponent<BikeParticles>();
+        BikeParticles playerParticles = currBike.GetComponent<BikeParticles>();
         if (playerParticles != null)
         {
             Destroy(playerParticles);
         }
 
-        RB_MenuBike = CurrentPlayerBike.GetComponent<Rigidbody2D>(); // Update the menu bike reference
+        RB_MenuBike = currBike.GetComponent<Rigidbody2D>(); // Update the menu bike reference
 
         // Set the velocity of the new bike to the old velocity
         RB_MenuBike.velocity = oldVelocity;
@@ -261,7 +272,7 @@ public class ShopManager : MonoBehaviour
         }
 
         // Instantiate the new trail as a child of the bike
-        CurrentPlayerBike = Instantiate(prefab, RB_MenuBike.transform);
+        ScreenManager.Instance.CurrentPlayerBike = Instantiate(prefab, RB_MenuBike.transform);
 
         int trailId = currentTrailIndex; // or get trailId from prefab
         PlayerData playerData = GameManager.Instance.GetPlayerData();
@@ -287,11 +298,12 @@ public class ShopManager : MonoBehaviour
 
     private void DisplayPrefab(GameObject prefab)
     {
+        var currBike = ScreenManager.Instance.CurrentPlayerBike;
         // Destroy the current display
-        if (CurrentPlayerBike != null) Destroy(CurrentPlayerBike);
+        if (currBike != null) Destroy(currBike);
 
         // Instantiate a new prefab
-        CurrentPlayerBike = Instantiate(prefab, displayArea.transform.position, Quaternion.identity, displayArea.transform);
+        currBike = Instantiate(prefab, displayArea.transform.position, Quaternion.identity, displayArea.transform);
     }
 
 }

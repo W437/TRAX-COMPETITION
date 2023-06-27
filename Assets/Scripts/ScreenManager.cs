@@ -98,7 +98,7 @@ public class ScreenManager : MonoBehaviour
     private const float startTransitionDuration = 1f; // Your start animation duration in seconds
     private const float endTransitionDuration = 1f;   // Your end animation duration in seconds 
     #endregion
-
+    public GameObject CurrentPlayerBike; // The current displayed prefab
     private void Awake()
     {
         Instance = this;
@@ -106,23 +106,6 @@ public class ScreenManager : MonoBehaviour
 
     void Start()
     {
-
-        // Initiate Player Bike - based on players selected traits.
-
-        PlayerData playerData = GameManager.Instance.GetPlayerData();
-
-        int selectedBikeId = playerData.selectedBikeId;
-        int selectedTrailId = playerData.selectedTrailId;
-
-        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
-
-        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
-        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
-
-        ShopManager.Instance.DisplayBikePrefab(selectedBike);
-        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
-
-
 
         // ---------- Initial UI pos
 
