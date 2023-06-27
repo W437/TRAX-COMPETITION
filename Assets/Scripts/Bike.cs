@@ -7,7 +7,6 @@ using UnityEngine;
 public class Bike : ScriptableObject
 {
     public GameObject bikePrefab;
-    public GameObject bikeTrail;
     public int bikeId;
     public int trailId;
     public int price;

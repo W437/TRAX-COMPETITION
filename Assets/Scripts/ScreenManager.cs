@@ -9,6 +9,7 @@ using static GameManager;
 public class ScreenManager : MonoBehaviour
 {
     public static ScreenManager Instance;
+    #region Variables
 
     [Header("Levels Section")]
     public GameObject levelUnitPrefab;
@@ -95,86 +96,104 @@ public class ScreenManager : MonoBehaviour
     public Animator endTransitionAnimator;
     private float accelerationTime;
     private const float startTransitionDuration = 1f; // Your start animation duration in seconds
-    private const float endTransitionDuration = 1f;   // Your end animation duration in seconds
-
+    private const float endTransitionDuration = 1f;   // Your end animation duration in seconds 
+    #endregion
 
     private void Awake()
     {
         Instance = this;
-        Application.targetFrameRate = 60;
     }
 
     void Start()
     {
+
+        // Initiate Player Bike - based on players selected traits.
+
+        PlayerData playerData = GameManager.Instance.GetPlayerData();
+
+        int selectedBikeId = playerData.selectedBikeId;
+        int selectedTrailId = playerData.selectedTrailId;
+
+        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
+
+        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+
+        ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
+
+
+
         // ---------- Initial UI pos
 
+        #region UI Initial Position
         // Main Menu
         var obj = B_Start.transform.localPosition;
-        B_Start.transform.localPosition = 
+        B_Start.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = B_MainLeaderboard.transform.localPosition;
-        B_MainLeaderboard.transform.localPosition = 
+        B_MainLeaderboard.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = B_Settings.transform.localPosition;
-        B_Settings.transform.localPosition = 
+        B_Settings.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = B_Shop.transform.localPosition;
-        B_Shop.transform.localPosition = 
+        B_Shop.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = CoinsBar.transform.position;
-        CoinsBar.transform.position = 
+        CoinsBar.transform.position =
             new Vector2(obj.x - 250f, obj.y);
 
         obj = LvlsFinishedBar.transform.position;
-        LvlsFinishedBar.transform.position = 
+        LvlsFinishedBar.transform.position =
             new Vector2(obj.x - 220f, obj.y);
 
         obj = GameLogo.transform.position;
-        GameLogo.transform.position = 
+        GameLogo.transform.position =
             new Vector2(obj.x, obj.y + 350f);
 
         // Game HUD
         obj = B_PauseGame.transform.localPosition;
-        B_PauseGame.transform.localPosition = 
-            new Vector2(obj.x-300f, obj.y);
+        B_PauseGame.transform.localPosition =
+            new Vector2(obj.x - 300f, obj.y);
 
         obj = FaultsBar.transform.localPosition;
-        FaultsBar.transform.localPosition = 
+        FaultsBar.transform.localPosition =
             new Vector2(obj.x + 200f, obj.y);
 
         obj = TimerBar.transform.localPosition;
-        TimerBar.transform.localPosition = 
+        TimerBar.transform.localPosition =
             new Vector2(obj.x - 300f, obj.y);
 
         obj = WheelieBar.transform.localPosition;
-        WheelieBar.transform.localPosition = 
+        WheelieBar.transform.localPosition =
             new Vector2(obj.x - 300f, obj.y);
 
         obj = FlipsBar.transform.localPosition;
-        FlipsBar.transform.localPosition = 
+        FlipsBar.transform.localPosition =
             new Vector2(obj.x - 300f, obj.y);
 
 
         // Paused Game
         obj = B_Paused_Restart.transform.localPosition;
-        B_Paused_Restart.transform.localPosition = 
-            new Vector2(obj.x-550f, obj.y);
+        B_Paused_Restart.transform.localPosition =
+            new Vector2(obj.x - 550f, obj.y);
 
         obj = B_Paused_Resume.transform.localPosition;
-        B_Paused_Resume.transform.localPosition = 
-            new Vector2(obj.x+550f, obj.y);
+        B_Paused_Resume.transform.localPosition =
+            new Vector2(obj.x + 550f, obj.y);
 
         obj = B_Paused_Menu.transform.localPosition;
-        B_Paused_Menu.transform.localPosition = 
-            new Vector2(obj.x, obj.y-300f);
+        B_Paused_Menu.transform.localPosition =
+            new Vector2(obj.x, obj.y - 300f);
 
         obj = T_PausedText.transform.localPosition;
-        T_PausedText.transform.localPosition = 
-            new Vector2(obj.x, obj.y+700);
+        T_PausedText.transform.localPosition =
+            new Vector2(obj.x, obj.y + 700);
 
         Overlay_Paused.color = new Color(0, 0, 0, 0);
 
@@ -186,8 +205,8 @@ public class ScreenManager : MonoBehaviour
 
         obj = LevelsSection.transform.localPosition;
         LevelsSection.transform.localPosition =
-            new Vector2(-700f, obj.y);
-
+            new Vector2(-700f, obj.y); 
+        #endregion
 
         // ---------- ON GAME LAUNCH
         //TweenMainMenu(false);
@@ -240,6 +259,8 @@ public class ScreenManager : MonoBehaviour
             GoToMainMenu();
             Panel_Shop.SetActive(false);
         });
+
+
     }
 
     public Vector2 startPos;
@@ -251,7 +272,10 @@ public class ScreenManager : MonoBehaviour
         
         if (GameManager.Instance.gameState == GameState.Menu)
         {
-            accelerationTimer += Time.fixedDeltaTime;
+            Rigidbody2D RB_MenuBike = ShopManager.Instance.RB_MenuBike;
+            Rigidbody2D RB_MenuPlatform = ShopManager.Instance.RB_MenuPlatform;
+
+            accelerationTimer += Time.fixedDeltaTime/2;
             // Calculate the current speed based on the elapsed time
             menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
             // Apply the speed
@@ -268,6 +292,20 @@ public class ScreenManager : MonoBehaviour
             accelerationTimer = 0;
         }
         
+    }
+
+    public void ShowSelectedBikeAndTrail()
+    {
+        // Load player data and get the selected bike and trail IDs
+        PlayerData playerData = GameManager.Instance.GetPlayerData();
+        int selectedBikeId = playerData.selectedBikeId;
+        int selectedTrailId = playerData.selectedTrailId;
+
+        // Find and display the selected bike and trail
+        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+        ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
     }
 
     public void PlayShopTransition()

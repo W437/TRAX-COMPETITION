@@ -92,15 +92,13 @@ public class LevelManager : MonoBehaviour
         // Instantiate the bike
         BikeController.Instance.LoadPlayerBike(playerData.selectedBikeId);
 
-
         // Find the bike's starting position in the new level instance
         Transform bikeStartPosition = currentLevelInstance.transform.GetChild(0);
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
 
         GameManager.Instance.CurrentBikeInstance.SetActive(true);
-        GameManager.Instance.CurrentBikeInstance.transform.position = bikeStartPosition.position;
-        GameManager.Instance.CurrentBikeInstance.transform.rotation = bikeStartPosition.rotation;
+        GameManager.Instance.CurrentBikeInstance.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
 
         BikeController.Instance.PauseBike();
 

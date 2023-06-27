@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public static class SaveSystem
@@ -47,6 +48,16 @@ public static class SaveSystem
             Debug.Log("Loaded savedata: " + data.ToString() + " at: " + filePath.ToString());
 
             return data;
+        }
+    }
+
+    public static void ResetSaveFile()
+    {
+        string filePath = Path.Combine(Application.persistentDataPath, "playerData.json");
+        if (File.Exists(filePath))
+        {
+            File.Delete(filePath);
+            Debug.Log("Save file deleted.");
         }
     }
 

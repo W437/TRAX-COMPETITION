@@ -1457,7 +1457,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 14
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &200873834
 GameObject:
@@ -3553,8 +3553,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 583603771117ed84081cb0d1e39914fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  allTrails:
+  trails:
   - {fileID: 11400000, guid: 3e0a73f9662326548a4f3b3c69aa52e6, type: 2}
+  - {fileID: 11400000, guid: 8e7e882549bac2544b4af5cdd9047cb4, type: 2}
 --- !u!4 &524671271
 Transform:
   m_ObjectHideFlags: 0
@@ -3568,7 +3569,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &548109956
 GameObject:
@@ -4025,7 +4026,7 @@ MonoBehaviour:
   m_YDamping: 12.27
   m_ZDamping: 1
   m_TargetMovementOnly: 1
-  m_ScreenX: 0.13
+  m_ScreenX: 0.1532814
   m_ScreenY: 0.7039999
   m_CameraDistance: 10
   m_DeadZoneWidth: 0.08
@@ -4085,7 +4086,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.8796182, y: -1.1160014, z: 0}
+  m_LocalPosition: {x: 1.7986262, y: -1.0685072, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4115,7 +4116,7 @@ MonoBehaviour:
   m_Follow: {fileID: 628274119}
   m_Lens:
     FieldOfView: 6.7
-    OrthographicSize: 5.5
+    OrthographicSize: 5.616407
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -4160,7 +4161,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &623875924
 GameObject:
@@ -4210,7 +4211,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &625775342
 GameObject:
@@ -5060,7 +5061,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 8
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &656827954
 MonoBehaviour:
@@ -5398,7 +5399,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &698237680
 MonoBehaviour:
@@ -5415,7 +5416,22 @@ MonoBehaviour:
   BikeList:
   - {fileID: 11400000, guid: 7cbc5b36201d1234ab7bacf3a39c9117, type: 2}
   - {fileID: 11400000, guid: 687e2a007d914224f8adb3bbb56f43f7, type: 2}
+  TrailList: []
   CurrentBikeInstance: {fileID: 0}
+  CurrentTrailInstance: {fileID: 0}
+  playerData:
+    coins: 0
+    unlockedBikes: 
+    selectedBikeId: 0
+    unlockedTrails: 
+    selectedTrailId: 0
+    experiencePoints: 0
+    trophiesCount: 0
+    totalRideDistance: 0
+    totalFaults: 0
+    totalPlayTime: 0
+    totalFlips: 0
+    totalWheelie: 0
   firstLaunch: 1
   playerObject: {fileID: 628274118}
   groundLayer:
@@ -7126,7 +7142,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &860975312
 GameObject:
@@ -7234,7 +7250,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &862939909
 MonoBehaviour:
@@ -7545,6 +7561,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 899572691}
   m_CullTransparentMesh: 1
+--- !u!1 &911018600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 911018601}
+  m_Layer: 7
+  m_Name: ShowArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &911018601
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 911018600}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.000061035156, y: 1.57, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &920702681
 GameObject:
   m_ObjectHideFlags: 0
@@ -7879,6 +7926,60 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &931330311
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 931330313}
+  - component: {fileID: 931330312}
+  m_Layer: 0
+  m_Name: Shop Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &931330312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 931330311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2a30174f554fa1499b488112988eba6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  displayArea: {fileID: 911018600}
+  bikePrefabs: []
+  trailPrefabs: []
+  bikeButton: {fileID: 1560601424}
+  trailButton: {fileID: 760395519}
+  nextButton: {fileID: 1230736130}
+  previousButton: {fileID: 200873836}
+  RB_MenuBike: {fileID: 1588532464}
+  RB_MenuPlatform: {fileID: 1003908739}
+  CurrentPlayerBike: {fileID: 0}
+--- !u!4 &931330313
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 931330311}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 14.220653, y: -5.664824, z: -1.3773714}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &934354644
 GameObject:
   m_ObjectHideFlags: 0
@@ -14630,7 +14731,7 @@ GameObject:
   - component: {fileID: 1200574385}
   - component: {fileID: 1200574386}
   m_Layer: 7
-  m_Name: trail
+  m_Name: Trail
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15826,7 +15927,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 1
-  m_Mass: 0.043109052
+  m_Mass: 1
   m_LinearDrag: 0.15
   m_AngularDrag: 0.25
   m_GravityScale: 1
@@ -16195,7 +16296,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 16
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1335859129
 GameObject:
@@ -16683,7 +16784,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 13
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1355773967
 GameObject:
@@ -16716,7 +16817,7 @@ Transform:
   - {fileID: 647554397}
   - {fileID: 548109957}
   m_Father: {fileID: 0}
-  m_RootOrder: 11
+  m_RootOrder: 13
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1363849782
 GameObject:
@@ -16819,7 +16920,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1381680333
 MonoBehaviour:
@@ -25065,7 +25166,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1588532457
 Transform:
   m_ObjectHideFlags: 0
@@ -27191,7 +27292,7 @@ Transform:
   - {fileID: 1588532457}
   - {fileID: 1003908736}
   m_Father: {fileID: 0}
-  m_RootOrder: 15
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1843808642
 GameObject:
@@ -28298,7 +28399,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1948922798
 RectTransform:
   m_ObjectHideFlags: 0

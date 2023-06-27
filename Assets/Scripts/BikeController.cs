@@ -145,6 +145,7 @@ public class BikeController : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+
     }
 
     void Start()
@@ -161,7 +162,10 @@ public class BikeController : MonoBehaviour
         }
         else
         {
-            BikeWheelJoint.useMotor = false;
+            if (BikeWheelJoint != null)
+                BikeWheelJoint.useMotor = false;
+            else
+                Debug.Log("BikeWheelJoint is null");
         }
     }
 
@@ -353,20 +357,16 @@ public class BikeController : MonoBehaviour
             return;
         }
 
-        // Instantiate ---> Player Bike
+        // Instantiate the player bike
         GameManager.Instance.CurrentBikeInstance = Instantiate(matchingBikeData.bikePrefab, GameManager.Instance.playerObject.transform);
         Debug.Log("Bike Instance: " + GameManager.Instance.CurrentBikeInstance.ToString());
-        
+
         // Assign Particles
         CurrentBikeParticles = GameManager.Instance.CurrentBikeInstance.GetComponent<BikeParticles>();
 
         // Assign the current bike components
-
         // Get the BikeComponents
         CurrentBikeComponents = GameManager.Instance.CurrentBikeInstance.GetComponent<BikeComponents>();
-
-        // Assign Trail by Selected ID
-        CurrentBikeComponents.SetTrail(data.selectedTrailId); 
 
         if (CurrentBikeComponents == null)
         {
@@ -388,7 +388,6 @@ public class BikeController : MonoBehaviour
             BikeBodyRenderer = CurrentBikeComponents.BikeBodyRenderer;
             FrontWheelRenderer = CurrentBikeComponents.FrontWheelRenderer;
             BackWheelRenderer = CurrentBikeComponents.BackWheelRenderer;
-            TrailRenderer = CurrentBikeComponents.TrailRenderer;
             DirtParticles = CurrentBikeComponents.DirtParticles;
             LandingParticles = CurrentBikeComponents.LandingParticles;
             GroundCheckCollider = CurrentBikeComponents.GroundCheckCollider;
@@ -422,14 +421,67 @@ public class BikeController : MonoBehaviour
             GameManager.Instance.CurrentBikeInstance.SetActive(true);
         }
 
-        Debug.Log("Bike Loaded: " + GameManager.Instance.CurrentBikeInstance.ToString());
+        // Load the trail as a child of the bike
+        int selectedTrailId = data.selectedTrailId;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
 
+        if (selectedTrail != null)
+        {
+            // Instantiate the trail as a child of the bike
+            GameObject trailInstance = Instantiate(selectedTrail, GameManager.Instance.CurrentBikeInstance.transform);
+
+            // Find the BikeTrail empty GameObject in the bike prefab
+            Transform bikeTrailTransform = GameManager.Instance.CurrentBikeInstance.transform.Find("Bike Trail");
+            if (bikeTrailTransform != null)
+            {
+                // Set the position of the trail to the position of the BikeTrail object
+                trailInstance.transform.position = bikeTrailTransform.position;
+            }
+            else
+            {
+                Debug.LogWarning("BikeTrail object not found in bike prefab. Trail position not set.");
+            }
+            // After instantiating the trail object
+            TrailRenderer = trailInstance.GetComponent<TrailRenderer>();
+
+        }
+
+        Debug.Log("Bike Loaded: " + GameManager.Instance.CurrentBikeInstance.ToString());
 
         // Set the game camera to follow the current bike instance
         CinemachineVirtualCamera virtualCamera = CameraController.Instance.gameCamera;
         virtualCamera.Follow = GameManager.Instance.CurrentBikeInstance.transform;
     }
 
+    public void LoadPlayerTrail(int trailId)
+    {
+        PlayerData data = SaveSystem.LoadPlayerData();
+        if (!data.unlockedTrails.Contains(trailId))
+        {
+            Debug.Log("Trail not unlocked!");
+            return;
+        }
+
+        // Destroy existing trail (if any)
+        if (GameManager.Instance.CurrentTrailInstance != null)
+        {
+            Destroy(GameManager.Instance.CurrentTrailInstance);
+        }
+
+        // Find the TrailData with the matching trailId in the TrailDataList
+        Trail matchingTrailData = GameManager.Instance.TrailList.FirstOrDefault(t => t.trailId == trailId);
+        if (matchingTrailData == null)
+        {
+            Debug.Log("Trail not found in TrailDataList!");
+            return;
+        }
+
+        // Instantiate ---> Player Trail
+        GameManager.Instance.CurrentTrailInstance = Instantiate(matchingTrailData.trailPrefab, GameManager.Instance.CurrentBikeInstance.transform);
+        Debug.Log("Trail Instance: " + GameManager.Instance.CurrentTrailInstance.ToString());
+
+        // You might need to do some additional setup for your trail here...
+    }
 
 
     void HandleBike()
@@ -689,6 +741,7 @@ public class BikeController : MonoBehaviour
         }
     }
 
+
     private IEnumerator FadeTrail(bool fadeIn, float duration)
     {
         float elapsedTime = 0f;
@@ -717,8 +770,6 @@ public class BikeController : MonoBehaviour
 
         trailFadeCoroutine = null; // Reset the coroutine reference
     }
-
-
 
 
     public float GetBikeSpeed()
@@ -912,6 +963,16 @@ public class BikeController : MonoBehaviour
     public float CalculateLandingForce(float maxAirHeight, float currentHeight)
     {
         return maxAirHeight - currentHeight;
+    }
+
+    public Bike[] GetAllBikes()
+    {
+        return bikes;
+    }
+
+    public Bike GetBikeById(int id)
+    {
+        return bikes.FirstOrDefault(b => b.bikeId == id);
     }
 
     void OnCollisionEnter2D(Collision2D collision)

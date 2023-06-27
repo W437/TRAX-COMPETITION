@@ -132,7 +132,6 @@ public class CameraController : MonoBehaviour
     {
         shopCamera.Priority = 11;
         menuCamera.Priority = 10;
-        shopCamera.Follow = ScreenManager.Instance.RB_MenuBike.transform;
     }
 
     private IEnumerator DelayedVelocityCheck(bool jumped)

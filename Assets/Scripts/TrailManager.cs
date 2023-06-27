@@ -1,11 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class TrailManager : MonoBehaviour
 {
     public static TrailManager Instance; // singleton instance
 
-    public List<Trail> allTrails; // Populate this list in the Unity Editor
+    [SerializeField] private Trail[] trails;
 
     private void Awake()
     {
@@ -23,7 +24,7 @@ public class TrailManager : MonoBehaviour
     public GameObject GetSelectedTrail(int selectedTrailId)
     {
         // Find the Trail in the allTrails list with the matching ID and return its prefab
-        foreach (var trail in allTrails)
+        foreach (var trail in trails)
         {
             if (trail.trailId == selectedTrailId)
             {
@@ -32,4 +33,15 @@ public class TrailManager : MonoBehaviour
         }
         return null; // if no match is found
     }
+
+    public Trail[] GetAllTrails()
+    {
+        return trails;
+    }
+
+    public Trail GetTrailById(int id)
+    {
+        return trails.FirstOrDefault(t => t.trailId == id);
+    }
+
 }

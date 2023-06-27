@@ -21,9 +21,9 @@ public class BikeComponents : MonoBehaviour
     [SerializeField] JointMotor2D bikeMotor;
     [SerializeField] Rigidbody2D rb_Bike;
 
-    [SerializeField] TrailRenderer trailRenderer;
+    //[SerializeField] TrailRenderer trailRenderer;
 
-    private TrailManager trailManager; // Declare this
+    //private TrailManager trailManager; // Declare this
 
     [SerializeField] float motorSpeed;
     [SerializeField] float downwardForce;
@@ -40,7 +40,7 @@ public class BikeComponents : MonoBehaviour
     [SerializeField] Color originalBackWheelColor;
     [SerializeField] Color originalTrailColor;
 
-
+    /*
     public void SetTrail(int trailId)
     {
         // Get reference to TrailManager
@@ -59,6 +59,7 @@ public class BikeComponents : MonoBehaviour
         get { return trailRenderer; }
         set { trailRenderer = value; }
     }
+    */
 
     public float MaxAirRotationSpeed
     {

@@ -12,8 +12,10 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public Bike[] BikeList;
+    public Trail[] TrailList;
     public GameObject CurrentBikeInstance;
-    private PlayerData playerData;
+    public GameObject CurrentTrailInstance;
+    public PlayerData playerData;
     public bool firstLaunch = true;
     public GameObject playerObject;
     public LayerMask groundLayer;
@@ -45,12 +47,9 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        Application.targetFrameRate = 60;
 
-        // New PlayerData initialization code
         playerData = SaveSystem.LoadPlayerData();
-
-        // Game Launch
-        BikeController.Instance.LoadPlayerBike(playerData.selectedBikeId);
 
         SetGameState(GameState.Menu);
     }
@@ -267,6 +266,7 @@ public class GameManager : MonoBehaviour
             }
 
             ScreenManager.Instance.RB_MenuBike.position = new Vector2(0, 0);
+            ScreenManager.Instance.RB_MenuPlatform.position = new Vector2(-4, 0);
             ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
             CameraController.Instance.SwitchToMenuCamera();
