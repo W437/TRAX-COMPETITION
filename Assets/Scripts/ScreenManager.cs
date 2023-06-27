@@ -9,6 +9,7 @@ using static GameManager;
 public class ScreenManager : MonoBehaviour
 {
     public static ScreenManager Instance;
+    #region Variables
 
     [Header("Levels Section")]
     public GameObject levelUnitPrefab;
@@ -18,6 +19,7 @@ public class ScreenManager : MonoBehaviour
     public Button B_LevelsMenuBack;
     private List<GameObject> instantiatedLevels = new List<GameObject>();
 
+    public BackgroundParalax backgroundParalax;
 
     [Header("Game Panels")]
     public GameObject Panel_MainMenu;
@@ -25,6 +27,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject Panel_GameOver;
     public GameObject Panel_Paused;
     public GameObject Panel_Levels;
+    public GameObject Panel_Shop;
 
     [Header("Game HUD Elements")]
     public Button B_PauseGame;
@@ -35,9 +38,6 @@ public class ScreenManager : MonoBehaviour
 
     public TextMeshProUGUI wheelieText;
     public TextMeshProUGUI flipText;
-    public Transform frontWheel;
-    public Transform backWheel;
-    public LineRenderer lineRenderer;
 
     [Header("Main Menu Elements")]
     public Button B_MainLeaderboard;
@@ -48,8 +48,24 @@ public class ScreenManager : MonoBehaviour
     public GameObject GameLogo;
     public GameObject LvlsFinishedBar;
     public GameObject Overlay_Menu;
-    public TMPro.TextMeshProUGUI T_Coins;
-    public TMPro.TextMeshProUGUI T_LvlsFinished;
+    public TextMeshProUGUI T_Coins;
+    public TextMeshProUGUI T_LvlsFinished;
+    public Rigidbody2D RB_MenuBike;
+    public GameObject MenuBike;
+    public ParticleSystem MenuBikeParticles;
+    public TrailRenderer MenuBikeTrail;
+    public GameObject MenuPlatform;
+    public Rigidbody2D RB_MenuPlatform;
+    public float menuBikeSpeed = 0f;
+    public float menuBikeMaxSpeed = 7.5f;
+    public float accelerationTimer;
+
+    [Header("Shop Section")]
+    public Button B_ShopBackMenu;
+    public Button B_RightBtn;
+    public Button B_LeftBtn;
+    public Button B_Trails;
+    public Button B_Bikes;
 
     [Header("Level End Buttons")]
     public Button B_Leaderboard;
@@ -58,14 +74,14 @@ public class ScreenManager : MonoBehaviour
     public Button B_Back;
 
     [Header("Level End Text")]
-    public TMPro.TextMeshProUGUI T_LevelTime;
-    public TMPro.TextMeshProUGUI T_Faults;
-    public TMPro.TextMeshProUGUI T_Wheelie;
-    public TMPro.TextMeshProUGUI T_Flips;
+    public TextMeshProUGUI T_LevelTime;
+    public TextMeshProUGUI T_Faults;
+    public TextMeshProUGUI T_Wheelie;
+    public TextMeshProUGUI T_Flips;
 
     [Header("Paused Screen Elements")]
     public Image Overlay_Paused;
-    public TMPro.TextMeshProUGUI T_PausedText;
+    public TextMeshProUGUI T_PausedText;
     public Button B_Paused_Restart;
     public Button B_Paused_Resume;
     public Button B_Paused_Menu;
@@ -78,90 +94,106 @@ public class ScreenManager : MonoBehaviour
 
     public Animator startTransitionAnimator;
     public Animator endTransitionAnimator;
-
+    private float accelerationTime;
     private const float startTransitionDuration = 1f; // Your start animation duration in seconds
-    private const float endTransitionDuration = 1f;   // Your end animation duration in seconds
-
-
-
+    private const float endTransitionDuration = 1f;   // Your end animation duration in seconds 
+    #endregion
 
     private void Awake()
     {
         Instance = this;
-        Application.targetFrameRate = 60;
     }
 
     void Start()
     {
+
+        // Initiate Player Bike - based on players selected traits.
+
+        PlayerData playerData = GameManager.Instance.GetPlayerData();
+
+        int selectedBikeId = playerData.selectedBikeId;
+        int selectedTrailId = playerData.selectedTrailId;
+
+        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
+
+        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+
+        ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
+
+
+
         // ---------- Initial UI pos
 
+        #region UI Initial Position
         // Main Menu
         var obj = B_Start.transform.localPosition;
-        B_Start.transform.localPosition = 
+        B_Start.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = B_MainLeaderboard.transform.localPosition;
-        B_MainLeaderboard.transform.localPosition = 
+        B_MainLeaderboard.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = B_Settings.transform.localPosition;
-        B_Settings.transform.localPosition = 
+        B_Settings.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = B_Shop.transform.localPosition;
-        B_Shop.transform.localPosition = 
+        B_Shop.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
         obj = CoinsBar.transform.position;
-        CoinsBar.transform.position = 
+        CoinsBar.transform.position =
             new Vector2(obj.x - 250f, obj.y);
 
         obj = LvlsFinishedBar.transform.position;
-        LvlsFinishedBar.transform.position = 
+        LvlsFinishedBar.transform.position =
             new Vector2(obj.x - 220f, obj.y);
 
         obj = GameLogo.transform.position;
-        GameLogo.transform.position = 
+        GameLogo.transform.position =
             new Vector2(obj.x, obj.y + 350f);
 
         // Game HUD
         obj = B_PauseGame.transform.localPosition;
-        B_PauseGame.transform.localPosition = 
-            new Vector2(obj.x-300f, obj.y);
+        B_PauseGame.transform.localPosition =
+            new Vector2(obj.x - 300f, obj.y);
 
         obj = FaultsBar.transform.localPosition;
-        FaultsBar.transform.localPosition = 
+        FaultsBar.transform.localPosition =
             new Vector2(obj.x + 200f, obj.y);
 
         obj = TimerBar.transform.localPosition;
-        TimerBar.transform.localPosition = 
+        TimerBar.transform.localPosition =
             new Vector2(obj.x - 300f, obj.y);
 
         obj = WheelieBar.transform.localPosition;
-        WheelieBar.transform.localPosition = 
+        WheelieBar.transform.localPosition =
             new Vector2(obj.x - 300f, obj.y);
 
         obj = FlipsBar.transform.localPosition;
-        FlipsBar.transform.localPosition = 
+        FlipsBar.transform.localPosition =
             new Vector2(obj.x - 300f, obj.y);
 
 
         // Paused Game
         obj = B_Paused_Restart.transform.localPosition;
-        B_Paused_Restart.transform.localPosition = 
-            new Vector2(obj.x-550f, obj.y);
+        B_Paused_Restart.transform.localPosition =
+            new Vector2(obj.x - 550f, obj.y);
 
         obj = B_Paused_Resume.transform.localPosition;
-        B_Paused_Resume.transform.localPosition = 
-            new Vector2(obj.x+550f, obj.y);
+        B_Paused_Resume.transform.localPosition =
+            new Vector2(obj.x + 550f, obj.y);
 
         obj = B_Paused_Menu.transform.localPosition;
-        B_Paused_Menu.transform.localPosition = 
-            new Vector2(obj.x, obj.y-300f);
+        B_Paused_Menu.transform.localPosition =
+            new Vector2(obj.x, obj.y - 300f);
 
         obj = T_PausedText.transform.localPosition;
-        T_PausedText.transform.localPosition = 
-            new Vector2(obj.x, obj.y+700);
+        T_PausedText.transform.localPosition =
+            new Vector2(obj.x, obj.y + 700);
 
         Overlay_Paused.color = new Color(0, 0, 0, 0);
 
@@ -173,17 +205,21 @@ public class ScreenManager : MonoBehaviour
 
         obj = LevelsSection.transform.localPosition;
         LevelsSection.transform.localPosition =
-            new Vector2(-700f, obj.y);
-
+            new Vector2(-700f, obj.y); 
+        #endregion
 
         // ---------- ON GAME LAUNCH
         //TweenMainMenu(false);
-        startTransition.SetActive(false);
-        endTransition.SetActive(false);
+        startPos = RB_MenuBike.position; // Initial pos
 
 
         // Main Menu
         B_Start.onClick.AddListener(delegate { LoadLevelsScreen(true); });
+        B_Shop.onClick.AddListener(delegate { GoToShop();  });
+
+        // Set Data
+        T_Coins.text = "" + GameManager.Instance.GetPlayerData().coins;
+        T_LvlsFinished.text = "" + "13/45";
 
         // Paused Screen
         B_PauseGame.onClick.AddListener( PauseGame );
@@ -214,13 +250,67 @@ public class ScreenManager : MonoBehaviour
             TweenLevelsSection(false);
             GoToMainMenu();
         });
+
+
+        // Shop Section
+        B_ShopBackMenu.onClick.AddListener(delegate
+        {
+            CameraController.Instance.SwitchToMenuCamera();
+            GoToMainMenu();
+            Panel_Shop.SetActive(false);
+        });
+
+
     }
 
+    public Vector2 startPos;
+    public float loopPointX = 0f;
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
+        
+        if (GameManager.Instance.gameState == GameState.Menu)
+        {
+            Rigidbody2D RB_MenuBike = ShopManager.Instance.RB_MenuBike;
+            Rigidbody2D RB_MenuPlatform = ShopManager.Instance.RB_MenuPlatform;
 
+            accelerationTimer += Time.fixedDeltaTime/2;
+            // Calculate the current speed based on the elapsed time
+            menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
+            // Apply the speed
+            RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y);
+
+            RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y); // Apply a constant velocity in the x direction
+
+            RB_MenuPlatform.position = new Vector2(RB_MenuBike.position.x-4, RB_MenuPlatform.position.y);
+            // Check if the bike has reached the loop point
+
+        }
+        else
+        {
+            accelerationTimer = 0;
+        }
+        
+    }
+
+    public void ShowSelectedBikeAndTrail()
+    {
+        // Load player data and get the selected bike and trail IDs
+        PlayerData playerData = GameManager.Instance.GetPlayerData();
+        int selectedBikeId = playerData.selectedBikeId;
+        int selectedTrailId = playerData.selectedTrailId;
+
+        // Find and display the selected bike and trail
+        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+        ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
+    }
+
+    public void PlayShopTransition()
+    {
+        StartCoroutine(PlayTransition());
     }
 
     public void TweenLevelsSection(bool In)
@@ -243,6 +333,7 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+
     public IEnumerator PlayStartTransition()
     {
         startTransition.SetActive(true);
@@ -257,6 +348,15 @@ public class ScreenManager : MonoBehaviour
         ScreenManager.Instance.endTransition.SetActive(false);   // Deactivate the End animation
     }
 
+    public IEnumerator PlayTransition()
+    {
+        Debug.Log("PlayTransition started");
+        StartCoroutine(PlayStartTransition());
+        yield return new WaitForSeconds(startTransitionDuration-0.5f);
+        StartCoroutine(PlayEndTransition());
+        yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
+    }
+
     public float GetStartTransitionDuration()
     {
         return startTransitionDuration;
@@ -269,7 +369,21 @@ public class ScreenManager : MonoBehaviour
 
     private void GoToMainMenu()
     {
+        StopSimulation();
         TweenMainMenu(true);
+        backgroundParalax.ResetParallax();
+        GameManager.Instance.SetGameState(GameState.Menu);
+        backgroundParalax.ResetParallax();
+    }
+
+    private void GoToShop()
+    {
+        CameraController.Instance.SwitchToShopCamera();
+        TweenMainMenu(false);
+        //TweenShop();
+        Panel_Shop.SetActive(true);
+
+        SimulateMovement();
     }
 
     public void PauseGame()
@@ -285,7 +399,6 @@ public class ScreenManager : MonoBehaviour
         TweenPauseGame(false);
     }
 
-
     public void LoadLevelsScreen(bool In)
     {
         if (!Panel_Levels.activeSelf)
@@ -293,8 +406,8 @@ public class ScreenManager : MonoBehaviour
             Panel_Levels.SetActive(true);
         }
 
-        TweenLevelsSection(true);
         TweenMainMenu(false);
+        TweenLevelsSection(true);
 
         // Destroy existing levels
         foreach (GameObject instantiatedLevel in instantiatedLevels)
@@ -358,7 +471,6 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
-
     public void TweenGameHUD(bool In)
     {
         if (In)
@@ -384,13 +496,33 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+    void SimulateMovement()
+    {
+        // Set the emission rates
+        var exhaustEmission = MenuBikeParticles.emission;
+        exhaustEmission.rateOverTime = 50; // Set this value to what looks best in your game
 
+        MenuBikeTrail.time = 0.25f;
+    }
+
+    void StopSimulation()
+    {
+        // Reset the emission rates
+        var exhaustEmission = MenuBikeParticles.emission;
+        exhaustEmission.rateOverTime = 0;
+
+        MenuBikeTrail.time = 0;
+    }
 
     public void TweenMainMenu(bool In)
     {
         if (In)
         {
             Panel_MainMenu.SetActive(true);
+            MenuPlatform.SetActive(true);
+            MenuBike.SetActive(true);
+            CameraController.Instance.SwitchToMenuCamera();
+
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0.5f, 1f);
             LeanTween.moveY(GameLogo.GetComponent<RectTransform>(), 650f, 0.5f).setEase(LeanTweenType.easeInOutQuad);
             LeanTween.scale(GameLogo, new Vector2(0.35f, 0.35f), 0.7f)
@@ -404,8 +536,8 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveY(B_MainLeaderboard.GetComponent<RectTransform>(), -110f, 0.9f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Shop.GetComponent<RectTransform>(), -244f, 0.95f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Settings.GetComponent<RectTransform>(), -110f, 0.96f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(CoinsBar.GetComponent<RectTransform>(), -300f, 0.95f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(LvlsFinishedBar.GetComponent<RectTransform>(), -300f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
+            LeanTween.moveX(CoinsBar.GetComponent<RectTransform>(), 0f, 0.95f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(LvlsFinishedBar.GetComponent<RectTransform>(), -23f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
         }
         else
         {
@@ -425,7 +557,6 @@ public class ScreenManager : MonoBehaviour
                 });
         }
     }
-
 
     private void OnRestartClicked()
     {

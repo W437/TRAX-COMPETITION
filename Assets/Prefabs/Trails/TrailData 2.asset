@@ -9,12 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca84d256e6b6e2448923fb2bafc9c2e7, type: 3}
-  m_Name: LevelData 3
+  m_Script: {fileID: 11500000, guid: 80170f18c76b1d042a74094fb287b124, type: 3}
+  m_Name: TrailData 2
   m_EditorClassIdentifier: 
-  levelPrefab: {fileID: 140010263091938090, guid: 0d74e0eaf0b3d2f41a84b3560dd445e8, type: 3}
-  levelNumber: 3
-  star1Time: 35000
-  star2Time: 32000
-  star3Time: 30000
-  levelLeaderboardID: 3
+  trailPrefab: {fileID: 7143726258993357292, guid: f6cfd0de3e8708e4680affa7b97a22fe, type: 3}
+  trailId: 1
+  price: 549

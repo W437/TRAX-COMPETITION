@@ -1,19 +1,34 @@
+using Cinemachine;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static Cinemachine.DocumentationSortingAttribute;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    public Bike[] BikeList;
+    public Trail[] TrailList;
+    public GameObject CurrentBikeInstance;
+    public GameObject CurrentTrailInstance;
+    public PlayerData playerData;
+    public bool firstLaunch = true;
+    public GameObject playerObject;
+    public LayerMask groundLayer;
 
     [Header("Game HUD")]
+
     public TMPro.TextMeshProUGUI timerText;
     public TMPro.TextMeshProUGUI countdownText;
     public TMPro.TextMeshProUGUI flipCountText;
     public TMPro.TextMeshProUGUI wheelieTimeText;
     public TMPro.TextMeshProUGUI faultCountText;
+
+    public BackgroundParalax backgroundParalax;
 
     private float totalWheelieTime = 0f;
     public GameState gameState;
@@ -27,17 +42,20 @@ public class GameManager : MonoBehaviour
     public AudioClip countdownClip;
     public AudioClip goClip;
 
-    private Vector3 initialCountdownTextPosition;
+    private Vector2 initialCountdownTextPosition;
 
     private void Awake()
     {
         Instance = this;
+        Application.targetFrameRate = 60;
+
+        playerData = SaveSystem.LoadPlayerData();
+
+        SetGameState(GameState.Menu);
     }
 
     private void Start()
     {
-        ResetLevelStats();
-        SetGameState(GameState.Menu);
         initialCountdownTextPosition = countdownText.transform.position;
     }
 
@@ -69,6 +87,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public PlayerData GetPlayerData()
+    {
+        return playerData;
+    }
+
     public void ResetLevelStats()
     {
         timer = 0f;
@@ -97,7 +120,6 @@ public class GameManager : MonoBehaviour
         int flipCount = BikeController.Instance.flipCount;
         flipCountText.text = "" + flipCount;
     }
-
 
     public void UpdateFaultCountText()
     {
@@ -215,13 +237,8 @@ public class GameManager : MonoBehaviour
 
         // Start game
         BikeController.Instance.ResumeBike();
-        BikeController.Instance.RB_Bike.velocity = Vector2.zero;
-        BikeController.Instance.RB_Bike.angularVelocity = 0f;
-        BikeController.Instance.accelerationTimer = 0f;
-        BikeController.Instance.shouldMove = false;
         SetGameState(GameState.Playing);
     }
-
 
 
     public void SetGameState(GameState newState)
@@ -237,23 +254,49 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Menu)
         {
-            BikeController.Instance.RB_Bike.position = new Vector2(-131.52f, -8.24f);
-            BikeController.Instance.accelerationTimer = 0;
-            BikeController.Instance.shouldMove = true;
+            // Delete the previous level instance if it exists
+            if (LevelManager.Instance.currentLevelInstance != null)
+            {
+                Destroy(LevelManager.Instance.currentLevelInstance);
+            }
+
+            if (GameManager.Instance.CurrentBikeInstance != null && GameManager.Instance.CurrentBikeInstance.activeSelf)
+            {
+                GameManager.Instance.CurrentBikeInstance.SetActive(false);
+            }
+
+            ScreenManager.Instance.RB_MenuBike.position = new Vector2(0, 0);
+            ScreenManager.Instance.RB_MenuPlatform.position = new Vector2(-4, 0);
+            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
+
+            CameraController.Instance.SwitchToMenuCamera();
+
+            // Set the bike's position relative to the platform
+            //Vector2 platformPosition = ScreenManager.Instance.MenuPlatform.transform.position;
+            //Vector2 bikePosition = new Vector2(platformPosition.x, 0);
+            //ScreenManager.Instance.RB_MenuBike.position = bikePosition;
+            //ScreenManager.Instance.RB_MenuBike.transform.rotation = Quaternion.identity;
+            //ScreenManager.Instance.RB_MenuBike.rotation = 0;
             ScreenManager.Instance.TweenMainMenu(true);
-            //BikeController.Instance.PauseBike();
+
+            // Optional: Reset any other variables or states specific to the menu screen
         }
         else if (gameState == GameState.Starting)
         {
             //BikeController.Instance.PauseBike();
+            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
+            if (!CurrentBikeInstance.activeSelf)
+            {
+                CurrentBikeInstance.SetActive(true);
+            }
+
+            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
+            ScreenManager.Instance.MenuPlatform.SetActive(false);
+            ScreenManager.Instance.MenuBike.SetActive(false);
+            CameraController.Instance.SwitchToGameCamera();
             // Call the Countdown Coroutine when the GameState is set to Starting
             StartCoroutine(CountdownRoutine());
         }
     }
-
-
-
-
-
 }

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
 public class BackgroundParalax : MonoBehaviour
 {
     public Transform playerCam;
@@ -14,24 +13,24 @@ public class BackgroundParalax : MonoBehaviour
     public float horizontalSpawnOffsetUnits = 5f; // 500 pixels converted to Unity units
 
     public Transform sun;
-    public Transform finishLine;
+    private Transform finishLine;
     private float totalDistance;
     private Vector3 initialSunPosition;
     private Vector3 playerStartPosition;
     private Camera playerCamera;
-
-
 
     private Vector2 lastPos = Vector2.zero;
     private Vector2 delta = Vector2.zero;
 
     private List<LinkedList<SpriteRenderer>> backgroundLayers;
 
-    void Start()
+    private void Start()
     {
-        totalDistance = Mathf.Abs(finishLine.position.x - playerCam.position.x);
-        playerStartPosition = playerCam.position;
-        initialSunPosition = sun.position;
+        Initialize();
+    }
+
+    void Initialize()
+    {
         playerCamera = playerCam.GetComponent<Camera>();
 
         lastPos = playerCam.position;
@@ -46,7 +45,7 @@ public class BackgroundParalax : MonoBehaviour
 
             var list = new LinkedList<SpriteRenderer>();
             list.AddFirst(newObj.GetComponent<SpriteRenderer>());
-            
+
             backgroundLayers.Add(list);
 
             backgrounds[i].gameObject.SetActive(false);
@@ -80,30 +79,44 @@ public class BackgroundParalax : MonoBehaviour
 
     private void UpdateSunPosition()
     {
-        // Calculate the distance the player has moved from the starting position along the X axis
-        float distanceMoved = Mathf.Abs(playerCam.position.x - playerStartPosition.x);
+        if (finishLine != null)
+        {
+            // Calculate the distance the player has moved from the starting position along the X axis
+            float distanceMoved = Mathf.Abs(playerCam.position.x - playerStartPosition.x);
 
-        // Get a normalized value representing how far the player has moved towards the finish
-        float progress = Mathf.Clamp01(distanceMoved / totalDistance);
+            // Get a normalized value representing how far the player has moved towards the finish
+            float progress = Mathf.Clamp01(distanceMoved / totalDistance);
 
-        // Convert the sun's position to viewport space
-        Vector3 sunViewportPosition = playerCamera.WorldToViewportPoint(sun.position);
+            // Convert the sun's position to viewport space
+            Vector3 sunViewportPosition = playerCamera.WorldToViewportPoint(sun.position);
 
-        // Set the sun's new viewport x position based on the progress
-        sunViewportPosition.x = 1 - progress;
+            // Set the sun's new viewport x position based on the progress
+            sunViewportPosition.x = 1 - progress;
 
-        // Convert the sun's viewport position back to world space, keeping a fixed Z value
-        Vector3 newSunPosition = playerCamera.ViewportToWorldPoint(sunViewportPosition);
-        newSunPosition.z = sun.position.z;
+            // Convert the sun's viewport position back to world space, keeping a fixed Z value
+            Vector3 newSunPosition = playerCamera.ViewportToWorldPoint(sunViewportPosition);
+            newSunPosition.z = sun.position.z;
 
-        // Update the sun's position
-        sun.position = newSunPosition;
+            // Update the sun's position
+            sun.position = newSunPosition;
+        }
     }
 
+    public void SetFinishLine(Transform finishLineTransform)
+    {
+        finishLine = finishLineTransform;
+        CalculateTotalDistance();
+    }
 
-
-
-
+    private void CalculateTotalDistance()
+    {
+        if (finishLine != null)
+        {
+            totalDistance = Mathf.Abs(finishLine.position.x - playerCam.position.x);
+            playerStartPosition = playerCam.position;
+            initialSunPosition = sun.position;
+        }
+    }
 
     private void clearInvisible()
     {
@@ -128,25 +141,21 @@ public class BackgroundParalax : MonoBehaviour
     {
         for (int i = 0; i < backgroundLayers.Count; ++i)
         {
-            //doing a little bit of nonsense - adding items while iterating over collection 
-            //for (int j = 0; j < backgroundLayers[i].Count; ++j)
+            var sprite = backgroundLayers[i].Last;
+
+            //the right edge of right-most sprite is visible - need to spawn to the right
+            if (CameraUtils.rightEdgeIn(sprite.Value, playerCam))
             {
-                var sprite = backgroundLayers[i].Last;
+                var newObject = spawnSpriteObj(sprite.Value, getRandomSpriteAtLayer(i), 1, i);
+                backgroundLayers[i].AddLast(newObject.GetComponent<SpriteRenderer>());
+            }
 
-                //the right edge of right-most sprite is visible - need to spawn to the right
-                if (CameraUtils.rightEdgeIn(sprite.Value, playerCam))
-                {
-                    var newObject = spawnSpriteObj(sprite.Value, getRandomSpriteAtLayer(i), 1, i);
-                    backgroundLayers[i].AddLast(newObject.GetComponent<SpriteRenderer>());
-                }
-
-                sprite = backgroundLayers[i].First;
-                //the left edge of right-most sprite is visible - need to spawn to the left
-                if (CameraUtils.leftEdgeIn(sprite.Value, playerCam))
-                {
-                    var newObject = spawnSpriteObj(sprite.Value, getRandomSpriteAtLayer(i), -1, i);
-                    backgroundLayers[i].AddFirst(newObject.GetComponent<SpriteRenderer>());
-                }
+            sprite = backgroundLayers[i].First;
+            //the left edge of right-most sprite is visible - need to spawn to the left
+            if (CameraUtils.leftEdgeIn(sprite.Value, playerCam))
+            {
+                var newObject = spawnSpriteObj(sprite.Value, getRandomSpriteAtLayer(i), -1, i);
+                backgroundLayers[i].AddFirst(newObject.GetComponent<SpriteRenderer>());
             }
         }
     }
@@ -158,7 +167,7 @@ public class BackgroundParalax : MonoBehaviour
             //calculate parallax weight linearly based on how "far" the layer is
             //a simple way to move each layer with different speed
             float shiftWeight = startSensitivity + (endSensitivity - startSensitivity) * i / (backgroundLayers.Count - 1);
-            //Debug.Log(delta + " " + shiftWeight);
+
             foreach (var sprite in backgroundLayers[i])
             {
                 //offset the sprite with weight
@@ -167,9 +176,26 @@ public class BackgroundParalax : MonoBehaviour
         }
     }
 
+    public void ResetParallax()
+    {
+        // Clear the background layers
+        foreach (var backgroundLayer in backgroundLayers)
+        {
+            foreach (var spriteRenderer in backgroundLayer)
+            {
+                Destroy(spriteRenderer.gameObject);
+            }
+            backgroundLayer.Clear();
+        }
+
+        // Reset the parallax
+        Initialize();
+    }
+
+
     private void updateDelta()
     {
-        delta = (Vector2) playerCam.position - lastPos;
+        delta = (Vector2)playerCam.position - lastPos;
 
         lastPos = playerCam.position;
     }
@@ -182,13 +208,12 @@ public class BackgroundParalax : MonoBehaviour
 
             var render = child.GetComponent<SpriteRenderer>();
             var size = render.bounds.size;
-            var cameraSize = new Vector3(CameraUtils.getCamWidth(playerCam)  * 2, CameraUtils.getCamHeight(playerCam) * 2, 0);
-            
+            var cameraSize = new Vector3(CameraUtils.getCamWidth(playerCam) * 2, CameraUtils.getCamHeight(playerCam) * 2, 0);
+
             var scaleFactor = new Vector3(cameraSize.x / size.x, cameraSize.y / size.y, 1);
 
             child.localScale = Vector3.Scale(child.localScale, scaleFactor);
             child.localPosition = new Vector3(0, 0, 0);
-            
         }
     }
 
@@ -210,7 +235,6 @@ public class BackgroundParalax : MonoBehaviour
         newObject.transform.Translate((shift * (CameraUtils.getWidth(sprite) + CameraUtils.getWidth(sample) + getExtraOffset(layer))) + (horizontalSpawnOffsetUnits * shift), 0, 0, Space.World);
         return newObject;
     }
-
 
     protected virtual float getExtraOffset(int id)
     {
