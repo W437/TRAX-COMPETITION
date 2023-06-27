@@ -8,6 +8,8 @@ public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance; // Singleton instance
     public Transform levelsGameObject;
+    public BackgroundParalax bgParalax;
+
 
     public Level[] levels; // Assign in Unity Editor
 
@@ -79,11 +81,16 @@ public class LevelManager : MonoBehaviour
         currentLevelInstance = Instantiate(levels[currentLevel].levelPrefab, levelsGameObject);
         currentLevelInstance.SetActive(true);
 
+        // Find the finish line in the new level instance
+        Transform finishLine = currentLevelInstance.transform.Find("Finish"); 
+                                                                                
+        bgParalax.SetFinishLine(finishLine);
+
         // Fetch PlayerData to get the selected bike ID
         PlayerData playerData = GameManager.Instance.GetPlayerData();
 
         // Instantiate the bike
-        GameManager.Instance.LoadPlayerBike(playerData.selectedBikeId);
+        BikeController.Instance.LoadPlayerBike(playerData.selectedBikeId);
 
 
         // Find the bike's starting position in the new level instance
@@ -91,9 +98,9 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
 
-        BikeController.Instance.PlayerBike.SetActive(true);
-        BikeController.Instance.transform.position = bikeStartPosition.position;
-        BikeController.Instance.transform.rotation = bikeStartPosition.rotation;
+        GameManager.Instance.CurrentBikeInstance.SetActive(true);
+        GameManager.Instance.CurrentBikeInstance.transform.position = bikeStartPosition.position;
+        GameManager.Instance.CurrentBikeInstance.transform.rotation = bikeStartPosition.rotation;
 
         BikeController.Instance.PauseBike();
 

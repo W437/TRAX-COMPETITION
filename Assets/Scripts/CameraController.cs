@@ -11,6 +11,7 @@ public class CameraController : MonoBehaviour
 
     public CinemachineVirtualCamera gameCamera;
     public CinemachineVirtualCamera menuCamera;
+    public CinemachineVirtualCamera shopCamera;
     // Target values
     private float targetOrthographicSize;
     private float targetScreenX;
@@ -124,6 +125,14 @@ public class CameraController : MonoBehaviour
     {
         gameCamera.Priority = 10;
         menuCamera.Priority = 11;
+        shopCamera.Priority = 9;
+    }
+
+    public void SwitchToShopCamera()
+    {
+        shopCamera.Priority = 11;
+        menuCamera.Priority = 10;
+        shopCamera.Follow = ScreenManager.Instance.RB_MenuBike.transform;
     }
 
     private IEnumerator DelayedVelocityCheck(bool jumped)

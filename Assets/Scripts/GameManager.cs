@@ -12,16 +12,21 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public Bike[] BikeList;
-    public GameObject currentBikeInstance;
+    public GameObject CurrentBikeInstance;
     private PlayerData playerData;
-    [SerializeField] GameObject playerObject;
+    public bool firstLaunch = true;
+    public GameObject playerObject;
+    public LayerMask groundLayer;
 
     [Header("Game HUD")]
+
     public TMPro.TextMeshProUGUI timerText;
     public TMPro.TextMeshProUGUI countdownText;
     public TMPro.TextMeshProUGUI flipCountText;
     public TMPro.TextMeshProUGUI wheelieTimeText;
     public TMPro.TextMeshProUGUI faultCountText;
+
+    public BackgroundParalax backgroundParalax;
 
     private float totalWheelieTime = 0f;
     public GameState gameState;
@@ -35,29 +40,23 @@ public class GameManager : MonoBehaviour
     public AudioClip countdownClip;
     public AudioClip goClip;
 
-    private Vector3 initialCountdownTextPosition;
+    private Vector2 initialCountdownTextPosition;
 
     private void Awake()
     {
         Instance = this;
+
+        // New PlayerData initialization code
+        playerData = SaveSystem.LoadPlayerData();
+
+        // Game Launch
+        BikeController.Instance.LoadPlayerBike(playerData.selectedBikeId);
+
+        SetGameState(GameState.Menu);
     }
 
     private void Start()
     {
-        // New PlayerData initialization code:
-        playerData = SaveSystem.LoadPlayerData();
-
-        if (playerData == null)
-        {
-            playerData = new PlayerData();
-            playerData.coins = 125; // Starting coins
-            playerData.unlockedBikes = new int[] { 0 }; // Assuming the default bike's ID is 0
-            playerData.selectedBikeId = 0;
-
-            SaveSystem.SavePlayerData(playerData);
-        }
-
-        SetGameState(GameState.Menu);
         initialCountdownTextPosition = countdownText.transform.position;
     }
 
@@ -122,7 +121,6 @@ public class GameManager : MonoBehaviour
         int flipCount = BikeController.Instance.flipCount;
         flipCountText.text = "" + flipCount;
     }
-
 
     public void UpdateFaultCountText()
     {
@@ -244,7 +242,6 @@ public class GameManager : MonoBehaviour
     }
 
 
-
     public void SetGameState(GameState newState)
     {
         gameState = newState;
@@ -264,22 +261,22 @@ public class GameManager : MonoBehaviour
                 Destroy(LevelManager.Instance.currentLevelInstance);
             }
 
-            if (BikeController.Instance.PlayerBike != null && BikeController.Instance.PlayerBike.activeSelf)
+            if (GameManager.Instance.CurrentBikeInstance != null && GameManager.Instance.CurrentBikeInstance.activeSelf)
             {
-                BikeController.Instance.PlayerBike.SetActive(false);
+                GameManager.Instance.CurrentBikeInstance.SetActive(false);
             }
 
+            ScreenManager.Instance.RB_MenuBike.position = new Vector2(0, 0);
+            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
             CameraController.Instance.SwitchToMenuCamera();
 
             // Set the bike's position relative to the platform
-            Vector2 platformPosition = ScreenManager.Instance.MenuPlatform.transform.position;
-            Vector2 bikePosition = new Vector2(platformPosition.x-100, -8.2f);
-            ScreenManager.Instance.MenuBike.transform.position = bikePosition;
-            ScreenManager.Instance.MenuBike.transform.rotation = Quaternion.identity;
-            ScreenManager.Instance.RB_MenuBike.rotation = 0;
-            ScreenManager.Instance.RB_MenuBike.isKinematic = false;
-
+            //Vector2 platformPosition = ScreenManager.Instance.MenuPlatform.transform.position;
+            //Vector2 bikePosition = new Vector2(platformPosition.x, 0);
+            //ScreenManager.Instance.RB_MenuBike.position = bikePosition;
+            //ScreenManager.Instance.RB_MenuBike.transform.rotation = Quaternion.identity;
+            //ScreenManager.Instance.RB_MenuBike.rotation = 0;
             ScreenManager.Instance.TweenMainMenu(true);
 
             // Optional: Reset any other variables or states specific to the menu screen
@@ -287,10 +284,11 @@ public class GameManager : MonoBehaviour
         else if (gameState == GameState.Starting)
         {
             //BikeController.Instance.PauseBike();
+            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
-            if (!BikeController.Instance.PlayerBike.activeSelf)
+            if (!CurrentBikeInstance.activeSelf)
             {
-                BikeController.Instance.PlayerBike.SetActive(true);
+                CurrentBikeInstance.SetActive(true);
             }
 
             ScreenManager.Instance.RB_MenuBike.isKinematic = true;
@@ -301,71 +299,4 @@ public class GameManager : MonoBehaviour
             StartCoroutine(CountdownRoutine());
         }
     }
-
-
-    public void LoadPlayerBike(int bikeId)
-    {
-        PlayerData data = SaveSystem.LoadPlayerData();
-        if (!data.unlockedBikes.Contains(bikeId))
-        {
-            Debug.Log("Bike not unlocked!");
-            return;
-        }
-
-        if (currentBikeInstance != null)
-        {
-            Destroy(currentBikeInstance);
-        }
-
-        // Find the BikeData with the matching bikeId in the BikeDataList
-        Bike matchingBikeData = BikeList.FirstOrDefault(b => b.bikeId == bikeId);
-        if (matchingBikeData == null)
-        {
-            Debug.Log("Bike not found in BikeDataList!");
-            return;
-        }
-
-        // Instantiate the new bike
-        currentBikeInstance = Instantiate(matchingBikeData.bikePrefab, playerObject.transform);
-        currentBikeInstance.SetActive(true);
-
-        // Attach the BikeParticles script to the newly instantiated bike
-        BikeParticles bikeParticles = currentBikeInstance.GetComponentInChildren<BikeParticles>();
-        if (bikeParticles != null)
-        {
-            // Add an event listener to the OnPlayerBikeChanged event in BikeController
-            BikeController.Instance.OnPlayerBikeChanged += bikeParticles.HandlePlayerBikeChanged;
-        }
-        else
-        {
-            Debug.LogError("BikeParticles component not found on the bike prefab!");
-        }
-
-
-
-        // Attach the BikeComponents script to the newly instantiated bike
-        BikeComponents bikeComponents = currentBikeInstance.AddComponent<BikeComponents>();
-
-        // Set the properties of bikeComponents to the properties in matchingBikeData.bikeComponents
-        LoadBikeComponents(bikeComponents, matchingBikeData.bikeComponents);
-
-        // Set the bike in the BikeController
-        BikeController.Instance.SetPlayerBike(matchingBikeData);
-
-        // Set the game camera to follow the current bike instance
-        CinemachineVirtualCamera virtualCamera = CameraController.Instance.gameCamera;
-        virtualCamera.Follow = currentBikeInstance.transform;
-    }
-
-    private void LoadBikeComponents(BikeComponents destination, BikeComponents source)
-    {
-        destination.BackWheel = source.BackWheel;
-        destination.FrontWheel = source.FrontWheel;
-        // continue this process for the rest of the properties...
-    }
-
-
-
-
-
 }

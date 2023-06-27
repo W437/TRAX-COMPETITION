@@ -3,70 +3,66 @@ using UnityEngine;
 
 public class BikeParticles : MonoBehaviour
 {
-    public static BikeParticles Instance;
-
-    [SerializeField] private ParticleSystem dirtParticles;
-    [SerializeField] private ParticleSystem landingParticles;
-    [SerializeField] private LayerMask groundLayer;
-    public BikeComponents bikeComponents;
+    ParticleSystem dirtParticles;
+    ParticleSystem landingParticles;
+    [SerializeField] LayerMask groundLayer;
+    [SerializeField] BikeComponents bikeComponents;
 
 
-    private float speedThreshold = 0.2f;
-    private float minEmissionRate = 35f;
-    private float maxEmissionRate = 100f;
+    float speedThreshold = 0.2f;
+    float minEmissionRate = 35f;
+    float maxEmissionRate = 100f;
 
-    private float minParticleSpeed = 5f; 
-    private float maxParticleSpeed = 10f;
+    public float minParticleSpeed; 
+    public float maxParticleSpeed;
 
-    public float minParticleSize = 0.5f; 
-    public float maxParticleSize = 4f;
+    public float minParticleSize; 
+    public float maxParticleSize;
 
-    private float maxBikeSpeed;
-    private float maxAirHeight;
+    float maxBikeSpeed;
+
+    RaycastHit2D rearHit;
+    RaycastHit2D bikeHit;
 
     private void Awake()
     {
-        Instance = this;
-        BikeController.Instance.OnPlayerBikeChanged += HandlePlayerBikeChanged;
+
     }
- 
+
     private void Start()
     {
         maxBikeSpeed = 10f;
-
     }
 
     void Update()
     {
-        if (bikeComponents == null)
-        {
-            Debug.LogError("BikeParticles: BikeComponents is null!");
-            return;
-        }
 
         // Cast a ray downwards from the rear wheel to find the ground.
-        RaycastHit2D rearHit = Physics2D.Raycast(bikeComponents.BackWheelTransform.position, -Vector2.up, Mathf.Infinity, groundLayer);
-        RaycastHit2D bikeHit = Physics2D.Raycast(bikeComponents.RB_Bike.position, -Vector2.up, Mathf.Infinity, groundLayer);
+        rearHit = Physics2D.Raycast(BikeController.Instance.CurrentBikeComponents.BackWheelTransform.position, -Vector2.up, Mathf.Infinity, groundLayer);
+        bikeHit = Physics2D.Raycast(BikeController.Instance.CurrentBikeComponents.RB_Bike.position, -Vector2.up, Mathf.Infinity, groundLayer);
 
         if (rearHit.collider != null)
         {
             // If the ray hit the ground, update the position of the Particle System to the hit point.
-            dirtParticles.transform.position = rearHit.point + Vector2.up * 0.05f;
+            BikeController.Instance.CurrentBikeComponents.DirtParticles.transform.position = rearHit.point + Vector2.up * 0.05f;
         }
 
         if (bikeHit.collider != null)
         {
             // If the ray hit the ground, update the position of the Particle System to the hit point.
-            landingParticles.transform.position = bikeHit.point + Vector2.up * 0.1f;
+            BikeController.Instance.CurrentBikeComponents.LandingParticles.transform.position = bikeHit.point + Vector2.up * 0.1f;
         }
 
-        float speed = bikeComponents.RB_BackWheel.velocity.x;
+        float speed = BikeController.Instance.CurrentBikeComponents.RB_BackWheel.velocity.x;
         float speedRatio = Mathf.Clamp01(speed / maxBikeSpeed);
 
-        var emission = dirtParticles.emission;
-        var main = dirtParticles.main;
 
-        if (speed > speedThreshold && !IsInAir())
+        var emission = BikeController.Instance.CurrentBikeComponents.DirtParticles.emission;
+        var main = BikeController.Instance.CurrentBikeComponents.DirtParticles.main;
+
+        bool isGrounded = BikeController.Instance.IsGrounded();
+
+        if (speed > speedThreshold && isGrounded)
         {
             float emissionRate = Mathf.Lerp(minEmissionRate, speedRatio * maxEmissionRate, speedRatio);
 
@@ -95,16 +91,6 @@ public class BikeParticles : MonoBehaviour
     }
 
 
-    bool IsInAir()
-    {
-        return !BikeController.Instance.IsRearWheelGrounded();
-    }
-
-    public float CalculateLandingForce(float maxAirHeight, float currentHeight)
-    {
-        return maxAirHeight - currentHeight;
-    }
-
     public void PlayLandingParticles(float landingForce)
     {
         // Set the particle size and ratio over time
@@ -119,55 +105,6 @@ public class BikeParticles : MonoBehaviour
         // Play the particles
         landingParticles.Stop();
         landingParticles.Play();
-    }
-
-
-    private void OnDestroy()
-    {
-        BikeController.Instance.OnPlayerBikeChanged -= HandlePlayerBikeChanged;
-    }
-
-    private void OnEnable()
-    {
-        BikeController.Instance.OnPlayerBikeChanged += HandlePlayerBikeChanged;
-    }
-
-    private void OnDisable()
-    {
-        BikeController.Instance.OnPlayerBikeChanged -= HandlePlayerBikeChanged;
-    }
-
-    public void HandlePlayerBikeChanged()
-    {
-        StartCoroutine(WaitForBikeComponents());
-    }
-
-    private IEnumerator WaitForBikeComponents()
-    {
-        // Wait until the bike components are initialized
-        while (BikeController.Instance.GetCurrentBikeComponents() == null)
-        {
-            yield return null;
-        }
-
-        bikeComponents = BikeController.Instance.GetCurrentBikeComponents();
-    }
-
-    private IEnumerator InitializeBikeComponents()
-    {
-        // Wait for the next frame to ensure the bike prefab is instantiated
-        yield return null;
-
-        if (BikeController.Instance.PlayerBike != null)
-        {
-            bikeComponents = BikeController.Instance.PlayerBike.GetComponentInChildren<BikeComponents>();
-        }
-        else
-        {
-            bikeComponents = null;
-        }
-
-        // Do anything else you need to do when PlayerBike changes
     }
 
 }

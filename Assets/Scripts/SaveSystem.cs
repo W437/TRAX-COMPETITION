@@ -22,8 +22,18 @@ public static class SaveSystem
             data.coins = 125;
             data.unlockedBikes = new int[] { 0 };
             data.selectedBikeId = 0;
+            data.unlockedTrails = new int[] { 0 };
+            data.selectedTrailId = 0;
+            data.experiencePoints = 0;
+            data.trophiesCount = 0;
+            data.totalRideDistance = 0;
+            data.totalFaults = 0; 
+            data.totalPlayTime = 0;
+            data.totalFlips = 0;
+            data.totalWheelie = 0;
 
             SavePlayerData(data);
+            Debug.Log("New data: " + data.ToString() + " at: " + filePath.ToString());
 
             return data;
         }
@@ -34,6 +44,7 @@ public static class SaveSystem
 
             // Use JsonUtility to convert the json to a PlayerData object
             PlayerData data = JsonUtility.FromJson<PlayerData>(json);
+            Debug.Log("Loaded savedata: " + data.ToString() + " at: " + filePath.ToString());
 
             return data;
         }

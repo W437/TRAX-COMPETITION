@@ -18,6 +18,7 @@ public class ScreenManager : MonoBehaviour
     public Button B_LevelsMenuBack;
     private List<GameObject> instantiatedLevels = new List<GameObject>();
 
+    public BackgroundParalax backgroundParalax;
 
     [Header("Game Panels")]
     public GameObject Panel_MainMenu;
@@ -25,6 +26,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject Panel_GameOver;
     public GameObject Panel_Paused;
     public GameObject Panel_Levels;
+    public GameObject Panel_Shop;
 
     [Header("Game HUD Elements")]
     public Button B_PauseGame;
@@ -49,10 +51,20 @@ public class ScreenManager : MonoBehaviour
     public TextMeshProUGUI T_LvlsFinished;
     public Rigidbody2D RB_MenuBike;
     public GameObject MenuBike;
+    public ParticleSystem MenuBikeParticles;
+    public TrailRenderer MenuBikeTrail;
     public GameObject MenuPlatform;
+    public Rigidbody2D RB_MenuPlatform;
     public float menuBikeSpeed = 0f;
     public float menuBikeMaxSpeed = 7.5f;
     public float accelerationTimer;
+
+    [Header("Shop Section")]
+    public Button B_ShopBackMenu;
+    public Button B_RightBtn;
+    public Button B_LeftBtn;
+    public Button B_Trails;
+    public Button B_Bikes;
 
     [Header("Level End Buttons")]
     public Button B_Leaderboard;
@@ -179,12 +191,16 @@ public class ScreenManager : MonoBehaviour
 
         // ---------- ON GAME LAUNCH
         //TweenMainMenu(false);
-        startTransition.SetActive(false);
-        endTransition.SetActive(false);
+        startPos = RB_MenuBike.position; // Initial pos
 
 
         // Main Menu
         B_Start.onClick.AddListener(delegate { LoadLevelsScreen(true); });
+        B_Shop.onClick.AddListener(delegate { GoToShop();  });
+
+        // Set Data
+        T_Coins.text = "" + GameManager.Instance.GetPlayerData().coins;
+        T_LvlsFinished.text = "" + "13/45";
 
         // Paused Screen
         B_PauseGame.onClick.AddListener( PauseGame );
@@ -215,12 +231,24 @@ public class ScreenManager : MonoBehaviour
             TweenLevelsSection(false);
             GoToMainMenu();
         });
+
+
+        // Shop Section
+        B_ShopBackMenu.onClick.AddListener(delegate
+        {
+            CameraController.Instance.SwitchToMenuCamera();
+            GoToMainMenu();
+            Panel_Shop.SetActive(false);
+        });
     }
 
+    public Vector2 startPos;
+    public float loopPointX = 0f;
 
     // Update is called once per frame
     void FixedUpdate()
     {
+        
         if (GameManager.Instance.gameState == GameState.Menu)
         {
             accelerationTimer += Time.fixedDeltaTime;
@@ -228,12 +256,23 @@ public class ScreenManager : MonoBehaviour
             menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
             // Apply the speed
             RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y);
-            Debug.Log("Velocity: " + RB_MenuBike.velocity);
+
+            RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y); // Apply a constant velocity in the x direction
+
+            RB_MenuPlatform.position = new Vector2(RB_MenuBike.position.x-4, RB_MenuPlatform.position.y);
+            // Check if the bike has reached the loop point
+
         }
         else
         {
             accelerationTimer = 0;
         }
+        
+    }
+
+    public void PlayShopTransition()
+    {
+        StartCoroutine(PlayTransition());
     }
 
     public void TweenLevelsSection(bool In)
@@ -256,6 +295,7 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+
     public IEnumerator PlayStartTransition()
     {
         startTransition.SetActive(true);
@@ -270,6 +310,15 @@ public class ScreenManager : MonoBehaviour
         ScreenManager.Instance.endTransition.SetActive(false);   // Deactivate the End animation
     }
 
+    public IEnumerator PlayTransition()
+    {
+        Debug.Log("PlayTransition started");
+        StartCoroutine(PlayStartTransition());
+        yield return new WaitForSeconds(startTransitionDuration-0.5f);
+        StartCoroutine(PlayEndTransition());
+        yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
+    }
+
     public float GetStartTransitionDuration()
     {
         return startTransitionDuration;
@@ -282,8 +331,21 @@ public class ScreenManager : MonoBehaviour
 
     private void GoToMainMenu()
     {
+        StopSimulation();
         TweenMainMenu(true);
+        backgroundParalax.ResetParallax();
         GameManager.Instance.SetGameState(GameState.Menu);
+        backgroundParalax.ResetParallax();
+    }
+
+    private void GoToShop()
+    {
+        CameraController.Instance.SwitchToShopCamera();
+        TweenMainMenu(false);
+        //TweenShop();
+        Panel_Shop.SetActive(true);
+
+        SimulateMovement();
     }
 
     public void PauseGame()
@@ -298,7 +360,6 @@ public class ScreenManager : MonoBehaviour
         GameManager.Instance.SetGameState(GameState.Playing);
         TweenPauseGame(false);
     }
-
 
     public void LoadLevelsScreen(bool In)
     {
@@ -372,7 +433,6 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
-
     public void TweenGameHUD(bool In)
     {
         if (In)
@@ -398,7 +458,23 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+    void SimulateMovement()
+    {
+        // Set the emission rates
+        var exhaustEmission = MenuBikeParticles.emission;
+        exhaustEmission.rateOverTime = 50; // Set this value to what looks best in your game
 
+        MenuBikeTrail.time = 0.25f;
+    }
+
+    void StopSimulation()
+    {
+        // Reset the emission rates
+        var exhaustEmission = MenuBikeParticles.emission;
+        exhaustEmission.rateOverTime = 0;
+
+        MenuBikeTrail.time = 0;
+    }
 
     public void TweenMainMenu(bool In)
     {
@@ -422,8 +498,8 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveY(B_MainLeaderboard.GetComponent<RectTransform>(), -110f, 0.9f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Shop.GetComponent<RectTransform>(), -244f, 0.95f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Settings.GetComponent<RectTransform>(), -110f, 0.96f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(CoinsBar.GetComponent<RectTransform>(), -300f, 0.95f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(LvlsFinishedBar.GetComponent<RectTransform>(), -300f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
+            LeanTween.moveX(CoinsBar.GetComponent<RectTransform>(), 0f, 0.95f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(LvlsFinishedBar.GetComponent<RectTransform>(), -23f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
         }
         else
         {
@@ -443,7 +519,6 @@ public class ScreenManager : MonoBehaviour
                 });
         }
     }
-
 
     private void OnRestartClicked()
     {
