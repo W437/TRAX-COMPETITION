@@ -7326,6 +7326,7 @@ MonoBehaviour:
   endTransition: {fileID: 264792300}
   startTransitionAnimator: {fileID: 1143556193}
   endTransitionAnimator: {fileID: 264792302}
+  CurrentPlayerBike: {fileID: 0}
   startPos: {x: 0, y: 0}
   loopPointX: 0
 --- !u!1 &877260280
@@ -7964,7 +7965,6 @@ MonoBehaviour:
   previousButton: {fileID: 200873836}
   RB_MenuBike: {fileID: 1588532464}
   RB_MenuPlatform: {fileID: 1003908739}
-  CurrentPlayerBike: {fileID: 0}
 --- !u!4 &931330313
 Transform:
   m_ObjectHideFlags: 0
