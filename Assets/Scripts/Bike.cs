@@ -8,7 +8,6 @@ public class Bike : ScriptableObject
 {
     public GameObject bikePrefab;
     public int bikeId;
-    public int trailId;
     public int price;
     public int maxSpeed;
     public int mass;

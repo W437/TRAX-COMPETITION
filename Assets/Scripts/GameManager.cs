@@ -15,8 +15,8 @@ public class GameManager : MonoBehaviour
     public Trail[] TrailList;
 
     // for level load
-    public GameObject CurrentBikeInstance;
-    public GameObject CurrentTrailInstance;
+    public GameObject GamePlayerBikeInstance;
+    public GameObject GamePlayerTrailInstance;
     // level load
 
 
@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     public PlayerData playerData;
 
     public bool firstLaunch = true;
-    public GameObject playerObject;
+    public GameObject playerObjectParent;
     public LayerMask groundLayer;
 
     [Header("Game HUD")]
@@ -272,15 +272,15 @@ public class GameManager : MonoBehaviour
                 Destroy(LevelManager.Instance.currentLevelInstance);
             }
 
-            if (GameManager.Instance.CurrentBikeInstance != null && GameManager.Instance.CurrentBikeInstance.activeSelf)
+            if (GameManager.Instance.GamePlayerBikeInstance != null && GameManager.Instance.GamePlayerBikeInstance.activeSelf)
             {
-                GameManager.Instance.CurrentBikeInstance.SetActive(false);
+                GameManager.Instance.GamePlayerBikeInstance.SetActive(false);
             }
 
             //ShopManager.Instance.CurrentPlayerBike.transform.position = new Vector2(0, 0);
 
             //ScreenManager.Instance.RB_MenuPlatform.position = new Vector2(-4, 0);
-            ScreenManager.Instance.RB_MenuBike.isKinematic = true;
+            //ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
             CameraController.Instance.SwitchToMenuCamera();
 
@@ -299,9 +299,9 @@ public class GameManager : MonoBehaviour
             //BikeController.Instance.PauseBike();
             //ScreenManager.Instance.RB_MenuBike.isKinematic = true;
 
-            if (!CurrentBikeInstance.activeSelf)
+            if (!GamePlayerBikeInstance.activeSelf)
             {
-                CurrentBikeInstance.SetActive(true);
+                GamePlayerBikeInstance.SetActive(true);
             }
 
             //ScreenManager.Instance.RB_MenuBike.isKinematic = true;

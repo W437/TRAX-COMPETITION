@@ -50,13 +50,12 @@ public class ScreenManager : MonoBehaviour
     public GameObject Overlay_Menu;
     public TextMeshProUGUI T_Coins;
     public TextMeshProUGUI T_LvlsFinished;
-    public ParticleSystem MenuBikeParticles;
-    public TrailRenderer MenuBikeTrail;
-    public GameObject MenuPlatform;
 
     public float menuBikeSpeed = 0f;
     public float menuBikeMaxSpeed = 7.5f;
     public float accelerationTimer;
+
+    [SerializeField] private float accelerationTime;
 
     [Header("Shop Section")]
     public Button B_ShopBackMenu;
@@ -64,6 +63,7 @@ public class ScreenManager : MonoBehaviour
     public Button B_LeftBtn;
     public Button B_Trails;
     public Button B_Bikes;
+    public TextMeshProUGUI selectedPrice;
 
     [Header("Level End Buttons")]
     public Button B_Leaderboard;
@@ -92,8 +92,6 @@ public class ScreenManager : MonoBehaviour
 
     public Animator startTransitionAnimator;
     public Animator endTransitionAnimator;
-    private float accelerationTime;
-
     const float startTransitionDuration = 1f; // Your start animation duration in seconds
     const float endTransitionDuration = 1f;   // Your end animation duration in seconds 
     #endregion
@@ -102,25 +100,26 @@ public class ScreenManager : MonoBehaviour
 
 
 
-    public GameObject CurrentPlayerBike; // The current displayed prefab
-    public Rigidbody2D RB_CurrentPlayerBike;
+    public GameObject PlayerMenuBike; // The current displayed prefab
+    public Rigidbody2D RB_PlayerMenuBike;
     public Rigidbody2D RB_MenuPlatform;
+    public ParticleSystem Ps_PlayerMenuBike;
+    public TrailRenderer Trail_PlayerMenuBike;
+    public GameObject MenuPlatform;
 
-    public GameObject MenuBike;
+    public GameObject MenuBikeObjectParent;
 
 
 
     void Awake()
     {
         Instance = this;
+        
     }
 
     void Start()
     {
-
-
         // Initiate Player Bike - based on players selected traits.
-
         PlayerData playerData = GameManager.Instance.playerData;
 
         int selectedBikeId = playerData.selectedBikeId;
@@ -128,14 +127,44 @@ public class ScreenManager : MonoBehaviour
 
         Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
 
-        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
-        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+        Bike selectedBikeData = BikeController.Instance.GetBikeById(selectedBikeId);
+        Trail selectedTrailData = TrailManager.Instance.GetTrailById(selectedTrailId);
 
-        RB_CurrentPlayerBike = CurrentPlayerBike.GetComponent<Rigidbody2D>();
+        if (selectedBikeData == null)
+        {
+            Debug.LogError("No Bike found with ID: " + selectedBikeId);
+            return;
+        }
 
-        ShopManager.Instance.DisplayBikePrefab(selectedBike);
-        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
+        if (selectedTrailData == null)
+        {
+            Debug.LogError("No Trail found with ID: " + selectedTrailId);
+            return;
+        }
 
+        GameObject selectedBike = selectedBikeData.bikePrefab;
+        GameObject selectedTrail = selectedTrailData.trailPrefab;
+
+        if (selectedBike == null)
+        {
+            Debug.LogError("No Bike prefab found for ID: " + selectedBikeId);
+            return;
+        }
+
+        if (selectedTrail == null)
+        {
+            Debug.LogError("No Trail prefab found for ID: " + selectedTrailId);
+            return;
+        }
+
+        PlayerMenuBike = ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
+
+        RB_PlayerMenuBike = PlayerMenuBike.GetComponent<Rigidbody2D>();
+    
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
+
+        RB_PlayerMenuBike = PlayerMenuBike.GetComponent<Rigidbody2D>();
 
         // ---------- Initial UI pos
 
@@ -223,7 +252,7 @@ public class ScreenManager : MonoBehaviour
 
         // ---------- ON GAME LAUNCH
         //TweenMainMenu(false);
-        startPos = RB_CurrentPlayerBike.position; // Initial pos
+        startPos = new Vector2(0, 0.5f); // Initial pos
 
 
         // Main Menu
@@ -278,34 +307,43 @@ public class ScreenManager : MonoBehaviour
 
     public Vector2 startPos;
     public float loopPointX = 0f;
+    private Vector2 bikePosition;
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        
         if (GameManager.Instance.gameState == GameState.Menu)
         {
-            Rigidbody2D RB_MenuBike = ScreenManager.Instance.RB_CurrentPlayerBike;
-            Rigidbody2D RB_MenuPlatform = ScreenManager.Instance.RB_MenuPlatform;
-
-            accelerationTimer += Time.fixedDeltaTime/2;
-            // Calculate the current speed based on the elapsed time
-            menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
-            // Apply the speed
-            RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y);
-
-            RB_MenuBike.velocity = new Vector2(menuBikeSpeed, RB_MenuBike.velocity.y); // Apply a constant velocity in the x direction
-
-            RB_MenuPlatform.position = new Vector2(RB_MenuBike.position.x-4, RB_MenuPlatform.position.y);
-            // Check if the bike has reached the loop point
-
+            PreviewPlayerBike();
         }
-        else
-        {
-            accelerationTimer = 0;
-        }
-        
     }
+
+    void PreviewPlayerBike()
+    {
+        accelerationTimer += Time.fixedDeltaTime;
+        // Calculate the current speed based on the elapsed time
+        menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
+        
+        // Apply the speed as a force
+        Vector2 force = new Vector2(menuBikeSpeed - RB_PlayerMenuBike.velocity.x, 0);
+        RB_PlayerMenuBike.AddForce(force, ForceMode2D.Force);
+        RB_PlayerMenuBike.rotation = 0;
+        
+        // Pin platform to payer bike
+        if (RB_PlayerMenuBike != null)
+        {
+            bikePosition = RB_PlayerMenuBike.position;
+            float platformBaseSpeed = 5.0f;  // adjust the value as needed
+            float platformSpeed = platformBaseSpeed * menuBikeSpeed;  // platform speed is relative to the bike's speed
+            float step = platformSpeed * Time.deltaTime; // calculate distance to move
+
+            Vector2 targetPos = new Vector2(bikePosition.x - 4, RB_MenuPlatform.position.y);
+            Vector2 newPlatformPosition = Vector2.MoveTowards(RB_MenuPlatform.position, targetPos, step);
+
+            RB_MenuPlatform.position = newPlatformPosition;
+        }
+    }
+
 
     public void ShowSelectedBikeAndTrail()
     {
@@ -382,7 +420,7 @@ public class ScreenManager : MonoBehaviour
 
     private void GoToMainMenu()
     {
-        StopSimulation();
+        //StopSimulation();
         TweenMainMenu(true);
         backgroundParalax.ResetParallax();
         GameManager.Instance.SetGameState(GameState.Menu);
@@ -396,7 +434,7 @@ public class ScreenManager : MonoBehaviour
         //TweenShop();
         Panel_Shop.SetActive(true);
 
-        SimulateMovement();
+        //SimulateMovement();
     }
 
     public void PauseGame()
@@ -509,23 +547,23 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
-    void SimulateMovement()
-    {
-        // Set the emission rates
-        var exhaustEmission = MenuBikeParticles.emission;
-        exhaustEmission.rateOverTime = 50; // Set this value to what looks best in your game
+    // void SimulateMovement()
+    // {
+    //     // Set the emission rates
+    //     var exhaustEmission = Ps_PlayerMenuBike.emission;
+    //     exhaustEmission.rateOverTime = 50; // Set this value to what looks best in your game
 
-        MenuBikeTrail.time = 0.25f;
-    }
+    //     Trail_PlayerMenuBike.time = 0.25f;
+    // }
 
-    void StopSimulation()
-    {
-        // Reset the emission rates
-        var exhaustEmission = MenuBikeParticles.emission;
-        exhaustEmission.rateOverTime = 0;
+    // void StopSimulation()
+    // {
+    //     // Reset the emission rates
+    //     var exhaustEmission = Ps_PlayerMenuBike.emission;
+    //     exhaustEmission.rateOverTime = 0;
 
-        MenuBikeTrail.time = 0;
-    }
+    //     Trail_PlayerMenuBike.time = 0;
+    // }
 
     public void TweenMainMenu(bool In)
     {
@@ -533,7 +571,7 @@ public class ScreenManager : MonoBehaviour
         {
             Panel_MainMenu.SetActive(true);
             MenuPlatform.SetActive(true);
-            MenuBike.SetActive(true);
+            //MenuBikeObjectParent.SetActive(true);
             CameraController.Instance.SwitchToMenuCamera();
 
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0.5f, 1f);

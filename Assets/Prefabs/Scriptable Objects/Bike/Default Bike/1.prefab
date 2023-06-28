@@ -175,7 +175,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7845807050704558627}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -131.298, y: -8.24, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.049999997, y: 0.049999997, z: 0.049999997}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -552,7 +552,6 @@ MonoBehaviour:
   bikeBodyRenderer: {fileID: 7845807050704558650}
   frontWheelRenderer: {fileID: 7845807051469140675}
   backWheelRenderer: {fileID: 7845807052116743869}
-  bikeTrailRenderer: {fileID: 0}
   dirtParticles: {fileID: 9216400438858408123}
   landingParticles: {fileID: 537883553660210805}
   groundCheckCollider: {fileID: 7845807050319465294}
@@ -915,18 +914,6 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3187386285761790667, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 1.58
-      objectReference: {fileID: 0}
-    - target: {fileID: 3187386285761790667, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 1.58
-      objectReference: {fileID: 0}
-    - target: {fileID: 3187386285761790667, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 1.58
-      objectReference: {fileID: 0}
-    - target: {fileID: 3187386285761790667, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
       propertyPath: m_LocalPosition.x
       value: -7.4
       objectReference: {fileID: 0}
@@ -965,26 +952,6 @@ PrefabInstance:
     - target: {fileID: 3187386285761790667, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5848477144063814763, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: InitialModule.startSize.scalar
-      value: 1.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5848477144063814763, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: InitialModule.startSize.minScalar
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5848477144063814763, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: InitialModule.startSize.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5848477144063814763, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: InitialModule.startSizeY.minMaxState
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5848477144063814763, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}
-      propertyPath: InitialModule.startSizeZ.minMaxState
-      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 40ae58cf50495014e8c76f815d3a3b51, type: 3}

@@ -12,16 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8e9e273f729099442961ca919d5a6c63, type: 3}
   m_Name: BikeData 2
   m_EditorClassIdentifier: 
-  id: 1
-  price: 150
   bikePrefab: {fileID: 7845807050704558627, guid: b4389a3afdfd1a74da7b2f9cde2e2f38, type: 3}
-  bikeTrail: {fileID: 7143726258993357292, guid: b4d4b3631a4856a4798e038be722a386, type: 3}
+  bikeId: 1
+  price: 150
   maxSpeed: 0
-  motorSpeed: 0
-  accelerationTime: 0
-  initialMaxTorque: 0
-  maxTorque: 0
   mass: 0
-  angularDrag: 0
-  dampingRatio: 0
-  frequency: 0

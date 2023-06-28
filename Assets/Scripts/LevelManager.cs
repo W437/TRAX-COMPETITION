@@ -97,8 +97,8 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
 
-        GameManager.Instance.CurrentBikeInstance.SetActive(true);
-        GameManager.Instance.CurrentBikeInstance.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
+        GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
+        GameManager.Instance.GamePlayerBikeInstance.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
 
         BikeController.Instance.PauseBike();
 

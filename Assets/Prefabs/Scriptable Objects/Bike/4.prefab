@@ -161,7 +161,7 @@ GameObject:
   - component: {fileID: 7845807050704558654}
   - component: {fileID: 5826907626409496008}
   m_Layer: 7
-  m_Name: 2
+  m_Name: 4
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -230,7 +230,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 4b43a1d5167a49f449f0842bd79f10e6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.97867, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

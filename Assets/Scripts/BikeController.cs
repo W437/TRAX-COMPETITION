@@ -164,8 +164,8 @@ public class BikeController : MonoBehaviour
         {
             if (BikeWheelJoint != null)
                 BikeWheelJoint.useMotor = false;
-            else
-                Debug.Log("BikeWheelJoint is null");
+            //else
+                //Debug.Log("BikeWheelJoint is null");
         }
     }
 
@@ -322,7 +322,7 @@ public class BikeController : MonoBehaviour
 
     public BikeComponents GetCurrentBikeComponents()
     {
-        if (GameManager.Instance.CurrentBikeInstance != null)
+        if (GameManager.Instance.GamePlayerBikeInstance != null)
         {
             return CurrentBikeComponents;
         }
@@ -344,9 +344,9 @@ public class BikeController : MonoBehaviour
         }
 
         // Destroy existing bike (if any)
-        if (GameManager.Instance.CurrentBikeInstance != null)
+        if (GameManager.Instance.GamePlayerBikeInstance != null)
         {
-            Destroy(GameManager.Instance.CurrentBikeInstance);
+            Destroy(GameManager.Instance.GamePlayerBikeInstance);
         }
 
         // Find the BikeData with the matching bikeId in the BikeDataList
@@ -358,15 +358,15 @@ public class BikeController : MonoBehaviour
         }
 
         // Instantiate the player bike
-        GameManager.Instance.CurrentBikeInstance = Instantiate(matchingBikeData.bikePrefab, GameManager.Instance.playerObject.transform);
-        Debug.Log("Bike Instance: " + GameManager.Instance.CurrentBikeInstance.ToString());
+        GameManager.Instance.GamePlayerBikeInstance = Instantiate(matchingBikeData.bikePrefab, GameManager.Instance.playerObjectParent.transform);
+        Debug.Log("Bike Instance: " + GameManager.Instance.GamePlayerBikeInstance.ToString());
 
         // Assign Particles
-        CurrentBikeParticles = GameManager.Instance.CurrentBikeInstance.GetComponent<BikeParticles>();
+        CurrentBikeParticles = GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeParticles>();
 
         // Assign the current bike components
         // Get the BikeComponents
-        CurrentBikeComponents = GameManager.Instance.CurrentBikeInstance.GetComponent<BikeComponents>();
+        CurrentBikeComponents = GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeComponents>();
 
         if (CurrentBikeComponents == null)
         {
@@ -413,12 +413,12 @@ public class BikeController : MonoBehaviour
 
         if (GameManager.Instance.firstLaunch)
         {
-            GameManager.Instance.CurrentBikeInstance.SetActive(false);
+            GameManager.Instance.GamePlayerBikeInstance.SetActive(false);
             Debug.Log("First launch: " + GameManager.Instance.firstLaunch);
         }
         else
         {
-            GameManager.Instance.CurrentBikeInstance.SetActive(true);
+            GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
         }
 
         // Load the trail as a child of the bike
@@ -428,10 +428,10 @@ public class BikeController : MonoBehaviour
         if (selectedTrail != null)
         {
             // Instantiate the trail as a child of the bike
-            GameObject trailInstance = Instantiate(selectedTrail, GameManager.Instance.CurrentBikeInstance.transform);
+            GameObject trailInstance = Instantiate(selectedTrail, GameManager.Instance.GamePlayerBikeInstance.transform);
 
             // Find the BikeTrail empty GameObject in the bike prefab
-            Transform bikeTrailTransform = GameManager.Instance.CurrentBikeInstance.transform.Find("Bike Trail");
+            Transform bikeTrailTransform = GameManager.Instance.GamePlayerBikeInstance.transform.Find("Bike Trail");
             if (bikeTrailTransform != null)
             {
                 // Set the position of the trail to the position of the BikeTrail object
@@ -446,11 +446,11 @@ public class BikeController : MonoBehaviour
 
         }
 
-        Debug.Log("Bike Loaded: " + GameManager.Instance.CurrentBikeInstance.ToString());
+        Debug.Log("Bike Loaded: " + GameManager.Instance.GamePlayerBikeInstance.ToString());
 
         // Set the game camera to follow the current bike instance
         CinemachineVirtualCamera virtualCamera = CameraController.Instance.gameCamera;
-        virtualCamera.Follow = GameManager.Instance.CurrentBikeInstance.transform;
+        virtualCamera.Follow = GameManager.Instance.GamePlayerBikeInstance.transform;
     }
 
     public void LoadPlayerTrail(int trailId)
@@ -463,9 +463,9 @@ public class BikeController : MonoBehaviour
         }
 
         // Destroy existing trail (if any)
-        if (GameManager.Instance.CurrentTrailInstance != null)
+        if (GameManager.Instance.GamePlayerTrailInstance != null)
         {
-            Destroy(GameManager.Instance.CurrentTrailInstance);
+            Destroy(GameManager.Instance.GamePlayerTrailInstance);
         }
 
         // Find the TrailData with the matching trailId in the TrailDataList
@@ -477,8 +477,8 @@ public class BikeController : MonoBehaviour
         }
 
         // Instantiate ---> Player Trail
-        GameManager.Instance.CurrentTrailInstance = Instantiate(matchingTrailData.trailPrefab, GameManager.Instance.CurrentBikeInstance.transform);
-        Debug.Log("Trail Instance: " + GameManager.Instance.CurrentTrailInstance.ToString());
+        GameManager.Instance.GamePlayerTrailInstance = Instantiate(matchingTrailData.trailPrefab, GameManager.Instance.GamePlayerBikeInstance.transform);
+        Debug.Log("Trail Instance: " + GameManager.Instance.GamePlayerTrailInstance.ToString());
 
         // You might need to do some additional setup for your trail here...
     }
@@ -813,7 +813,7 @@ public class BikeController : MonoBehaviour
         if (currentFlickerCoroutine != null)
             StopCoroutine(currentFlickerCoroutine);
 
-        var _playerBike = GameManager.Instance.CurrentBikeInstance.gameObject.transform;
+        var _playerBike = GameManager.Instance.GamePlayerBikeInstance.gameObject.transform;
         RaycastHit2D groundHit = Physics2D.Raycast(_playerBike.position, -Vector2.up, Mathf.Infinity, GameManager.Instance.groundLayer);
 
         if (groundHit.collider != null)
