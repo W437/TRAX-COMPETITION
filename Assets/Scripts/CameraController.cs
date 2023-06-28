@@ -13,11 +13,11 @@ public class CameraController : MonoBehaviour
     public CinemachineVirtualCamera menuCamera;
     public CinemachineVirtualCamera shopCamera;
     // Target values
-    private float targetOrthographicSize;
-    private float targetScreenX;
+    float targetOrthographicSize;
+    float targetScreenX;
 
     // Time passed since transition start
-    private float transitionTime;
+    float transitionTime;
 
     // Reference to the VirtualCamera
     public CinemachineVirtualCamera virtualCamera;
@@ -26,17 +26,17 @@ public class CameraController : MonoBehaviour
     public CinemachineFramingTransposer composer;
 
     // Previous jumping state
-    private bool wasJumping;
+    bool wasJumping;
 
-    private float velocityCheckDelay = 0.2f;
-    private bool checkingVelocity = false;
+    float velocityCheckDelay = 0.2f;
+    bool checkingVelocity = false;
 
-    private void Awake()
+    void Awake()
     {
         Instance = this;
     }
 
-    private void Start()
+    void Start()
     {
         composer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         // Set initial values
@@ -53,7 +53,7 @@ public class CameraController : MonoBehaviour
         Random.InitState((int)Random.Range(0f, 100f));
     }
 
-    private void Update()
+    void Update()
     {
         if(GameManager.Instance.gameState == GameManager.GameState.Playing)
         {
@@ -134,7 +134,7 @@ public class CameraController : MonoBehaviour
         menuCamera.Priority = 10;
     }
 
-    private IEnumerator DelayedVelocityCheck(bool jumped)
+    IEnumerator DelayedVelocityCheck(bool jumped)
     {
         checkingVelocity = true;
 

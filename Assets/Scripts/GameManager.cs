@@ -13,9 +13,17 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public Bike[] BikeList;
     public Trail[] TrailList;
+
+    // for level load
     public GameObject CurrentBikeInstance;
     public GameObject CurrentTrailInstance;
+    // level load
+
+
+
+
     public PlayerData playerData;
+
     public bool firstLaunch = true;
     public GameObject playerObject;
     public LayerMask groundLayer;
@@ -30,11 +38,13 @@ public class GameManager : MonoBehaviour
 
     public BackgroundParalax backgroundParalax;
 
-    private float totalWheelieTime = 0f;
+
+
+    float totalWheelieTime = 0f;
     public GameState gameState;
 
-    private float countdownTime;
-    private float timer;
+    float countdownTime;
+    float timer;
 
     [Header("Sound Effects")]
 
@@ -42,9 +52,9 @@ public class GameManager : MonoBehaviour
     public AudioClip countdownClip;
     public AudioClip goClip;
 
-    private Vector2 initialCountdownTextPosition;
+    Vector2 initialCountdownTextPosition;
 
-    private void Awake()
+    void Awake()
     {
         Instance = this;
         Application.targetFrameRate = 60;
@@ -55,27 +65,14 @@ public class GameManager : MonoBehaviour
 
     }
 
-    private void Start()
+    void Start()
     {
         initialCountdownTextPosition = countdownText.transform.position;
 
-
-        // Initiate Player Bike - based on players selected traits.
-
-        int selectedBikeId = playerData.selectedBikeId;
-        int selectedTrailId = playerData.selectedTrailId;
-
-        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
-
-        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
-        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
-
-        ShopManager.Instance.DisplayBikePrefab(selectedBike);
-        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
     }
 
 
-    private void Update()
+    void Update()
     {
         // Manage Game State
 
@@ -121,7 +118,7 @@ public class GameManager : MonoBehaviour
         BikeController.Instance.totalWheelieTime = 0;
     }
 
-    private void UpdateTimerText()
+    void UpdateTimerText()
     {
         TimeSpan timeSpan = TimeSpan.FromSeconds(timer);
         int millisecondFirstTwoDigits = timeSpan.Milliseconds / 10;
@@ -129,7 +126,7 @@ public class GameManager : MonoBehaviour
         timerText.text = "" + timerString;
     }
 
-    private void UpdateFlipCountText()
+    void UpdateFlipCountText()
     {
         // Get the flip count from the BikeController script
         int flipCount = BikeController.Instance.flipCount;
@@ -149,7 +146,7 @@ public class GameManager : MonoBehaviour
         UpdateWheelieTimeText();
     }
 
-    private void UpdateWheelieTimeText()
+    void UpdateWheelieTimeText()
     {
         int totalWheelieTimeSeconds = (int)totalWheelieTime;
         int totalWheelieTimeMilliseconds = (int)((totalWheelieTime - totalWheelieTimeSeconds) * 1000);
@@ -185,12 +182,12 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
-    private void LevelFinish()
+    void LevelFinish()
     {
 
     }
     
-    private void OnGameOver()
+    void OnGameOver()
     {
 
     }
@@ -204,7 +201,7 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private IEnumerator CountdownRoutine()
+    IEnumerator CountdownRoutine()
     {
         countdownTime = 3;
 

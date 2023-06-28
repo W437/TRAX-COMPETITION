@@ -10,12 +10,12 @@ using static GameManager;
 public class BikeController : MonoBehaviour
 {
     #region Variables
-    // Singleton Instance
     public static BikeController Instance;
+
     public BikeParticles CurrentBikeParticles { get; private set; }
     public BikeComponents CurrentBikeComponents { get; private set; }
 
-    public MMFeedbacks StatsJuice;
+    //public MMFeedbacks StatsJuice;
 
     const string WHEELIE_DISTANCE = "WHEELIE_DISTANCE";
     const string BEST_WHEELIE_DISTANCE = "BEST_WHEELIE_DISTANCE";
@@ -57,21 +57,21 @@ public class BikeController : MonoBehaviour
 
     // Bike fields
 
-    private float maxAirRotationSpeed;
-    private float currentMotorSpeed = 0f;
-    private float initialMotorSpeed;
-    private float accelerationStartTime;
-    private bool isAccelerating = false;
-    private Vector2 prevPlayerVelocity;
-    private float prevMotorSpeed;
-    private float prevPlayerRotation;
-    private float prevAngularVelocity;
+    float maxAirRotationSpeed;
+    float currentMotorSpeed = 0f;
+    float initialMotorSpeed;
+    float accelerationStartTime;
+    bool isAccelerating = false;
+    Vector2 prevPlayerVelocity;
+    float prevMotorSpeed;
+    float prevPlayerRotation;
+    float prevAngularVelocity;
 
-    private Vector2 prevRearWheelVelocity;
-    private Vector2 prevFrontWheelVelocity;
+    Vector2 prevRearWheelVelocity;
+    Vector2 prevFrontWheelVelocity;
 
-    private float prevRearWheelAngularVelocity;
-    private float prevFrontWheelAngularVelocity;
+    float prevRearWheelAngularVelocity;
+    float prevFrontWheelAngularVelocity;
 
 
     // PlayerPrefs Save Data
@@ -82,67 +82,67 @@ public class BikeController : MonoBehaviour
 
     // Physics System
 
-    private float lastAirTime;
+    float lastAirTime;
 
     // Double Mouse Press System
     [SerializeField] private float doublePressTime = 0.3f;
 
-    private int mouseClicks = 0;
-    private float mouseClickTimer = 0.0f;
-    private bool isDoubleMousePressed = false;
-    private Vector2 doubleClickForceDirection;
-    private Quaternion doubleClickRotation;
-    private bool isBeingPushedForward = false;
-    private float originalAngularDrag;
-    private Coroutine rotateBikeCoroutine = null;
-    private float flickStartTime;
+    int mouseClicks = 0;
+    float mouseClickTimer = 0.0f;
+    bool isDoubleMousePressed = false;
+    Vector2 doubleClickForceDirection;
+    Quaternion doubleClickRotation;
+    bool isBeingPushedForward = false;
+    float originalAngularDrag;
+    Coroutine rotateBikeCoroutine = null;
+    float flickStartTime;
 
     // Flip System
     public int flipCount = 0; // Flip counter
     [SerializeField] private float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
     [SerializeField] private float flipTorque;
-    private float lastZRotation = 0f;
-    private float rotationCounter = 0;
+    float lastZRotation = 0f;
+    float rotationCounter = 0;
     public int internalFlipCount = 0;
-    private bool hasLanded = false;
-    private Coroutine currentFlickerCoroutine = null;
+    bool hasLanded = false;
+    Coroutine currentFlickerCoroutine = null;
     bool hasBeenUpsideDown = false;
 
 
 
     // Wheelie System
-    private float wheelieGracePeriod = 0f; // in seconds
-    private float wheelieGraceEndTime;
-    private bool isBodyTouchingGround = false;
-    private bool isWheelie = false;
+    float wheelieGracePeriod = 0f; // in seconds
+    float wheelieGraceEndTime;
+    bool isBodyTouchingGround = false;
+    bool isWheelie = false;
     public float wheelieStartTime = 0f;
     public float totalWheelieTime;
 
 
     // Speed Boost System
-    private bool isSpeedBoosted = false;
-    private float speedBoostEndTime = 0f;
-    private float normalMotorSpeed;
-    private bool isBoosting = false; // Flag to track if the boost is active
-    private float boostMotorSpeed; // The target motor speed during the boost
+    bool isSpeedBoosted = false;
+    float speedBoostEndTime = 0f;
+    float normalMotorSpeed;
+    bool isBoosting = false; // Flag to track if the boost is active
+    float boostMotorSpeed; // The target motor speed during the boost
 
 
     // Bike Trail System
-    private float defaultTrailTime = 0.2f;
-    private TrailManager trailManager;
+    float defaultTrailTime = 0.2f;
+    TrailManager trailManager;
 
     // Visuals
-    private Color originalBikeColor;
-    private Color originalFrontWheelColor;
-    private Color originalBackWheelColor;
-    private Color originalTrailColor;
+    Color originalBikeColor;
+    Color originalFrontWheelColor;
+    Color originalBackWheelColor;
+    Color originalTrailColor;
 
 
-    private float maxAirHeight;
+    float maxAirHeight;
     // ----- VAR END ----- // 
     #endregion
 
-    private void Awake()
+    void Awake()
     {
         Instance = this;
 
@@ -656,7 +656,7 @@ public class BikeController : MonoBehaviour
         }
     }
     
-
+    
     void EndWheelie()
     {
         if (isWheelie)

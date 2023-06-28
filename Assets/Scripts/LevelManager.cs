@@ -16,7 +16,7 @@ public class LevelManager : MonoBehaviour
     public int currentLevel = 0;
     public GameObject currentLevelInstance;
 
-    private void Awake()
+    void Awake()
     {
         if (Instance == null)
         {
@@ -60,7 +60,7 @@ public class LevelManager : MonoBehaviour
     }
 
 
-    private IEnumerator StartLevelTransition(int level)
+    IEnumerator StartLevelTransition(int level)
     {
         yield return ScreenManager.Instance.PlayStartTransition();
         LoadLevel(level);
@@ -69,7 +69,7 @@ public class LevelManager : MonoBehaviour
     }
 
 
-    private void LoadLevel(int level)
+    void LoadLevel(int level)
     {
         // Delete the previous level instance if it exists
         if (currentLevelInstance != null)

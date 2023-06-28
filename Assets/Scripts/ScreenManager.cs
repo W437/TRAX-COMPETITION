@@ -50,12 +50,10 @@ public class ScreenManager : MonoBehaviour
     public GameObject Overlay_Menu;
     public TextMeshProUGUI T_Coins;
     public TextMeshProUGUI T_LvlsFinished;
-    public Rigidbody2D RB_MenuBike;
-    public GameObject MenuBike;
     public ParticleSystem MenuBikeParticles;
     public TrailRenderer MenuBikeTrail;
     public GameObject MenuPlatform;
-    public Rigidbody2D RB_MenuPlatform;
+
     public float menuBikeSpeed = 0f;
     public float menuBikeMaxSpeed = 7.5f;
     public float accelerationTimer;
@@ -95,17 +93,49 @@ public class ScreenManager : MonoBehaviour
     public Animator startTransitionAnimator;
     public Animator endTransitionAnimator;
     private float accelerationTime;
-    private const float startTransitionDuration = 1f; // Your start animation duration in seconds
-    private const float endTransitionDuration = 1f;   // Your end animation duration in seconds 
+
+    const float startTransitionDuration = 1f; // Your start animation duration in seconds
+    const float endTransitionDuration = 1f;   // Your end animation duration in seconds 
     #endregion
+
+
+
+
+
     public GameObject CurrentPlayerBike; // The current displayed prefab
-    private void Awake()
+    public Rigidbody2D RB_CurrentPlayerBike;
+    public Rigidbody2D RB_MenuPlatform;
+
+    public GameObject MenuBike;
+
+
+
+    void Awake()
     {
         Instance = this;
     }
 
     void Start()
     {
+
+
+        // Initiate Player Bike - based on players selected traits.
+
+        PlayerData playerData = GameManager.Instance.playerData;
+
+        int selectedBikeId = playerData.selectedBikeId;
+        int selectedTrailId = playerData.selectedTrailId;
+
+        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
+
+        GameObject selectedBike = BikeController.Instance.GetBikeById(selectedBikeId).bikePrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(selectedTrailId).trailPrefab;
+
+        RB_CurrentPlayerBike = CurrentPlayerBike.GetComponent<Rigidbody2D>();
+
+        ShopManager.Instance.DisplayBikePrefab(selectedBike);
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail); //child of above?! CHECK
+
 
         // ---------- Initial UI pos
 
@@ -193,7 +223,7 @@ public class ScreenManager : MonoBehaviour
 
         // ---------- ON GAME LAUNCH
         //TweenMainMenu(false);
-        startPos = RB_MenuBike.position; // Initial pos
+        startPos = RB_CurrentPlayerBike.position; // Initial pos
 
 
         // Main Menu
@@ -255,8 +285,8 @@ public class ScreenManager : MonoBehaviour
         
         if (GameManager.Instance.gameState == GameState.Menu)
         {
-            Rigidbody2D RB_MenuBike = ShopManager.Instance.RB_MenuBike;
-            Rigidbody2D RB_MenuPlatform = ShopManager.Instance.RB_MenuPlatform;
+            Rigidbody2D RB_MenuBike = ScreenManager.Instance.RB_CurrentPlayerBike;
+            Rigidbody2D RB_MenuPlatform = ScreenManager.Instance.RB_MenuPlatform;
 
             accelerationTimer += Time.fixedDeltaTime/2;
             // Calculate the current speed based on the elapsed time
@@ -541,12 +571,12 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
-    private void OnRestartClicked()
+    void OnRestartClicked()
     {
         SceneManager.LoadScene(0);
     }
 
-    private void OnBackClicked(GameObject currentPanel)
+    void OnBackClicked(GameObject currentPanel)
     {
         currentPanel.SetActive(false);
         TweenMainMenu(true);
