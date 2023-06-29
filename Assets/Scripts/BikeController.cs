@@ -43,6 +43,7 @@ public class BikeController : MonoBehaviour
     WheelJoint2D BikeWheelJoint;
     JointMotor2D BikeMotor;
 
+    private GameObject currentTrailInstance;
     float motorSpeed;
     float maxTorque;
     float downwardForce;
@@ -350,7 +351,7 @@ public class BikeController : MonoBehaviour
         }
 
         // Find the BikeData with the matching bikeId in the BikeDataList
-        Bike matchingBikeData = GameManager.Instance.BikeList.FirstOrDefault(b => b.bikeId == bikeId);
+        Bike matchingBikeData = BikeController.Instance.bikes.FirstOrDefault(b => b.bikeId == bikeId);
         if (matchingBikeData == null)
         {
             Debug.Log("Bike not found in BikeDataList!");
@@ -395,6 +396,7 @@ public class BikeController : MonoBehaviour
             BikeMotor = CurrentBikeComponents.BikeMotor;
 
             motorSpeed = CurrentBikeComponents.MotorSpeed;
+
             maxTorque = CurrentBikeComponents.MaxTorque;
             downwardForce = CurrentBikeComponents.DownwardForce;
             accelerationTime = CurrentBikeComponents.AccelerationTime;
@@ -402,12 +404,6 @@ public class BikeController : MonoBehaviour
             initialMaxTorque = CurrentBikeComponents.InitialMaxTorque;
             maxAirRotationSpeed = CurrentBikeComponents.MaxAirRotationSpeed;
             flipTorque = CurrentBikeComponents.FlipTorque;
-
-            originalBikeColor = CurrentBikeComponents.OriginalBikeColor;
-            originalFrontWheelColor = CurrentBikeComponents.OriginalFrontWheelColor;
-            originalBackWheelColor = CurrentBikeComponents.OriginalBackWheelColor;
-            originalTrailColor = CurrentBikeComponents.OriginalTrailColor;
-
             Debug.Log("All components linked.");
         }
 
@@ -428,21 +424,21 @@ public class BikeController : MonoBehaviour
         if (selectedTrail != null)
         {
             // Instantiate the trail as a child of the bike
-            GameObject trailInstance = Instantiate(selectedTrail, GameManager.Instance.GamePlayerBikeInstance.transform);
+            currentTrailInstance = Instantiate(selectedTrail, GameManager.Instance.GamePlayerBikeInstance.transform);
 
             // Find the BikeTrail empty GameObject in the bike prefab
             Transform bikeTrailTransform = GameManager.Instance.GamePlayerBikeInstance.transform.Find("Bike Trail");
             if (bikeTrailTransform != null)
             {
                 // Set the position of the trail to the position of the BikeTrail object
-                trailInstance.transform.position = bikeTrailTransform.position;
+                currentTrailInstance.transform.position = bikeTrailTransform.position;
             }
             else
             {
                 Debug.LogWarning("BikeTrail object not found in bike prefab. Trail position not set.");
             }
             // After instantiating the trail object
-            TrailRenderer = trailInstance.GetComponent<TrailRenderer>();
+            TrailRenderer = currentTrailInstance.GetComponent<TrailRenderer>();
 
         }
 
@@ -854,17 +850,17 @@ public class BikeController : MonoBehaviour
                 BikeBody.enabled = true;
 
             // Make the bike and its components transparent
-            BikeBodyRenderer.color = new Color(originalBikeColor.r, originalBikeColor.g, originalBikeColor.b, 0.5f);
-            FrontWheelRenderer.color = new Color(originalFrontWheelColor.r, originalFrontWheelColor.g, originalFrontWheelColor.b, 0.5f);
-            BackWheelRenderer.color = new Color(originalBackWheelColor.r, originalBackWheelColor.g, originalBackWheelColor.b, 0.5f);
-            TrailRenderer.startColor = new Color(originalTrailColor.r, originalTrailColor.g, originalTrailColor.b, 0.5f);
+            //GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeComponents>().BikeColorAlpha = 0.5f;
+            //TrailManager.Instance.ChangeTrailAlpha(currentTrailInstance, 0.5f);
             yield return new WaitForSeconds(0.1f);
 
             // Return to the original colors
-            BikeBodyRenderer.color = new Color(originalBikeColor.r, originalBikeColor.g, originalBikeColor.b, 1f);
-            FrontWheelRenderer.color = new Color(originalFrontWheelColor.r, originalFrontWheelColor.g, originalFrontWheelColor.b, 1f);
-            BackWheelRenderer.color = new Color(originalBackWheelColor.r, originalBackWheelColor.g, originalBackWheelColor.b, 1f);
-            TrailRenderer.startColor = new Color(originalTrailColor.r, originalTrailColor.g, originalTrailColor.b, 1f);
+            // BikeBodyRenderer.color = new Color(originalBikeColor.r, originalBikeColor.g, originalBikeColor.b, 1f);
+            // FrontWheelRenderer.color = new Color(originalFrontWheelColor.r, originalFrontWheelColor.g, originalFrontWheelColor.b, 1f);
+            // BackWheelRenderer.color = new Color(originalBackWheelColor.r, originalBackWheelColor.g, originalBackWheelColor.b, 1f);
+            // TrailRenderer.startColor = new Color(originalTrailColor.r, originalTrailColor.g, originalTrailColor.b, 1f);
+            // GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeComponents>().BikeColorAlpha = 1f;
+            // TrailManager.Instance.ChangeTrailAlpha(currentTrailInstance, 1f);
             yield return new WaitForSeconds(0.1f);
         }
 

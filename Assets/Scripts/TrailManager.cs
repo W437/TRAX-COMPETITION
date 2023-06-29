@@ -20,6 +20,22 @@ public class TrailManager : MonoBehaviour
         }
     }
 
+     public void ChangeTrailAlpha(GameObject trailPrefab, float alpha)
+    {
+        // Find the trail prefab's renderer component
+        var trailRenderer = trailPrefab.GetComponent<TrailRenderer>();
+        if (trailRenderer != null)
+        {
+            // Get the current material
+            var trailMaterial = trailRenderer.material;
+
+            // Update the alpha value of the material's color
+            var currentColor = trailMaterial.GetColor("_Color");
+            currentColor.a = alpha;
+            trailMaterial.SetColor("_Color", currentColor);
+        }
+    }
+
 
     public GameObject GetSelectedTrail(int selectedTrailId)
     {

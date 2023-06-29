@@ -268,18 +268,17 @@ MonoBehaviour:
   groundCheckCollider: {fileID: 7845807050319465294}
   bikeWheelJoint: {fileID: 7845807050704558631}
   rb_Bike: {fileID: 7845807050704558629}
-  motorSpeed: 0
+  motorSpeed: -5500
   downwardForce: 0
-  accelerationTime: 0
-  groundCheckDistance: 0
-  initialMaxTorque: 0
-  maxTorque: 0
-  maxAirRotationSpeed: 0
-  flipTorque: 0
-  originalBikeColor: {r: 0, g: 0, b: 0, a: 0}
-  originalFrontWheelColor: {r: 0, g: 0, b: 0, a: 0}
-  originalBackWheelColor: {r: 0, g: 0, b: 0, a: 0}
-  originalTrailColor: {r: 0, g: 0, b: 0, a: 0}
+  accelerationTime: 3
+  groundCheckDistance: 0.3
+  initialMaxTorque: 0.5
+  maxTorque: 5
+  maxAirRotationSpeed: 500
+  flipTorque: 0.2
+  originalBikeColor: {r: 1, g: 1, b: 1, a: 0}
+  originalFrontWheelColor: {r: 1, g: 1, b: 1, a: 0}
+  originalBackWheelColor: {r: 1, g: 1, b: 1, a: 0}
 --- !u!50 &7845807050704558629
 Rigidbody2D:
   serializedVersion: 4
@@ -568,7 +567,7 @@ MonoBehaviour:
   minParticleSpeed: 0
   maxParticleSpeed: 0
   minParticleSize: 0.5
-  maxParticleSize: 4
+  maxParticleSize: 1.2
 --- !u!1 &7845807051469140687
 GameObject:
   m_ObjectHideFlags: 0

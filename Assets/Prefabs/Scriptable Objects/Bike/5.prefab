@@ -161,7 +161,7 @@ GameObject:
   - component: {fileID: 7845807050704558654}
   - component: {fileID: 5826907626409496008}
   m_Layer: 7
-  m_Name: 2
+  m_Name: 5
   m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -230,7 +230,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 4b43a1d5167a49f449f0842bd79f10e6, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0.8431506, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -268,7 +268,7 @@ MonoBehaviour:
   groundCheckCollider: {fileID: 7845807050319465294}
   bikeWheelJoint: {fileID: 7845807050704558631}
   rb_Bike: {fileID: 7845807050704558629}
-  motorSpeed: -7500
+  motorSpeed: -5500
   downwardForce: 0
   accelerationTime: 3
   groundCheckDistance: 0.3

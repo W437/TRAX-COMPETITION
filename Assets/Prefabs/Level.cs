@@ -10,4 +10,16 @@ public class Level : ScriptableObject
     public float star3Time;
     public int levelLeaderboardID;
     // add other data as needed
+
+    [System.Serializable]
+    public enum LevelCategory
+    {
+        Easy,
+        Medium,
+        Hard,
+        Wheelie,
+        Flips
+    }
+
+    public LevelCategory category;
 }

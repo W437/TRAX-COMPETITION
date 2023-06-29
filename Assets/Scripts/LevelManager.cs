@@ -10,6 +10,8 @@ public class LevelManager : MonoBehaviour
     public Transform levelsGameObject;
     public BackgroundParalax bgParalax;
 
+    public TMPro.TextMeshProUGUI levelInfoText;
+
 
     public Level[] levels; // Assign in Unity Editor
 
@@ -64,7 +66,17 @@ public class LevelManager : MonoBehaviour
     {
         yield return ScreenManager.Instance.PlayStartTransition();
         LoadLevel(level);
+
+        // Enable the levelInfoText during the transition
+        levelInfoText.gameObject.SetActive(true);
+
+        // Update the levelInfoText with the level category and level number
+        levelInfoText.text = levels[level].category.ToString() + " - Level " + levels[level].levelNumber+1;
+
         yield return new WaitForSeconds(0.5f);  // optional delay
+
+        // Disable the levelInfoText after the transition ends
+        levelInfoText.gameObject.SetActive(false);
         StartCoroutine(ScreenManager.Instance.PlayEndTransition());
     }
 
@@ -97,7 +109,7 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
 
-        GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
+         GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
         GameManager.Instance.GamePlayerBikeInstance.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
 
         BikeController.Instance.PauseBike();

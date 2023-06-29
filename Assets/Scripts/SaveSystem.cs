@@ -20,7 +20,7 @@ public static class SaveSystem
         if (!File.Exists(filePath))
         {
             PlayerData data = new PlayerData();
-            data.coins = 125;
+            data.coins = 11225;
             data.unlockedBikes = new int[] { 0 };
             data.selectedBikeId = 0;
             data.unlockedTrails = new int[] { 0 };

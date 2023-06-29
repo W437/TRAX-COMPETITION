@@ -38,7 +38,6 @@ public class BikeComponents : MonoBehaviour
     [SerializeField] Color originalBikeColor;
     [SerializeField] Color originalFrontWheelColor;
     [SerializeField] Color originalBackWheelColor;
-    [SerializeField] Color originalTrailColor;
 
     /*
     public void SetTrail(int trailId)
@@ -90,12 +89,6 @@ public class BikeComponents : MonoBehaviour
     {
         get { return originalBackWheelColor; }
         set { originalBackWheelColor = value; }
-    }
-
-    public Color OriginalTrailColor
-    {
-        get { return originalTrailColor; }
-        set { originalTrailColor = value; }
     }
 
 

@@ -63,7 +63,6 @@ public class ScreenManager : MonoBehaviour
     public Button B_LeftBtn;
     public Button B_Trails;
     public Button B_Bikes;
-    public TextMeshProUGUI selectedPrice;
 
     [Header("Level End Buttons")]
     public Button B_Leaderboard;
@@ -120,6 +119,7 @@ public class ScreenManager : MonoBehaviour
     void Start()
     {
         // Initiate Player Bike - based on players selected traits.
+        
         PlayerData playerData = GameManager.Instance.playerData;
 
         int selectedBikeId = playerData.selectedBikeId;
@@ -156,12 +156,9 @@ public class ScreenManager : MonoBehaviour
             Debug.LogError("No Trail prefab found for ID: " + selectedTrailId);
             return;
         }
-
+        
+        
         PlayerMenuBike = ShopManager.Instance.DisplayBikePrefab(selectedBike);
-        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
-
-        RB_PlayerMenuBike = PlayerMenuBike.GetComponent<Rigidbody2D>();
-    
         ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
 
         RB_PlayerMenuBike = PlayerMenuBike.GetComponent<Rigidbody2D>();
@@ -258,6 +255,7 @@ public class ScreenManager : MonoBehaviour
         // Main Menu
         B_Start.onClick.AddListener(delegate { LoadLevelsScreen(true); });
         B_Shop.onClick.AddListener(delegate { GoToShop();  });
+        B_Leaderboard.onClick.AddListener(delegate { SaveSystem.ResetSaveFile();  });
 
         // Set Data
         T_Coins.text = "" + GameManager.Instance.GetPlayerData().coins;
@@ -297,6 +295,8 @@ public class ScreenManager : MonoBehaviour
         // Shop Section
         B_ShopBackMenu.onClick.AddListener(delegate
         {
+            ShopManager.Instance.SelectBike(ShopManager.Instance.currentBikeIndex);
+            ShopManager.Instance.SelectTrail(ShopManager.Instance.currentTrailIndex);
             CameraController.Instance.SwitchToMenuCamera();
             GoToMainMenu();
             Panel_Shop.SetActive(false);
