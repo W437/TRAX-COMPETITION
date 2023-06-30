@@ -21,9 +21,13 @@ public class CameraController : MonoBehaviour
 
     // Reference to the VirtualCamera
     public CinemachineVirtualCamera virtualCamera;
+    public Camera mainCamera;
 
     // Reference to the Composer
     public CinemachineFramingTransposer composer;
+
+    private CinemachineBrain mainCameraBrain;
+    private CinemachineBlendDefinition originalBlendDefinition;
 
     // Previous jumping state
     bool wasJumping;
@@ -34,6 +38,8 @@ public class CameraController : MonoBehaviour
     void Awake()
     {
         Instance = this;
+        mainCameraBrain = mainCamera.GetComponent<CinemachineBrain>();
+        originalBlendDefinition = mainCameraBrain.m_DefaultBlend;
     }
 
     void Start()
@@ -115,14 +121,43 @@ public class CameraController : MonoBehaviour
         }
     }
 
+    private void SetCameraBlendStyle(CinemachineVirtualCamera fromCam, CinemachineVirtualCamera toCam)
+    {
+        if (fromCam == gameCamera && toCam == menuCamera)
+        {
+            CinemachineBlendDefinition blendDef = new CinemachineBlendDefinition(CinemachineBlendDefinition.Style.Cut, 0);
+            mainCameraBrain.m_DefaultBlend = blendDef;
+            StartCoroutine(RevertDefaultBlend());
+        }
+        else if (fromCam == shopCamera && toCam == menuCamera)
+        {
+            mainCameraBrain.m_DefaultBlend = originalBlendDefinition;
+        }
+    }
+
+    IEnumerator RevertDefaultBlend()
+    {
+        yield return new WaitForSeconds(1);
+        mainCameraBrain.m_DefaultBlend = originalBlendDefinition;    
+    }
+
     public void SwitchToGameCamera()
     {
+        SetCameraBlendStyle(menuCamera, gameCamera);
         gameCamera.Priority = 11;
         menuCamera.Priority = 10;
     }
 
     public void SwitchToMenuCamera()
     {
+        if (gameCamera.Priority > menuCamera.Priority)
+        {
+            SetCameraBlendStyle(gameCamera, menuCamera);
+        }
+        else if (shopCamera.Priority > menuCamera.Priority)
+        {
+            SetCameraBlendStyle(shopCamera, menuCamera);
+        }
         gameCamera.Priority = 10;
         menuCamera.Priority = 11;
         shopCamera.Priority = 9;
@@ -130,9 +165,13 @@ public class CameraController : MonoBehaviour
 
     public void SwitchToShopCamera()
     {
+        SetCameraBlendStyle(menuCamera, shopCamera);
         shopCamera.Priority = 11;
         menuCamera.Priority = 10;
+        gameCamera.Priority = 9;
     }
+
+
 
     IEnumerator DelayedVelocityCheck(bool jumped)
     {

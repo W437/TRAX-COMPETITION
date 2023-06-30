@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -125,7 +126,7 @@ public class ScreenManager : MonoBehaviour
         int selectedBikeId = playerData.selectedBikeId;
         int selectedTrailId = playerData.selectedTrailId;
 
-        Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
+        //Debug.Log("Selected Bike ID: " + selectedBikeId + " Trail: " + selectedTrailId);
 
         Bike selectedBikeData = BikeController.Instance.GetBikeById(selectedBikeId);
         Trail selectedTrailData = TrailManager.Instance.GetTrailById(selectedTrailId);
@@ -255,7 +256,7 @@ public class ScreenManager : MonoBehaviour
         // Main Menu
         B_Start.onClick.AddListener(delegate { LoadLevelsScreen(true); });
         B_Shop.onClick.AddListener(delegate { GoToShop();  });
-        B_Leaderboard.onClick.AddListener(delegate { SaveSystem.ResetSaveFile();  });
+        B_Leaderboard.onClick.AddListener(delegate {  GameManager.Instance.PrintAllPlayerData();  });
 
         // Set Data
         T_Coins.text = "" + GameManager.Instance.GetPlayerData().coins;
@@ -266,14 +267,15 @@ public class ScreenManager : MonoBehaviour
 
         B_Paused_Resume.onClick.AddListener( ResumeGame );
 
-        B_Paused_Restart.onClick.AddListener(delegate { LevelManager.Instance.StartLevel(LevelManager.Instance.currentLevel); });
+        B_Paused_Restart.onClick.AddListener(delegate 
+        { 
+            TweenPauseGame(false);
+            LevelManager.Instance.StartLevel(LevelManager.Instance.CurrentLevelID);   
+        });
 
         B_Paused_Menu.onClick.AddListener(delegate 
         {
-            TweenPauseGame(false);
-            TweenGameHUD(false);
-            GoToMainMenu();
-            GameManager.Instance.ResetLevelStats();
+            StartCoroutine(GoToMenuFromGame());
         });
 
 
@@ -297,6 +299,7 @@ public class ScreenManager : MonoBehaviour
         {
             ShopManager.Instance.SelectBike(ShopManager.Instance.currentBikeIndex);
             ShopManager.Instance.SelectTrail(ShopManager.Instance.currentTrailIndex);
+            //ShopManager.Instance.ResetDefaultSelection();
             CameraController.Instance.SwitchToMenuCamera();
             GoToMainMenu();
             Panel_Shop.SetActive(false);
@@ -306,8 +309,18 @@ public class ScreenManager : MonoBehaviour
     }
 
     public Vector2 startPos;
-    public float loopPointX = 0f;
     private Vector2 bikePosition;
+
+    IEnumerator GoToMenuFromGame()
+    {
+        StartCoroutine(PlayTransition());
+        yield return new WaitForSeconds(0.3f); // Wait for 0.3 seconds
+        TweenPauseGame(false);
+        TweenGameHUD(false);
+        GoToMainMenu();
+        GameManager.Instance.ResetLevelStats();
+    }
+
 
     // Update is called once per frame
     void FixedUpdate()
@@ -424,7 +437,6 @@ public class ScreenManager : MonoBehaviour
         TweenMainMenu(true);
         backgroundParalax.ResetParallax();
         GameManager.Instance.SetGameState(GameState.Menu);
-        backgroundParalax.ResetParallax();
     }
 
     private void GoToShop()
@@ -480,8 +492,26 @@ public class ScreenManager : MonoBehaviour
             levelEntry.SetLevel(i);
 
             levelEntry.T_LevelName.text = "Level " + (i+1);
-            levelEntry.T_Faults.text = 12 + "";
-            levelEntry.T_Timer.text = "1:51:54";
+
+            // Get LevelStats for this level
+            PlayerData _playerData = GameManager.Instance.GetPlayerData();
+            LevelStats levelStats = _playerData.GetLevelStats(item.category, i);
+            
+            if(levelStats != null)
+            {
+                // Time in milliseconds is converted to TimeSpan and then formatted to a string
+                TimeSpan timeSpan = TimeSpan.FromMilliseconds(levelStats.time);
+                levelEntry.T_Timer.text = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
+
+                // Display faults
+                levelEntry.T_Faults.text = levelStats.faults.ToString();
+            }
+            else
+            {
+                // Display default values or a message indicating that there are no stats available for this level
+                levelEntry.T_Timer.text = "N/A";
+                levelEntry.T_Faults.text = "N/A";
+            }
 
             // Add this level to our list
             instantiatedLevels.Add(levelUnitInstance);
@@ -489,6 +519,7 @@ public class ScreenManager : MonoBehaviour
             i++;
         }
     }
+
 
     public void RemoveLevelsPanel()
     {
@@ -622,21 +653,41 @@ public class ScreenManager : MonoBehaviour
 
     public void OnLevelEnd()
     {
+        // Assume GameManager.Instance.levelTime is in seconds. Convert to milliseconds for storage.
+        float levelTimeMilliseconds = GameManager.Instance.LevelTimer * 1000;
+
+        LevelStats levelStats = new LevelStats 
+        { 
+            time = levelTimeMilliseconds, 
+            faults = BikeController.Instance.faults, 
+            flips = BikeController.Instance.flipCount, 
+            wheelie = BikeController.Instance.wheeliePoints 
+        };
+        var _currentLevelID = LevelManager.Instance.CurrentLevelID;
+        var _levels = LevelManager.Instance.levels;
+        
+        PlayerData _playerData = GameManager.Instance.GetPlayerData();
+        _playerData.AddLevelStats(_levels[_currentLevelID].category, _levels[_currentLevelID].levelID, levelStats);
+
+        SaveSystem.SavePlayerData(_playerData);
+
+        Level.LevelCategory currentLevelCategory = _levels[_currentLevelID].category;
+        LevelStats stats = _playerData.GetLevelStats(currentLevelCategory, _currentLevelID);
+        Debug.Log("Saved Data: " + stats.time + " " + stats.faults );
+
         Panel_GameHUD.SetActive(false);
         Panel_GameOver.SetActive(true);
 
-        var levelTime = GameManager.Instance.timerText.text;
-        T_LevelTime.text = "" + levelTime;
+        // Convert the time back to seconds for display and format it as M:SS:MS
+        TimeSpan _timeSpan = TimeSpan.FromSeconds(GameManager.Instance.LevelTimer);
+        string _formattedTime = string.Format("{0}:{1:00}:{2:00}", _timeSpan.Minutes, _timeSpan.Seconds, _timeSpan.Milliseconds / 10);
 
-        var levelFaults = GameManager.Instance.faultCountText.text;
-        T_Faults.text = "" + levelFaults;
-
-        var levelWheelie = GameManager.Instance.wheelieTimeText.text;
-        T_Wheelie.text = "" + levelWheelie;
-
-        var flipCount = GameManager.Instance.flipCountText.text;
-        T_Flips.text = "" + flipCount;
+        T_LevelTime.text = _formattedTime;
+        T_Faults.text = GameManager.Instance.faultCountText.text;
+        T_Wheelie.text = GameManager.Instance.wheelieTimeText.text;
+        T_Flips.text = GameManager.Instance.flipCountText.text;
     }
+
 
 
 

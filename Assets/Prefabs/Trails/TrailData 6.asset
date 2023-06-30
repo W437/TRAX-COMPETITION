@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   trailPrefab: {fileID: 7143726258993357292, guid: 35329f7c855a97b4da49c06e1a760599, type: 3}
   trailId: 5
-  price: 2814
+  price: 150

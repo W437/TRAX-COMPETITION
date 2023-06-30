@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public static class SaveSystem
@@ -9,6 +8,7 @@ public static class SaveSystem
 
     public static void SavePlayerData(PlayerData data)
     {
+        data.UpdateSerializableLevelStatsList(); // Convert dictionary to list before saving
         string json = JsonUtility.ToJson(data);
         File.WriteAllText(filePath, json);
     }
@@ -32,7 +32,8 @@ public static class SaveSystem
             data.totalPlayTime = 0;
             data.totalFlips = 0;
             data.totalWheelie = 0;
-
+            data.levelStatsDictionary = new Dictionary<string, LevelStats>();
+            data.UpdateSerializableLevelStatsList(); // Convert dictionary to list before saving
             SavePlayerData(data);
             Debug.Log("New data: " + data.ToString() + " at: " + filePath.ToString());
 
@@ -45,6 +46,7 @@ public static class SaveSystem
 
             // Use JsonUtility to convert the json to a PlayerData object
             PlayerData data = JsonUtility.FromJson<PlayerData>(json);
+            data.UpdateLevelStatsDictionaryFromList(); // Convert list back to dictionary after loading
             Debug.Log("Loaded savedata: " + data.ToString() + " at: " + filePath.ToString());
 
             return data;
@@ -60,7 +62,4 @@ public static class SaveSystem
             Debug.Log("Save file deleted.");
         }
     }
-
-
 }
-

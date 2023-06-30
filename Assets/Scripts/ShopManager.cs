@@ -8,7 +8,6 @@ using UnityEngine.UI;
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance;
-    public GameObject displayArea; // The area where prefabs will be instantiated
     public Button bikeButton;
     public Button trailButton;
     public Button nextButton;
@@ -69,17 +68,45 @@ public class ShopManager : MonoBehaviour
         + "/" + TrailManager.Instance.GetAllTrails().Length + "";
     }
 
+    public void ResetDefaultSelection()
+    {
+        Debug.Log("BikeList length: " + GameManager.Instance.BikeList.Length);
+Debug.Log("TrailList length: " + GameManager.Instance.TrailList.Length);
+
+        PlayerData _playerData = GameManager.Instance.GetPlayerData();
+        Debug.Log("Player Data: " + _playerData.selectedBikeId + " Trail: " + _playerData.selectedTrailId);
+
+        if (_playerData.selectedBikeId >= 0 && _playerData.selectedBikeId < GameManager.Instance.BikeList.Length)
+        {
+            DisplayBikePrefab(GameManager.Instance.BikeList[_playerData.selectedBikeId].bikePrefab);
+        }
+        else
+        {
+            Debug.LogError("Bike index is out of range.");
+        }
+
+        if (_playerData.selectedTrailId >= 0 && _playerData.selectedTrailId < GameManager.Instance.TrailList.Length)
+        {
+            DisplayTrailPrefab(GameManager.Instance.TrailList[_playerData.selectedTrailId].trailPrefab);
+        }
+        else
+        {
+            Debug.LogError("Trail index is out of range.");
+        }
+    }
+
+
     public void BuyID(int id)
     {
         if(isBikeMode)
         {
-            if(BuyBike(currentBikeIndex) == PurchaseResult.Success)
+            if(BuyBike(currentBikeIndex) == BuyResult.Success)
             {
                 SelectBike(currentBikeIndex);
                 buyButton.GetComponent<Image>().sprite = buyButton_UnlockedImg;
                 BikeStatus.GetComponent<Image>().sprite = UnlockedIcon;
             }
-            else if(BuyBike(currentBikeIndex) == PurchaseResult.InsufficientFunds)
+            else if(BuyBike(currentBikeIndex) == BuyResult.InsufficientFunds)
             {
 
             }
@@ -87,13 +114,13 @@ public class ShopManager : MonoBehaviour
         }
         else
         {
-            if(BuyTrail(currentTrailIndex) == PurchaseResult.Success)
+            if(BuyTrail(currentTrailIndex) == BuyResult.Success)
             {
                 SelectTrail(currentTrailIndex);
                 buyButton.GetComponent<Image>().sprite = buyButton_UnlockedImg;
                 TrailStatus.GetComponent<Image>().sprite = UnlockedIcon;
             }
-            else if(BuyTrail(currentTrailIndex) == PurchaseResult.InsufficientFunds)
+            else if(BuyTrail(currentTrailIndex) == BuyResult.InsufficientFunds)
             {
 
             }
@@ -108,7 +135,7 @@ public class ShopManager : MonoBehaviour
     }
 
 
-    public enum PurchaseResult
+    public enum BuyResult
     {
         Success,
         InsufficientFunds,
@@ -116,39 +143,37 @@ public class ShopManager : MonoBehaviour
         Owned
     }
 
-    public PurchaseResult BuyBike(int bikeId)
+    public BuyResult BuyBike(int bikeId)
     {
         Bike bikeToBuy = BikeController.Instance.GetAllBikes().FirstOrDefault(b => b.bikeId == bikeId);
 
         if (bikeToBuy == null)
         {
             Debug.LogError("No bike found with ID: " + bikeId);
-            return PurchaseResult.InvalidID;
+            return BuyResult.InvalidID;
         }
 
-        PlayerData playerData = GameManager.Instance.GetPlayerData();
+        PlayerData _playerData = GameManager.Instance.GetPlayerData();
 
-        if (playerData.coins < bikeToBuy.price)
+        if (_playerData.coins < bikeToBuy.price)
         {
             Debug.Log("Not enough coins to buy this bike.");
-            return PurchaseResult.InsufficientFunds;
+            return BuyResult.InsufficientFunds;
         }
 
-        if (playerData.unlockedBikes.Contains(bikeId))
+        if (_playerData.unlockedBikes.Contains(bikeId))
         {
             Debug.Log("You already own this bike.");
-            return PurchaseResult.Owned;
+            return BuyResult.Owned;
         }
 
-        // Subtract the price from the player's coins and unlock the bike
-        playerData.coins -= bikeToBuy.price;
-        playerData.unlockedBikes = playerData.unlockedBikes.Concat(new int[] { bikeId }).ToArray();
+        _playerData.coins -= bikeToBuy.price;
+        _playerData.unlockedBikes = _playerData.unlockedBikes.Concat(new int[] { bikeId }).ToArray();
 
-        // Save the player data
-        SaveSystem.SavePlayerData(playerData);
+        SaveSystem.SavePlayerData(_playerData);
 
         Debug.Log("Successfully bought bike with ID: " + bikeId);
-        return PurchaseResult.Success;
+        return BuyResult.Success;
     }
 
     public void SelectBike(int bikeId)
@@ -165,13 +190,13 @@ public class ShopManager : MonoBehaviour
         SaveSystem.SavePlayerData(playerData);
     }
 
-    public PurchaseResult BuyTrail(int trailId)
+    public BuyResult BuyTrail(int trailId)
     {
         Trail trailToBuy = TrailManager.Instance.GetAllTrails().FirstOrDefault(t => t.trailId == trailId);
         if (trailToBuy == null)
         {
             Debug.LogError("No trail found with ID: " + trailId);
-            return PurchaseResult.InvalidID;
+            return BuyResult.InvalidID;
         }
 
         PlayerData playerData = GameManager.Instance.GetPlayerData();
@@ -179,24 +204,22 @@ public class ShopManager : MonoBehaviour
         if (playerData.coins < trailToBuy.price)
         {
             Debug.Log("Not enough coins to buy this trail.");
-            return PurchaseResult.InsufficientFunds;
+            return BuyResult.InsufficientFunds;
         }
 
         if (playerData.unlockedTrails.Contains(trailId))
         {
             Debug.Log("You already own this trail.");
-            return PurchaseResult.Owned;
+            return BuyResult.Owned;
         }
 
-        // Subtract the price from the player's coins and unlock the trail
         playerData.coins -= trailToBuy.price;
         playerData.unlockedTrails = playerData.unlockedTrails.Concat(new int[] { trailId }).ToArray();
 
-        // Save the player data
         SaveSystem.SavePlayerData(playerData);
 
         Debug.Log("Successfully bought trail with ID: " + trailId);
-        return PurchaseResult.Success;
+        return BuyResult.Success;
     }
 
     public void SelectTrail(int trailId)
@@ -223,6 +246,12 @@ public class ShopManager : MonoBehaviour
 
     void SwitchToTrailMode()
     {
+        Debug.Log("SwitchToTrailMode called");
+        Debug.Log("TrailManager.Instance: " + (TrailManager.Instance == null ? "null" : "exists"));
+        Debug.Log("GetAllTrails: " + (TrailManager.Instance.GetAllTrails() == null ? "null" : "exists"));
+        Debug.Log("GetAllTrails[currentTrailIndex]: " + (TrailManager.Instance.GetAllTrails()[currentTrailIndex] == null ? "null" : "exists"));
+        Debug.Log("trailPrefab: " + (TrailManager.Instance.GetAllTrails()[currentTrailIndex].trailPrefab == null ? "null" : "exists"));
+        
         isBikeMode = false;
         bikeButton.GetComponent<Image>().color = new Color(0,0,0,0.4f);
         trailButton.GetComponent<Image>().color = new Color(0,0,0,0.8f);
@@ -260,7 +289,6 @@ public class ShopManager : MonoBehaviour
     }
 
 
-
     public GameObject DisplayBikePrefab(GameObject prefab)
     {
         TrailStatus.SetActive(false);
@@ -276,23 +304,22 @@ public class ShopManager : MonoBehaviour
         isBikeSwitched = true;
 
         // Check if exists
-        GameObject currBike = ScreenManager.Instance.PlayerMenuBike;
+        GameObject _currentBike = ScreenManager.Instance.PlayerMenuBike;
 
-        Vector2 oldBikePosition = (currBike != null) ? currBike.transform.position : Vector2.zero;
-        Vector2 oldBikeVelocity = (currBike != null) ? currBike.GetComponent<Rigidbody2D>().velocity : Vector2.zero;
-
+        Vector2 oldBikePosition = (_currentBike != null) ? _currentBike.transform.position : Vector2.zero;
+        Vector2 oldBikeVelocity = (_currentBike != null) ? _currentBike.GetComponent<Rigidbody2D>().velocity : Vector2.zero;
 
         // Store the current trail so it can be reattached to the new bike
         Transform currentTrail = null;
         Vector3 currentTrailLocalPosition = Vector3.zero; // Store local position of the trail
         Quaternion currentTrailLocalRotation = Quaternion.identity; // Store local rotation of the trail
 
-        if(currBike == null)
-            Debug.Log("Currbike Inistial Null.");
+        if(_currentBike == null)
+            Debug.Log("_currentBike null.");
 
-        if (currBike != null)
+        if (_currentBike != null)
         {
-            Transform currentTrailTransform = currBike.transform.Find("Bike Trail");
+            Transform currentTrailTransform = _currentBike.transform.Find("Bike Trail");
             if (currentTrailTransform != null)
             {
                 // Detach the trail from the bike
@@ -302,20 +329,20 @@ public class ShopManager : MonoBehaviour
                 currentTrailTransform.parent = null;
             }
 
-            oldBikePosition = currBike.transform.position;
-            oldBikeVelocity = currBike.GetComponent<Rigidbody2D>().velocity;
-            Debug.Log("Destroying old bike: " + currBike);
-            Destroy(currBike);
+            oldBikePosition = _currentBike.transform.position;
+            oldBikeVelocity = _currentBike.GetComponent<Rigidbody2D>().velocity;
+            Debug.Log("Destroying old bike: " + _currentBike);
+            Destroy(_currentBike);
         }
 
-        currBike = Instantiate(prefab, new Vector2(0, 0.7f), Quaternion.identity);
-    if (currBike == null)
-    {
-        Debug.LogError("Failed to instantiate bike");
-        return null;
-    }
+        _currentBike = Instantiate(prefab, new Vector2(0, 0.7f), Quaternion.identity);
+        if (_currentBike == null)
+        {
+            Debug.LogError("Failed to instantiate bike");
+            return null;
+        }
         // Remove the default trail from the new bike
-        Transform newBikeTrailTransform = currBike.transform.Find("Bike Trail");
+        Transform newBikeTrailTransform = _currentBike.transform.Find("Bike Trail");
         if (newBikeTrailTransform != null)
         {
             Destroy(newBikeTrailTransform.gameObject);
@@ -324,30 +351,29 @@ public class ShopManager : MonoBehaviour
         // If a trail was detached from the old bike, attach it to the new one
         if (currentTrail != null)
         {
-            currentTrail.parent = currBike.transform;
+            currentTrail.parent = _currentBike.transform;
             currentTrail.localPosition = currentTrailLocalPosition;
             currentTrail.localRotation = currentTrailLocalRotation;
         }
 
-        Debug.Log("Instantiated new bike: " + currBike.ToString());
+        //Debug.Log("Instantiated bike: " + _currentBike.ToString());
 
-        currBike.transform.position = oldBikePosition;
-        currBike.GetComponent<Rigidbody2D>().velocity = oldBikeVelocity;
+        _currentBike.transform.position = oldBikePosition;
+        _currentBike.GetComponent<Rigidbody2D>().velocity = oldBikeVelocity;
 
-        ScreenManager.Instance.RB_PlayerMenuBike = currBike.GetComponent<Rigidbody2D>();
+        ScreenManager.Instance.RB_PlayerMenuBike = _currentBike.GetComponent<Rigidbody2D>();
 
         ScreenManager.Instance.RB_PlayerMenuBike.AddForce(new Vector2(0, 0.3f), ForceMode2D.Impulse);
         ScreenManager.Instance.RB_PlayerMenuBike.constraints = RigidbodyConstraints2D.FreezeRotation; // Freeze rotation
 
         // Update the PlayerMenuBike reference in ScreenManager script
-        ScreenManager.Instance.PlayerMenuBike = currBike;
+        ScreenManager.Instance.PlayerMenuBike = _currentBike;
 
         var bikeParent = ScreenManager.Instance.MenuBikeObjectParent;
 
-        currBike.transform.SetParent(bikeParent.transform);
-        Debug.Log("Set to Parent: " + bikeParent);
+        _currentBike.transform.SetParent(bikeParent.transform);
+        //Debug.Log("Set to Parent: " + bikeParent);
 
-        // Check if prefab is null
         if (prefab == null)
         {
             Debug.LogError("Prefab is null in DisplayBikePrefab");
@@ -355,44 +381,35 @@ public class ShopManager : MonoBehaviour
         }
 
         // Camera Follow
-        CameraController.Instance.menuCamera.Follow = currBike.transform;
-        CameraController.Instance.shopCamera.Follow = currBike.transform;
+        CameraController.Instance.menuCamera.Follow = _currentBike.transform;
+        CameraController.Instance.shopCamera.Follow = _currentBike.transform;
 
-        Debug.Log("Current bike: " + currBike);
+        Debug.Log("Current bike: " + _currentBike);
 
-        // Exclude the unnecessary components from the instantiated bike
-        BikeComponents bikeComponents = currBike.GetComponent<BikeComponents>();
+        // Exclude unnecessary components from the instantiated bike (for Menu Only)
+        BikeComponents bikeComponents = _currentBike.GetComponent<BikeComponents>();
         
         if (bikeComponents != null)
         {
             Destroy(bikeComponents);
         }
 
-        BikeParticles playerParticles = currBike.GetComponent<BikeParticles>();
+        BikeParticles playerParticles = _currentBike.GetComponent<BikeParticles>();
 
         if (playerParticles != null)
         {
             Destroy(playerParticles);
         }
 
-        int bikeId = currentBikeIndex; // or get bikeId from prefab
+        int bikeId = currentBikeIndex;
         bool isUnlocked = GameManager.Instance.GetPlayerData().unlockedBikes.Contains(bikeId);
        
-        Debug.Log("BikeID: " + bikeId + " Is Unlocked?:" + isUnlocked);
-        Debug.Log("Current Bike ID: " + bikeId);
-        Debug.Log("Number of Bikes: " + BikeController.Instance.GetAllBikes().Length);
-
-        foreach(Bike bike in BikeController.Instance.GetAllBikes())
-            Debug.Log("Bike in bikePrefabs, ID: " + bike.bikeId);
+        // Debug.Log("BikeID: " + bikeId + " Is Unlocked?:" + isUnlocked);
+        // Debug.Log("Number of Bikes: " + BikeController.Instance.GetAllBikes().Length);
 
         Bike bikeToBuy = BikeController.Instance.GetAllBikes().FirstOrDefault(t => t.bikeId == bikeId);
-        
-        foreach(Bike bike in BikeController.Instance.GetAllBikes())
-        {
-            Debug.Log("Bike ID: " + bike.bikeId + ", Bike Price: " + bike.price);
-        }
 
-        Debug.Log("BikeToBuy: " + bikeToBuy + " Info?:" + bikeToBuy.price);
+        // Debug.Log("BikeToBuy: " + bikeToBuy + " Info?:" + bikeToBuy.price);
 
         if (isUnlocked)
         {
@@ -411,15 +428,15 @@ public class ShopManager : MonoBehaviour
 
         selectedID.text = "Bike ID: " + (bikeToBuy != null ? bikeToBuy.bikeId : "null") + "";
 
-        return currBike;
+        return _currentBike;
     }
-
 
     public void DisplayTrailPrefab(GameObject prefab)
     {
         BikeStatus.SetActive(false);
         TrailStatus.SetActive(true);
-        var currBike = ScreenManager.Instance.PlayerMenuBike;
+
+        var _currentBike = ScreenManager.Instance.PlayerMenuBike;
 
         if (prefab == null) 
         {
@@ -427,57 +444,57 @@ public class ShopManager : MonoBehaviour
             return;
         }
 
-        if (currBike == null) 
+        if (_currentBike == null) 
         {
-            Debug.LogError("PlayerMenuBike is null.");
+            Debug.LogError("Current player bike is null.");
             return;
         }
 
-        // Access the current trail on the bike
-        Transform currentTrailTransform = currBike.transform.Find("Bike Trail");
+        // Corrected the name to "Trail"
+        Transform currentTrailTransform = _currentBike.transform.Find("Trail");
+        Vector3 position = _currentBike.transform.position;
+
         if (currentTrailTransform != null)
         {
-            // Destroy the current trail
+            position = currentTrailTransform.position;
             Destroy(currentTrailTransform.gameObject);
         }
 
         // Instantiate the new trail at the position of the "Bike Trail" gameobject
-        GameObject newTrail = Instantiate(prefab, currentTrailTransform.position, Quaternion.identity, currBike.transform);
-        newTrail.name = "Bike Trail";  // Name the new gameobject as "Bike Trail"
-      
+        int _trailId = currentTrailIndex;
+        Trail _trailToBuy = TrailManager.Instance.GetAllTrails().FirstOrDefault(t => t.trailId == _trailId);
 
-        int trailId = currentTrailIndex; // or get trailId from prefab
-        Trail trailToBuy = TrailManager.Instance.GetAllTrails().FirstOrDefault(t => t.trailId == trailId);
-        PlayerData playerData = GameManager.Instance.GetPlayerData();
-        if (playerData.unlockedTrails != null)
+        GameObject _currentBikeTrail = Instantiate(prefab, position, Quaternion.identity, _currentBike.transform);
+        _currentBikeTrail.name = "Trail";  // Name the new gameobject as "Trail"
+
+        PlayerData _playerData = GameManager.Instance.GetPlayerData();
+
+        if (_playerData.unlockedTrails != null)
         {
-            bool isUnlocked = playerData.unlockedTrails.Contains(trailId);
+            bool isUnlocked = _playerData.unlockedTrails.Contains(_trailId);
+
             if (isUnlocked && !isBikeMode)
             {
-                selectedPrice.text = trailToBuy.price + "";
+                selectedPrice.text = _trailToBuy.price + "";
                 TrailStatus.GetComponent<Image>().sprite = UnlockedIcon;
                 buyButton.GetComponent<Image>().sprite = buyButton_UnlockedImg;
             }
             else
             {
-                if(!isBikeMode)
+                if (!isBikeMode)
                 {
-                    selectedPrice.text = trailToBuy.price + "";
+                    selectedPrice.text = _trailToBuy.price + "";
                     TrailStatus.GetComponent<Image>().sprite = LockedIcon;
                     buyButton.GetComponent<Image>().sprite = buyButton_LockedImg;
                 }
             }
 
-            if(!isBikeMode)
-                selectedID.text = "Trail ID: " + (trailToBuy != null ? trailToBuy.trailId : "null") + "";
+            if (!isBikeMode)
+                selectedID.text = "Trail ID: " + (_trailToBuy != null ? _trailToBuy.trailId : "null") + "";
         }
         else
-        {
             Debug.LogError("unlockedTrails is null");
-        }
-        
     }
-
 
 
 }

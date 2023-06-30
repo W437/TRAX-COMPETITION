@@ -19,6 +19,16 @@ public class LevelEnd : MonoBehaviour
     {
         Instance = this;
     }
-
+    
+     void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player") && !collided)
+        {
+            Debug.Log("Finish Collision");
+            collided = true;
+            // Perform actions when the player collides with the finish line
+            ScreenManager.Instance.OnLevelEnd();
+        }
+    }
 
 }

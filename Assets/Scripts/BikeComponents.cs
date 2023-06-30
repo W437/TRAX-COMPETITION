@@ -3,6 +3,16 @@ using UnityEngine;
 [System.Serializable]
 public class BikeComponents : MonoBehaviour
 {
+
+    private void Start() 
+    {
+        
+
+    }
+
+    private float bikeColorAlpha;
+    private Color originalBikeColor;
+
     [SerializeField] WheelJoint2D backWheel;
     [SerializeField] WheelJoint2D frontWheel;
     [SerializeField] Rigidbody2D rb_BackWheel;
@@ -34,8 +44,6 @@ public class BikeComponents : MonoBehaviour
     [SerializeField] float maxAirRotationSpeed; // Starting torque
     [SerializeField] float flipTorque;
 
-
-    [SerializeField] Color originalBikeColor;
     [SerializeField] Color originalFrontWheelColor;
     [SerializeField] Color originalBackWheelColor;
 
@@ -60,6 +68,46 @@ public class BikeComponents : MonoBehaviour
     }
     */
 
+    public float BikeColorAlpha
+    {
+        get { return bikeColorAlpha; }
+        set
+        {
+            bikeColorAlpha = value;
+            Color bikeColor = GetBikeBodyColor();
+            bikeColor.a = bikeColorAlpha; // Set the alpha component of the color
+            SetBikeBodyColor(bikeColor); // Apply the new color to the bike body
+        }
+    }
+
+    public Color OriginalBikeColor
+    {
+        get { return originalBikeColor; }
+        set
+        {
+            originalBikeColor = value;
+            Color bikeColor = GetBikeBodyColor();
+            bikeColor.a = originalBikeColor.a; // Set the alpha component of the color
+            SetBikeBodyColor(bikeColor); // Apply the original color to the bike body
+        }
+    }
+
+    private Color GetBikeBodyColor()
+    {
+        if (bikeBodyRenderer == null)
+            bikeBodyRenderer = GetComponent<SpriteRenderer>();
+
+        return bikeBodyRenderer.color;
+    }
+
+    private void SetBikeBodyColor(Color color)
+    {
+        if (bikeBodyRenderer == null)
+            bikeBodyRenderer = GetComponent<SpriteRenderer>();
+
+        bikeBodyRenderer.color = color;
+    }
+
     public float MaxAirRotationSpeed
     {
         get { return maxAirRotationSpeed; }
@@ -71,12 +119,6 @@ public class BikeComponents : MonoBehaviour
     {
         get { return flipTorque; }
         set { flipTorque = value; }
-    }
-
-    public Color OriginalBikeColor
-    {
-        get { return originalBikeColor; }
-        set { originalBikeColor = value; }
     }
 
     public Color OriginalFrontWheelColor

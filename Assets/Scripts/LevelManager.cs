@@ -13,9 +13,9 @@ public class LevelManager : MonoBehaviour
     public TMPro.TextMeshProUGUI levelInfoText;
 
 
-    public Level[] levels; // Assign in Unity Editor
+    [SerializeField] public Level[] levels;
 
-    public int currentLevel = 0;
+    public int CurrentLevelID { get; private set; } = 0;
     public GameObject currentLevelInstance;
 
     void Awake()
@@ -34,9 +34,9 @@ public class LevelManager : MonoBehaviour
 
     public Level GetCurrentLevelData()
     {
-        if (currentLevel < levels.Length)
+        if (CurrentLevelID < levels.Length)
         {
-            return levels[currentLevel];
+            return levels[CurrentLevelID];
         }
         else
         {
@@ -51,7 +51,7 @@ public class LevelManager : MonoBehaviour
         // Check if the level number is valid
         if (level >= 0 && level < levels.Length)
         {
-            currentLevel = level;
+            CurrentLevelID = level;
             StartCoroutine(StartLevelTransition(level));
             CameraController.Instance.SwitchToGameCamera();
         }
@@ -71,7 +71,7 @@ public class LevelManager : MonoBehaviour
         levelInfoText.gameObject.SetActive(true);
 
         // Update the levelInfoText with the level category and level number
-        levelInfoText.text = levels[level].category.ToString() + " - Level " + levels[level].levelNumber+1;
+        levelInfoText.text = levels[level].category.ToString() + " - Level " + (levels[level].levelID+1);
 
         yield return new WaitForSeconds(0.5f);  // optional delay
 
@@ -90,7 +90,7 @@ public class LevelManager : MonoBehaviour
         }
 
         // Instantiate the new level
-        currentLevelInstance = Instantiate(levels[currentLevel].levelPrefab, levelsGameObject);
+        currentLevelInstance = Instantiate(levels[CurrentLevelID].levelPrefab, levelsGameObject);
         currentLevelInstance.SetActive(true);
 
         // Find the finish line in the new level instance
@@ -109,7 +109,7 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
 
-         GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
+        GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
         GameManager.Instance.GamePlayerBikeInstance.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
 
         BikeController.Instance.PauseBike();

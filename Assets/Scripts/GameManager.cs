@@ -44,7 +44,8 @@ public class GameManager : MonoBehaviour
     public GameState gameState;
 
     float countdownTime;
-    float timer;
+    public float LevelTimer { get; private set; }
+
 
     [Header("Sound Effects")]
 
@@ -68,7 +69,18 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         initialCountdownTextPosition = countdownText.transform.position;
+        //SaveSystem.ResetSaveFile();
+        PrintAllPlayerData();
+    }
 
+    public void PrintAllPlayerData()
+    {
+        PlayerData playerData = GameManager.Instance.GetPlayerData();
+        Debug.Log("To print data;");
+        foreach (var levelStat in playerData.levelStatsDictionary)
+        {
+            Debug.Log($"Level: {levelStat.Key}, Time: {levelStat.Value.time}");
+        }
     }
 
 
@@ -83,7 +95,7 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Playing:
-                timer += Time.deltaTime;
+                LevelTimer += Time.deltaTime;
                 UpdateTimerText();
                 UpdateFlipCountText();
                 UpdateWheelieTimeText();
@@ -106,9 +118,9 @@ public class GameManager : MonoBehaviour
 
     public void ResetLevelStats()
     {
-        timer = 0f;
+        LevelTimer = 0f;
         wheelieTimeText.text = "0";
-        timerText.text = "00:00:00";
+        timerText.text = "0:00:00";
         flipCountText.text = "0";
         faultCountText.text = "0";
         totalWheelieTime = 0;
@@ -120,24 +132,24 @@ public class GameManager : MonoBehaviour
 
     void UpdateTimerText()
     {
-        TimeSpan timeSpan = TimeSpan.FromSeconds(timer);
-        int millisecondFirstTwoDigits = timeSpan.Milliseconds / 10;
-        string timerString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeSpan.Minutes, timeSpan.Seconds, millisecondFirstTwoDigits);
-        timerText.text = "" + timerString;
+        // Convert the time back to seconds for display and format it as M:SS:MS
+        TimeSpan _timeSpan = TimeSpan.FromSeconds(LevelTimer);
+        string timerString = string.Format("{0}:{1:00}:{2:00}", _timeSpan.Minutes, _timeSpan.Seconds, _timeSpan.Milliseconds / 10);
+        timerText.text = timerString;
     }
+
 
     void UpdateFlipCountText()
     {
-        // Get the flip count from the BikeController script
-        int flipCount = BikeController.Instance.flipCount;
-        flipCountText.text = "" + flipCount;
+        int _flipCount = BikeController.Instance.flipCount;
+        flipCountText.text = "" + _flipCount;
     }
 
     public void UpdateFaultCountText()
     {
         // Get the flip count from the BikeController script
-        int faultCount = BikeController.Instance.GetFaultCount();
-        faultCountText.text = "" + faultCount;
+        int _faultCount = BikeController.Instance.GetFaultCount();
+        faultCountText.text = "" + _faultCount;
     }
 
     public void AccumulateWheelieTime(float wheelieTime)
@@ -148,21 +160,21 @@ public class GameManager : MonoBehaviour
 
     void UpdateWheelieTimeText()
     {
-        int totalWheelieTimeSeconds = (int)totalWheelieTime;
-        int totalWheelieTimeMilliseconds = (int)((totalWheelieTime - totalWheelieTimeSeconds) * 1000);
+        int _totalWheelieTimeSeconds = (int)totalWheelieTime;
+        int _totalWheelieTimeMilliseconds = (int)((totalWheelieTime - _totalWheelieTimeSeconds) * 1000);
 
-        string wheelieTimeString;
+        string _wheelieTimeString;
 
-        if (totalWheelieTimeMilliseconds >= 100)
+        if (_totalWheelieTimeMilliseconds >= 100)
         {
-            wheelieTimeString = string.Format("{0:D2}.{1:D2}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds / 10);
+            _wheelieTimeString = string.Format("{0:D2}.{1:D2}", _totalWheelieTimeSeconds, _totalWheelieTimeMilliseconds / 10);
         }
         else
         {
-            wheelieTimeString = string.Format("{0:D2}.{1:00}", totalWheelieTimeSeconds, totalWheelieTimeMilliseconds);
+            _wheelieTimeString = string.Format("{0:D2}.{1:00}", _totalWheelieTimeSeconds, _totalWheelieTimeMilliseconds);
         }
 
-        wheelieTimeText.text = "" + wheelieTimeString + "";
+        wheelieTimeText.text = "" + _wheelieTimeString + "";
     }
 
     public void PauseGame()
