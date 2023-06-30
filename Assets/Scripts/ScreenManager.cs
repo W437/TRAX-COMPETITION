@@ -64,6 +64,13 @@ public class ScreenManager : MonoBehaviour
     public Button B_LeftBtn;
     public Button B_Trails;
     public Button B_Bikes;
+    public Button B_BuyButton;
+    public GameObject ShopMenuObject;
+    public GameObject TopMenuHeader;
+    public GameObject TopOverlay;
+    public TextMeshProUGUI T_ShopCoins, T_ShopUnlockedBikes, T_ShopUnlockedTrails;
+    public GameObject PrefabPrice;
+
 
     [Header("Level End Buttons")]
     public Button B_Leaderboard;
@@ -108,7 +115,6 @@ public class ScreenManager : MonoBehaviour
     public GameObject MenuPlatform;
 
     public GameObject MenuBikeObjectParent;
-
 
 
     void Awake()
@@ -160,9 +166,8 @@ public class ScreenManager : MonoBehaviour
         
         
         PlayerMenuBike = ShopManager.Instance.DisplayBikePrefab(selectedBike);
-        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
-
         RB_PlayerMenuBike = PlayerMenuBike.GetComponent<Rigidbody2D>();
+        ShopManager.Instance.DisplayTrailPrefab(selectedTrail);
 
         // ---------- Initial UI pos
 
@@ -246,6 +251,38 @@ public class ScreenManager : MonoBehaviour
         obj = LevelsSection.transform.localPosition;
         LevelsSection.transform.localPosition =
             new Vector2(-700f, obj.y); 
+
+
+        // Shop Section
+        obj = B_ShopBackMenu.transform.localPosition;
+        B_ShopBackMenu.transform.localPosition =
+            new Vector2(0, obj.y-400f); 
+
+        obj = B_RightBtn.transform.localPosition;
+        B_RightBtn.transform.localPosition =
+            new Vector2(obj.x+400, obj.y); 
+
+        obj = B_LeftBtn.transform.localPosition;
+        B_LeftBtn.transform.localPosition =
+            new Vector2(obj.x-400, obj.y); 
+
+        obj = B_BuyButton.transform.localScale;
+        B_BuyButton.transform.localScale =
+            new Vector2(0, 0); 
+            
+        obj = TopOverlay.transform.localPosition;
+        TopOverlay.transform.localPosition =
+            new Vector2(0, obj.y+500f); 
+
+        obj = ShopMenuObject.transform.localPosition;
+        ShopMenuObject.transform.localPosition =
+            new Vector2(obj.x-950, obj.y); 
+
+
+        obj = TopMenuHeader.transform.localPosition;
+        TopMenuHeader.transform.localPosition =
+            new Vector2(obj.x+1000, obj.y); 
+
         #endregion
 
         // ---------- ON GAME LAUNCH
@@ -297,12 +334,16 @@ public class ScreenManager : MonoBehaviour
         // Shop Section
         B_ShopBackMenu.onClick.AddListener(delegate
         {
-            ShopManager.Instance.SelectBike(ShopManager.Instance.currentBikeIndex);
-            ShopManager.Instance.SelectTrail(ShopManager.Instance.currentTrailIndex);
+            TweenShopMenu(false);
+            TweenMainMenu(true);
+            var _shopManager = ShopManager.Instance;
+            PlayerMenuBike = _shopManager.DisplayBikePrefab(selectedBike);
+            RB_PlayerMenuBike = PlayerMenuBike.GetComponent<Rigidbody2D>();
+            _shopManager.DisplayTrailPrefab(selectedTrail);
+            _shopManager.SelectBike(_shopManager.currentBikeIndex);
+            _shopManager.SelectTrail(_shopManager.currentTrailIndex);
             //ShopManager.Instance.ResetDefaultSelection();
             CameraController.Instance.SwitchToMenuCamera();
-            GoToMainMenu();
-            Panel_Shop.SetActive(false);
         });
 
 
@@ -398,6 +439,43 @@ public class ScreenManager : MonoBehaviour
     }
 
 
+    public void TweenShopMenu(bool In)
+    {
+        if (In)
+        {
+            Panel_Shop.SetActive(true);
+            LeanTween.moveX(B_RightBtn.GetComponent<RectTransform>(), 400f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(B_LeftBtn.GetComponent<RectTransform>(), -400f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.scale(B_BuyButton.GetComponent<RectTransform>(), new Vector3(1.36f, 1.36f, 1.36f), 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(ShopMenuObject.GetComponent<RectTransform>(), 0, 0.55f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveY(TopOverlay.GetComponent<RectTransform>(), 658f, 0.4f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f)
+            .setOnComplete(
+                delegate()
+                {
+                    LeanTween.moveX(TopMenuHeader.GetComponent<RectTransform>(), 0, 0.55f).setEase(LeanTweenType.easeOutExpo);
+                }
+            );
+            LeanTween.moveY(B_ShopBackMenu.GetComponent<RectTransform>(), -100f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
+        }
+        else
+        {
+            LeanTween.moveX(B_RightBtn.GetComponent<RectTransform>(), 800f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(B_LeftBtn.GetComponent<RectTransform>(), -800f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.scale(B_BuyButton.GetComponent<RectTransform>(), new Vector3(0f, 0f, 0f), 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(ShopMenuObject.GetComponent<RectTransform>(), 900f, 0.55f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(TopMenuHeader.GetComponent<RectTransform>(), -970f, 0.55f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveY(TopOverlay.GetComponent<RectTransform>(), 1200f, 0.4f).setEase(LeanTweenType.easeOutExpo).
+                    setOnComplete(
+                        delegate()
+                        {
+                            Panel_Shop.SetActive(false);
+                        }
+                    );
+            LeanTween.moveY(B_ShopBackMenu.GetComponent<RectTransform>(), -400f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
+        }
+    }
+
+
     public IEnumerator PlayStartTransition()
     {
         startTransition.SetActive(true);
@@ -443,8 +521,7 @@ public class ScreenManager : MonoBehaviour
     {
         CameraController.Instance.SwitchToShopCamera();
         TweenMainMenu(false);
-        //TweenShop();
-        Panel_Shop.SetActive(true);
+        TweenShopMenu(true);
 
         //SimulateMovement();
     }
@@ -671,7 +748,7 @@ public class ScreenManager : MonoBehaviour
 
         SaveSystem.SavePlayerData(_playerData);
 
-        Level.LevelCategory currentLevelCategory = _levels[_currentLevelID].category;
+        Level.Category currentLevelCategory = _levels[_currentLevelID].category;
         LevelStats stats = _playerData.GetLevelStats(currentLevelCategory, _currentLevelID);
         Debug.Log("Saved Data: " + stats.time + " " + stats.faults );
 
@@ -687,8 +764,4 @@ public class ScreenManager : MonoBehaviour
         T_Wheelie.text = GameManager.Instance.wheelieTimeText.text;
         T_Flips.text = GameManager.Instance.flipCountText.text;
     }
-
-
-
-
 }

@@ -12,7 +12,7 @@ public class Level : ScriptableObject
     // add other data as needed
 
     [System.Serializable]
-    public enum LevelCategory
+    public enum Category
     {
         Easy,
         Medium,
@@ -21,5 +21,5 @@ public class Level : ScriptableObject
         Flips
     }
 
-    public LevelCategory category;
+    public Category category;
 }

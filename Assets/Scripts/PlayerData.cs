@@ -27,26 +27,39 @@ public class PlayerData
     public int totalFlips;
     public float totalWheelie;
 
-    // This method allows you to add or update LevelStats for a specific category and level id
-    public void AddLevelStats(Level.LevelCategory category, int levelId, LevelStats newStats)
+    // Add or update LevelStats for a specific category and level id
+    public void AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
     {
         string key = $"{category}_{levelId}";
         if (levelStatsDictionary.ContainsKey(key))
         {
             LevelStats existingStats = levelStatsDictionary[key];
             
-            // For time-based levels (Easy, Medium, Hard), we save if new time is less and faults are less or equal
-            if ((category == Level.LevelCategory.Easy || category == Level.LevelCategory.Medium || category == Level.LevelCategory.Hard) &&
-                newStats.time <= existingStats.time && newStats.faults <= existingStats.faults)
+            // For time-based levels (Easy, Medium, Hard), priortizing on faults
+            if ((category == Level.Category.Easy || category == Level.Category.Medium || category == Level.Category.Hard))
             {
-                levelStatsDictionary[key] = newStats;
+                if (newStats.faults < existingStats.faults) 
+                {
+                    levelStatsDictionary[key] = newStats;
+                }
+                else if (newStats.faults == existingStats.faults && newStats.time < existingStats.time)
+                {
+                    levelStatsDictionary[key] = newStats;
+                }
             }
             // For Wheelie and Flips levels, we save if new faults are less or new faults are equal but flips/wheelies are more
-            else if ((category == Level.LevelCategory.Wheelie || category == Level.LevelCategory.Flips) &&
-                (newStats.faults < existingStats.faults || (newStats.faults == existingStats.faults && newStats.flips > existingStats.flips)))
+            else if ((category == Level.Category.Wheelie || category == Level.Category.Flips))
             {
-                levelStatsDictionary[key] = newStats;
+                if (newStats.flips > existingStats.flips) 
+                {
+                    levelStatsDictionary[key] = newStats;
+                }
+                else if (newStats.flips == existingStats.flips && newStats.faults < existingStats.faults)
+                {
+                    levelStatsDictionary[key] = newStats;
+                }
             }
+
         }
         else
         {
@@ -74,8 +87,8 @@ public class PlayerData
         }
     }
 
-    // This method allows you to get LevelStats for a specific category and level id
-    public LevelStats GetLevelStats(Level.LevelCategory category, int levelId)
+    // Get LevelStats for a specific category and level id
+    public LevelStats GetLevelStats(Level.Category category, int levelId)
     {
         string key = $"{category}_{levelId}";
         return levelStatsDictionary.ContainsKey(key) ? levelStatsDictionary[key] : null;

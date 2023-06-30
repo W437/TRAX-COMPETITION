@@ -71,7 +71,7 @@ public class ShopManager : MonoBehaviour
     public void ResetDefaultSelection()
     {
         Debug.Log("BikeList length: " + GameManager.Instance.BikeList.Length);
-Debug.Log("TrailList length: " + GameManager.Instance.TrailList.Length);
+        Debug.Log("TrailList length: " + GameManager.Instance.TrailList.Length);
 
         PlayerData _playerData = GameManager.Instance.GetPlayerData();
         Debug.Log("Player Data: " + _playerData.selectedBikeId + " Trail: " + _playerData.selectedTrailId);
@@ -310,23 +310,23 @@ Debug.Log("TrailList length: " + GameManager.Instance.TrailList.Length);
         Vector2 oldBikeVelocity = (_currentBike != null) ? _currentBike.GetComponent<Rigidbody2D>().velocity : Vector2.zero;
 
         // Store the current trail so it can be reattached to the new bike
-        Transform currentTrail = null;
-        Vector3 currentTrailLocalPosition = Vector3.zero; // Store local position of the trail
-        Quaternion currentTrailLocalRotation = Quaternion.identity; // Store local rotation of the trail
+        Transform _currentTrail = null;
+        Vector3 _currentTrailLocalPosition = Vector3.zero; // Store local position of the trail
+        Quaternion _currentTrailLocalRotation = Quaternion.identity; // Store local rotation of the trail
 
         if(_currentBike == null)
             Debug.Log("_currentBike null.");
 
         if (_currentBike != null)
         {
-            Transform currentTrailTransform = _currentBike.transform.Find("Bike Trail");
-            if (currentTrailTransform != null)
+            Transform _currentTrailTransform = _currentBike.transform.Find("Trail");
+            if (_currentTrailTransform != null)
             {
                 // Detach the trail from the bike
-                currentTrail = currentTrailTransform;
-                currentTrailLocalPosition = currentTrail.localPosition;
-                currentTrailLocalRotation = currentTrail.localRotation;
-                currentTrailTransform.parent = null;
+                _currentTrail = _currentTrailTransform;
+                _currentTrailLocalPosition = _currentTrail.localPosition;
+                _currentTrailLocalRotation = _currentTrail.localRotation;
+                _currentTrailTransform.parent = null;
             }
 
             oldBikePosition = _currentBike.transform.position;
@@ -342,18 +342,18 @@ Debug.Log("TrailList length: " + GameManager.Instance.TrailList.Length);
             return null;
         }
         // Remove the default trail from the new bike
-        Transform newBikeTrailTransform = _currentBike.transform.Find("Bike Trail");
-        if (newBikeTrailTransform != null)
+        Transform _newBikeTrailTransform = _currentBike.transform.Find("Bike Trail");
+        if (_newBikeTrailTransform != null)
         {
-            Destroy(newBikeTrailTransform.gameObject);
+            Destroy(_newBikeTrailTransform.gameObject);
         }
 
         // If a trail was detached from the old bike, attach it to the new one
-        if (currentTrail != null)
+        if (_currentTrail != null)
         {
-            currentTrail.parent = _currentBike.transform;
-            currentTrail.localPosition = currentTrailLocalPosition;
-            currentTrail.localRotation = currentTrailLocalRotation;
+            _currentTrail.parent = _currentBike.transform;
+            _currentTrail.localPosition = _currentTrailLocalPosition;
+            _currentTrail.localRotation = _currentTrailLocalRotation;
         }
 
         //Debug.Log("Instantiated bike: " + _currentBike.ToString());
@@ -464,8 +464,9 @@ Debug.Log("TrailList length: " + GameManager.Instance.TrailList.Length);
         int _trailId = currentTrailIndex;
         Trail _trailToBuy = TrailManager.Instance.GetAllTrails().FirstOrDefault(t => t.trailId == _trailId);
 
-        GameObject _currentBikeTrail = Instantiate(prefab, position, Quaternion.identity, _currentBike.transform);
-        _currentBikeTrail.name = "Trail";  // Name the new gameobject as "Trail"
+        // Parent the new trail to the current bike
+        GameObject _currentBikeTrail = Instantiate(prefab, position, Quaternion.identity, ScreenManager.Instance.PlayerMenuBike.transform);
+        _currentBikeTrail.name = "Trail";
 
         PlayerData _playerData = GameManager.Instance.GetPlayerData();
 
