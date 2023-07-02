@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour
     public TMPro.TextMeshProUGUI levelInfoText;
 
 
+
     [SerializeField] public Level[] levels;
 
     public int CurrentLevelID { get; private set; } = 0;
@@ -46,20 +47,37 @@ public class LevelManager : MonoBehaviour
     }
 
 
-    public void StartLevel(int level)
+public void StartLevel(int level)
+{
+    // Check if the level number is valid
+    if (level >= 0 && level < levels.Length)
     {
-        // Check if the level number is valid
-        if (level >= 0 && level < levels.Length)
+        CurrentLevelID = level;
+        var currentLevelData = GetCurrentLevelData();
+        var currentLevelCategory = currentLevelData.category;
+        StartCoroutine(StartLevelTransition(level));
+        CameraController.Instance.SwitchToGameCamera();
+
+        // Stop the previous BikeAnimationInCoroutine if it exists
+        if (ScreenManager.Instance.BikeAnimationInCoroutine != null)
         {
-            CurrentLevelID = level;
-            StartCoroutine(StartLevelTransition(level));
-            CameraController.Instance.SwitchToGameCamera();
+            ScreenManager.Instance.StopCoroutine(ScreenManager.Instance.BikeAnimationInCoroutine);
+            ScreenManager.Instance.BikeAnimationInCoroutine = null;
         }
-        else
+
+        // Stop the previous BikeAnimationOutCoroutine if it exists
+        if (ScreenManager.Instance.BikeAnimationOutCoroutine != null)
         {
-            Debug.LogError("Invalid level number: " + level);
+            ScreenManager.Instance.StopCoroutine(ScreenManager.Instance.BikeAnimationOutCoroutine);
+            ScreenManager.Instance.BikeAnimationOutCoroutine = null;
         }
     }
+    else
+    {
+        Debug.LogError("Invalid level number: " + level);
+    }
+}
+
 
 
     IEnumerator StartLevelTransition(int level)
@@ -99,18 +117,18 @@ public class LevelManager : MonoBehaviour
         bgParalax.SetFinishLine(finishLine);
 
         // Fetch PlayerData to get the selected bike ID
-        PlayerData playerData = GameManager.Instance.GetPlayerData();
+        PlayerData playerData = SaveSystem.LoadPlayerData();
 
         // Instantiate the bike
-        BikeController.Instance.LoadPlayerBike(playerData.selectedBikeId);
+        BikeController.Instance.LoadPlayerBike(playerData.SELECTED_BIKE_ID);
 
         // Find the bike's starting position in the new level instance
         Transform bikeStartPosition = currentLevelInstance.transform.GetChild(0);
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
 
-        GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
-        GameManager.Instance.GamePlayerBikeInstance.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
+        GameManager.Instance.GAME_PlayerBike.SetActive(true);
+        GameManager.Instance.GAME_PlayerBike.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
 
         BikeController.Instance.PauseBike();
 

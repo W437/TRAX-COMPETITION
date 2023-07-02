@@ -12,7 +12,9 @@ public class CameraController : MonoBehaviour
     public CinemachineVirtualCamera gameCamera;
     public CinemachineVirtualCamera menuCamera;
     public CinemachineVirtualCamera shopCamera;
+    public CinemachineVirtualCamera settingsCamera;
     // Target values
+
     float targetOrthographicSize;
     float targetScreenX;
 
@@ -24,7 +26,7 @@ public class CameraController : MonoBehaviour
     public Camera mainCamera;
 
     // Reference to the Composer
-    public CinemachineFramingTransposer composer;
+    public CinemachineFramingTransposer mainComposer, menuComposer;
 
     private CinemachineBrain mainCameraBrain;
     private CinemachineBlendDefinition originalBlendDefinition;
@@ -44,16 +46,17 @@ public class CameraController : MonoBehaviour
 
     void Start()
     {
-        composer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        mainComposer = virtualCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
+        menuComposer = menuCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
         // Set initial values
         targetOrthographicSize = virtualCamera.m_Lens.OrthographicSize;
-        targetScreenX = composer.m_ScreenX;
+        targetScreenX = mainComposer.m_ScreenX;
 
         // Initialize transition time
         transitionTime = transitionDuration;
-
+        var _gameManager = GameManager.Instance;
         // Initialize jumping state
-        if (GameManager.Instance.gameState == GameManager.GameState.Playing)
+        if (_gameManager.gameState == GameManager.GameState.Playing)
             wasJumping = !BikeController.Instance.IsGrounded();
 
         Random.InitState((int)Random.Range(0f, 100f));
@@ -106,19 +109,36 @@ public class CameraController : MonoBehaviour
 
                 // Apply smooth changes to camera
                 virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(virtualCamera.m_Lens.OrthographicSize, targetOrthographicSize, progress);
-                composer.m_ScreenX = Mathf.Lerp(composer.m_ScreenX, targetScreenX, progress);
+                mainComposer.m_ScreenX = Mathf.Lerp(mainComposer.m_ScreenX, targetScreenX, progress);
             }
             else
             {
                 // Set to target to prevent tiny fluctuations due to math precision
                 virtualCamera.m_Lens.OrthographicSize = targetOrthographicSize;
-                composer.m_ScreenX = targetScreenX;
+                mainComposer.m_ScreenX = targetScreenX;
             }
 
             // Update the jumping state for the next frame
             wasJumping = isJumping;
 
         }
+    }
+
+    public IEnumerator AnimateScreenX(float startScreenX, float endScreenX, float duration)
+    {
+        float elapsedTime = 0;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            float currentScreenX = Mathf.Lerp(startScreenX, endScreenX, elapsedTime / duration);
+            menuComposer.m_ScreenX = currentScreenX;
+
+            yield return null;
+        }
+
+        // Ensure the ScreenX ends up at the exact target value
+        menuComposer.m_ScreenX = endScreenX;
     }
 
     private void SetCameraBlendStyle(CinemachineVirtualCamera fromCam, CinemachineVirtualCamera toCam)
@@ -129,7 +149,7 @@ public class CameraController : MonoBehaviour
             mainCameraBrain.m_DefaultBlend = blendDef;
             StartCoroutine(RevertDefaultBlend());
         }
-        else if (fromCam == shopCamera && toCam == menuCamera)
+        else if ((fromCam == (shopCamera || settingsCamera)) && toCam == menuCamera)
         {
             mainCameraBrain.m_DefaultBlend = originalBlendDefinition;
         }
@@ -161,6 +181,7 @@ public class CameraController : MonoBehaviour
         gameCamera.Priority = 10;
         menuCamera.Priority = 11;
         shopCamera.Priority = 9;
+        settingsCamera.Priority = 8;
     }
 
     public void SwitchToShopCamera()
@@ -169,6 +190,16 @@ public class CameraController : MonoBehaviour
         shopCamera.Priority = 11;
         menuCamera.Priority = 10;
         gameCamera.Priority = 9;
+        settingsCamera.Priority = 8;
+    }
+
+    public void SwitchToSettingsCamera()
+    {
+        SetCameraBlendStyle(menuCamera, settingsCamera);
+        settingsCamera.Priority = 11;
+        menuCamera.Priority = 10;
+        shopCamera.Priority = 9;
+        gameCamera.Priority = 8;
     }
 
 

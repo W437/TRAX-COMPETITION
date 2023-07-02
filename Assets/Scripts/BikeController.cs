@@ -16,10 +16,15 @@ public class BikeController : MonoBehaviour
 
     //public MMFeedbacks StatsJuice;
 
-    #region Bike Components & Config
-    const string WHEELIE_DISTANCE = "WHEELIE_DISTANCE";
-    const string BEST_WHEELIE_DISTANCE = "BEST_WHEELIE_DISTANCE";
-
+    #region Bike Components & Config    
+    
+    // Distance counter system
+    private float previousXPosition;
+    private float totalDistance;
+    private int frameCounter = 0;
+    private int frameThreshold = 10; // count every 10 frames for efficiency.
+    private bool isTrackingDistance = false;
+    public IEnumerator saveDistanceCoroutine;
 
     [SerializeField] private Bike[] bikeList;
     public Bike bikeData;
@@ -126,7 +131,13 @@ public class BikeController : MonoBehaviour
     void Start()
     {
         if(bikeRb != null)
+        {
+            previousXPosition = GameManager.Instance.GAME_PlayerBike.transform.position.x;
             lastZRotation = bikeRb.transform.eulerAngles.z;
+            saveDistanceCoroutine = SaveDistanceEveryFewSeconds(30.0f);
+            StartCoroutine(saveDistanceCoroutine);
+        }
+
     }
 
     void FixedUpdate()
@@ -145,6 +156,19 @@ public class BikeController : MonoBehaviour
         {
             maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
             bool _isGrounded = IsGrounded();
+
+            // Distance tracker for savedata
+            // Save distance every 30s for efficiency
+            frameCounter++;
+            if (frameCounter >= frameThreshold)
+            {
+                float distanceThisFrame = Mathf.Abs(GameManager.Instance.GAME_PlayerBike.transform.position.x - previousXPosition);
+                totalDistance += distanceThisFrame;
+                previousXPosition = GameManager.Instance.GAME_PlayerBike.transform.position.x;
+                frameCounter = 0;
+            }
+
+        
 
             if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
@@ -188,7 +212,7 @@ public class BikeController : MonoBehaviour
 
             else if (isBeingPushedForward)
             {
-                if (Time.time >= bikeBoostTime + 0.5f)
+                if (Time.time >= bikeBoostTime + 0.05f)
                 {
                     isBeingPushedForward = false; // Stop pushing forward
                     bikeRb.angularDrag = originalAngularDrag; // reset angularDrag to its original value
@@ -204,10 +228,11 @@ public class BikeController : MonoBehaviour
                 {
                     Touch _touch = Input.GetTouch(0);
 
-                    if (_touch.phase == TouchPhase.Began)
+                    if (_touch.phase == TouchPhase.Began && !isAccelerating)
                     {
                         accelerationStartTime = Time.time;
                         bikeRearWheelJoint.useMotor = true;
+                        isAccelerating = true;
                     }
 
                     if (_touch.phase == TouchPhase.Ended)
@@ -216,12 +241,16 @@ public class BikeController : MonoBehaviour
                         isAccelerating = false;
                     }
 
-                    if (_touch.phase == TouchPhase.Moved || _touch.phase == TouchPhase.Stationary)
+                    if ((_touch.phase == TouchPhase.Moved || _touch.phase == TouchPhase.Stationary) && !isAccelerating)
+                    {
+                        accelerationStartTime = Time.time;
+                        bikeRearWheelJoint.useMotor = true;
                         isAccelerating = true;
+                    }
                 }
                 else
                 {
-                    if (Input.GetMouseButtonDown(0)) // Mouse click started
+                    if (Input.GetMouseButtonDown(0) && !isAccelerating) // Mouse click started
                     {
                         accelerationStartTime = Time.time;
                         bikeRearWheelJoint.useMotor = true;
@@ -232,23 +261,19 @@ public class BikeController : MonoBehaviour
                         bikeRearWheelJoint.useMotor = false;
                         isAccelerating = false;
                     }
-                    else if (Input.GetMouseButton(0)) // Mouse click continuing -- need?
+                    else if (Input.GetMouseButton(0) && !isAccelerating) // Mouse click continuing -- need?
                     {
                         accelerationStartTime = Time.time;
                         bikeRearWheelJoint.useMotor = true;
                         isAccelerating = true;
                     }
                 }
+
             }
             else
                 // No input
                 isAccelerating = false;
 
-
-            if (Input.GetKeyUp(KeyCode.R))
-            {
-                SceneManager.LoadScene(0);
-            }
 
             //Debug.Log("HasLanded: " + hasLanded);
             CheckGroundContact();
@@ -265,29 +290,53 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    public float GetTotalDistanceInKilometers()
+    {
+        return totalDistance / 1000f;
+    }
+
+    public IEnumerator SaveDistanceEveryFewSeconds(float delay)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(delay);
+            var _data = SaveSystem.LoadPlayerData();
+            _data.TOTAL_DISTANCE += GetTotalDistanceInKilometers();
+            SaveSystem.SavePlayerData(_data);
+        }
+    }
+
+    // Called on level finish, restart, or quit back to menu.
+    public void StopSavingDistance()
+    {
+        if (saveDistanceCoroutine != null)
+        {
+            StopCoroutine(saveDistanceCoroutine);
+            saveDistanceCoroutine = null;
+        }
+    }
 
     public BikeComponents GetCurrentBikeComponents()
     {
-        if (GameManager.Instance.GamePlayerBikeInstance != null)
+        if (GameManager.Instance.GAME_PlayerBike != null)
             return CurrentBikeComponents;
         else 
             Debug.LogWarning("No bike components were found.");
             return null; 
     }
 
-
     public void LoadPlayerBike(int bikeId)
     {
         PlayerData _playerData = SaveSystem.LoadPlayerData();
-        if (!_playerData.unlockedBikes.Contains(bikeId))
+        if (!_playerData.UNLOCKED_BIKES.Contains(bikeId))
         {
             Debug.Log("Bike not unlocked!");
             return;
         }
 
         // Destroy existing bike
-        if (GameManager.Instance.GamePlayerBikeInstance != null)
-            Destroy(GameManager.Instance.GamePlayerBikeInstance);
+        if (GameManager.Instance.GAME_PlayerBike != null)
+            Destroy(GameManager.Instance.GAME_PlayerBike);
 
         // Find the bike with the matching bikeId
         Bike _matchingBikeData = bikeList.FirstOrDefault(b => b.bikeId == bikeId);
@@ -298,11 +347,11 @@ public class BikeController : MonoBehaviour
         }
         
         // Instantiate the player bike
-        GameManager.Instance.GamePlayerBikeInstance = Instantiate(_matchingBikeData.bikePrefab, GameManager.Instance.playerObjectParent.transform);
-        Debug.Log("Bike Instance: " + GameManager.Instance.GamePlayerBikeInstance.ToString());
+        GameManager.Instance.GAME_PlayerBike = Instantiate(_matchingBikeData.bikePrefab, GameManager.Instance.playerObjectParent.transform);
+        Debug.Log("Bike Instance: " + GameManager.Instance.GAME_PlayerBike.ToString());
         // Assign
-        CurrentBikeParticles = GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeParticles>();
-        CurrentBikeComponents = GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeComponents>();
+        CurrentBikeParticles = GameManager.Instance.GAME_PlayerBike.GetComponent<BikeParticles>();
+        CurrentBikeComponents = GameManager.Instance.GAME_PlayerBike.GetComponent<BikeComponents>();
 
         if (CurrentBikeComponents == null)
         {
@@ -341,26 +390,26 @@ public class BikeController : MonoBehaviour
 
         if (GameManager.Instance.firstLaunch)
         {
-            GameManager.Instance.GamePlayerBikeInstance.SetActive(false);
+            GameManager.Instance.GAME_PlayerBike.SetActive(false);
             Debug.Log("First launch: " + GameManager.Instance.firstLaunch);
         }
 
         else
         {
-            GameManager.Instance.GamePlayerBikeInstance.SetActive(true);
+            GameManager.Instance.GAME_PlayerBike.SetActive(true);
         }
 
         // Load the trail as a child of the bike
-        int _selectedTrailId = _playerData.selectedTrailId;
+        int _selectedTrailId = _playerData.SELECTED_TRAIL_ID;
         GameObject selectedTrail = TrailManager.Instance.GetTrailById(_selectedTrailId).trailPrefab;
 
         if (selectedTrail != null)
         {
             // Instantiate the trail as a child of the bike
-            currentTrailInstance = Instantiate(selectedTrail, GameManager.Instance.GamePlayerBikeInstance.transform);
+            currentTrailInstance = Instantiate(selectedTrail, GameManager.Instance.GAME_PlayerBike.transform);
 
             // Find the BikeTrail empty GameObject in the bike prefab
-            Transform bikeTrailTransform = GameManager.Instance.GamePlayerBikeInstance.transform.Find("Bike Trail");
+            Transform bikeTrailTransform = GameManager.Instance.GAME_PlayerBike.transform.Find("Bike Trail");
             if (bikeTrailTransform != null)
             {
                 // Set the position of the trail to the position of the BikeTrail object
@@ -375,26 +424,26 @@ public class BikeController : MonoBehaviour
 
         }
 
-        Debug.Log("Bike Loaded: " + GameManager.Instance.GamePlayerBikeInstance.ToString());
+        Debug.Log("Bike Loaded: " + GameManager.Instance.GAME_PlayerBike.ToString());
 
         // Set the game camera to follow the current bike instance
         CinemachineVirtualCamera virtualCamera = CameraController.Instance.gameCamera;
-        virtualCamera.Follow = GameManager.Instance.GamePlayerBikeInstance.transform;
+        virtualCamera.Follow = GameManager.Instance.GAME_PlayerBike.transform;
     }
 
     public void LoadPlayerTrail(int trailId)
     {
         PlayerData data = SaveSystem.LoadPlayerData();
-        if (!data.unlockedTrails.Contains(trailId))
+        if (!data.UNLOCKED_TRAILS.Contains(trailId))
         {
             Debug.Log("Trail not unlocked!");
             return;
         }
 
         // Destroy existing trail (if any)
-        if (GameManager.Instance.GamePlayerTrailInstance != null)
+        if (GameManager.Instance.GAME_PlayerTrail != null)
         {
-            Destroy(GameManager.Instance.GamePlayerTrailInstance);
+            Destroy(GameManager.Instance.GAME_PlayerTrail);
         }
 
         // Find the TrailData with the matching trailId in the TrailDataList
@@ -406,8 +455,8 @@ public class BikeController : MonoBehaviour
         }
 
         // Instantiate ---> Player Trail
-        GameManager.Instance.GamePlayerTrailInstance = Instantiate(matchingTrailData.trailPrefab, GameManager.Instance.GamePlayerBikeInstance.transform);
-        Debug.Log("Trail Instance: " + GameManager.Instance.GamePlayerTrailInstance.ToString());
+        GameManager.Instance.GAME_PlayerTrail = Instantiate(matchingTrailData.trailPrefab, GameManager.Instance.GAME_PlayerBike.transform);
+        Debug.Log("Trail Instance: " + GameManager.Instance.GAME_PlayerTrail.ToString());
 
         // You might need to do some additional setup for your trail here...
     }
@@ -494,7 +543,7 @@ public class BikeController : MonoBehaviour
         {
             if (Time.time - lastAirTime > flipDelay)
             {
-                Flip();
+                FaultFlip();
             }
         }
         else
@@ -514,18 +563,14 @@ public class BikeController : MonoBehaviour
             {
                 flipCount += internalFlipCount;
                 Debug.Log("Final Flip Count: " + flipCount);
-                PlayerPrefs.SetInt("FLIPS", flipCount);
-                PlayerPrefs.Save();
+                // SAVE DATA
+                var _data = SaveSystem.LoadPlayerData();
 
-                float _mostFlipCount = PlayerPrefs.GetInt("MOST_FLIP_COUNT");
-
-                if (flipCount > _mostFlipCount)
+                if (internalFlipCount > _data.BEST_INTERNAL_FLIPS)
                 {
-                    PlayerPrefs.SetInt("MOST_FLIP_COUNT", flipCount);
-                    PlayerPrefs.Save();
+                    _data.BEST_INTERNAL_FLIPS = internalFlipCount;
+                    SaveSystem.SavePlayerData(_data);
                 }
-
-
                 internalFlipCount = 0;
             }
         }
@@ -549,7 +594,11 @@ public class BikeController : MonoBehaviour
                 rotationCounter = 0;
                 internalFlipCount++;
                 //StatsJuice.PlayFeedbacks();
-                Debug.Log("Intermediate Flip Count: " + internalFlipCount);
+                Debug.Log("Internal Flips: " + internalFlipCount);
+                // SAVE DATA
+                var _data = SaveSystem.LoadPlayerData();
+                _data.TOTAL_FLIPS += internalFlipCount;
+                SaveSystem.SavePlayerData(_data);
                 hasBeenUpsideDown = false; // Reset for the next flip
             }
         }
@@ -560,9 +609,7 @@ public class BikeController : MonoBehaviour
         if (!isWheelie && !hasJumped && IsRearWheelGrounded() && IsFrontWheelGrounded())
         {
             hasLanded = true;
-
         }
-
         lastZRotation = bikeRb.transform.eulerAngles.z;
     }
 
@@ -572,7 +619,6 @@ public class BikeController : MonoBehaviour
         isWheelie = true;
         wheelieStartPosition = backWheelTransform.position;
         Invoke(nameof(BeginWheelie), wheelieGracePeriod);
-
     }
 
 
@@ -591,7 +637,6 @@ public class BikeController : MonoBehaviour
         if (wheelieStartTime != 0)
         {
             float wheelieTime = Time.time - wheelieStartTime;
-            PlayerPrefs.SetFloat("WHEELIE_TIME", wheelieTime);
             wheelieStartTime = 0;
         }
     }
@@ -602,25 +647,26 @@ public class BikeController : MonoBehaviour
         if (isWheelie)
         {
             isWheelie = false;
-            if (wheelieStartTime != 0) // If wheelieStartTime is not set, that means the wheelie was paused due to jumping
+            if (wheelieStartTime != 0)
             {
                 float wheelieTime = Time.time - wheelieStartTime;
                 float wheelieDistance = Vector2.Distance(wheelieStartPosition, backWheelTransform.position);
                 wheeliePoints = wheelieTime * wheelieDistance;
 
-                PlayerPrefs.SetFloat(WHEELIE_DISTANCE, wheeliePoints);
-                PlayerPrefs.Save();
-                float _bestWheelieDistance = PlayerPrefs.GetFloat(BEST_WHEELIE_DISTANCE);
-
-                if (wheeliePoints > _bestWheelieDistance)
+                // SAVE DATA
+                var _data = SaveSystem.LoadPlayerData();
+                if (wheeliePoints > _data.BEST_SINGLE_WHEELIE)
                 {
-                    PlayerPrefs.SetFloat(BEST_WHEELIE_DISTANCE, wheeliePoints);
-                    PlayerPrefs.Save();
+                    _data.BEST_SINGLE_WHEELIE = wheeliePoints;
+                    // Show ingame notification!
+                    // ... Notification System
+                    // ....
                 }
+                _data.TOTAL_WHEELIE += wheeliePoints;
+                SaveSystem.SavePlayerData(_data);
 
-                GameManager.Instance.AccumulateWheelieTime(wheeliePoints); // Adjust the AccumulateWheelieTime function accordingly
-
-                wheelieStartTime = 0;
+                GameManager.Instance.AccumulateWheelieTime(wheeliePoints);
+                wheelieStartTime = 0; // reset
             }
 
             RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.Instance.groundLayer);
@@ -642,7 +688,6 @@ public class BikeController : MonoBehaviour
 
         return maxSpeed;
     }
-
 
     void CheckSpeedBoost()
     {
@@ -733,19 +778,22 @@ public class BikeController : MonoBehaviour
     }
 
 
-    private void Flip()
+    private void FaultFlip()
     {
-        PlayerPrefs.SetInt("Faults", faults);
-        PlayerPrefs.Save();
         internalFlipCount = 0;
         faults++;
         GameManager.Instance.UpdateFaultCountText();
+
+        // SAVE DATA
+        var _data = SaveSystem.LoadPlayerData();
+        _data.TOTAL_FAULTS += faults;
+        SaveSystem.SavePlayerData(_data);
 
         // If a previous flip is still in progress
         if (currentFlickerCoroutine != null)
             StopCoroutine(currentFlickerCoroutine);
 
-        var _playerBike = GameManager.Instance.GamePlayerBikeInstance.gameObject.transform;
+        var _playerBike = GameManager.Instance.GAME_PlayerBike.gameObject.transform;
         RaycastHit2D groundHit = Physics2D.Raycast(_playerBike.position, -Vector2.up, Mathf.Infinity, GameManager.Instance.groundLayer);
 
         if (groundHit.collider != null)

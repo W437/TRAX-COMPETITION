@@ -5,6 +5,7 @@ public class LevelEntry : MonoBehaviour
 {
     public int level;
     public Button leaderboardButton;
+    public Level.Category category;
     public Button playButton;
     public TMPro.TextMeshProUGUI T_LevelName;
     public TMPro.TextMeshProUGUI T_Faults;
