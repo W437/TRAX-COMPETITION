@@ -1,4 +1,5 @@
 using Cinemachine;
+using Lofelt.NiceVibrations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -219,6 +220,7 @@ public class GameManager : MonoBehaviour
         Menu,
         Playing,
         Paused,
+        Finished,
         Starting
     }
 
@@ -235,7 +237,7 @@ public class GameManager : MonoBehaviour
         {
             countdownText.gameObject.SetActive(true);
         }
-
+        HapticPatterns.PlayConstant(0.35f, 0.35f, 0.4f); 
         while (countdownTime > 0)
         {
             countdownText.text = Mathf.CeilToInt(countdownTime).ToString();
@@ -250,10 +252,12 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1.0f);
 
             countdownTime--;
+            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.4f); 
         }
 
         countdownAudioSource.clip = goClip;
         countdownAudioSource.Play();
+        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.70f); 
         countdownText.text = "GO!";
 
         // Scale animation using LeanTween
@@ -285,6 +289,7 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Playing)
         {
+            _bikeController.CAN_CONTROL = true;
             if (BikeController.Instance.saveDistanceCoroutine == null)
             {
                 _bikeController.saveDistanceCoroutine = _bikeController.SaveDistanceEveryFewSeconds(30.0f);
@@ -293,6 +298,7 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Menu)
         {
+
             // Delete the previous level instance if it exists
             if (LevelManager.Instance.currentLevelInstance != null)
             {
@@ -306,24 +312,12 @@ public class GameManager : MonoBehaviour
 
 
             CameraController.Instance.SwitchToMenuCamera();
-
-            // Set the bike's position relative to the platform
-            //Vector2 platformPosition = ScreenManager.Instance.MenuPlatform.transform.position;
-            //Vector2 bikePosition = new Vector2(platformPosition.x, 0);
-            //ScreenManager.Instance.RB_MenuBike.position = bikePosition;
-            //ScreenManager.Instance.RB_MenuBike.transform.rotation = Quaternion.identity;
-            //ScreenManager.Instance.RB_MenuBike.rotation = 0;
             ScreenManager.Instance.TweenMainMenu(true);
             if(!ScreenManager.Instance.GameLogo.activeSelf)
                 ScreenManager.Instance.TweenGameLogo(true);
-
-            // Optional: Reset any other variables or states specific to the menu screen
         }
         else if (gameState == GameState.Starting)
         {
-            //BikeController.Instance.PauseBike();
-            //ScreenManager.Instance.RB_MenuBike.isKinematic = true;
-
             if (!GAME_PlayerBike.activeSelf)
             {
                 GAME_PlayerBike.SetActive(true);
@@ -335,6 +329,10 @@ public class GameManager : MonoBehaviour
             CameraController.Instance.SwitchToGameCamera();
             // Call the Countdown Coroutine when the GameState is set to Starting
             StartCoroutine(CountdownRoutine());
+        }
+        else if (gameState == GameState.Finished)
+        {
+            _bikeController.CAN_CONTROL = false;
         }
     }
 }

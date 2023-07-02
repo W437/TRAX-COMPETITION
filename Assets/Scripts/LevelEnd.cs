@@ -26,6 +26,7 @@ public class LevelEnd : MonoBehaviour
         {
             Debug.Log("Finish Collision");
             collided = true;
+            finishLineParticles.Play();
             // Perform actions when the player collides with the finish line
             ScreenManager.Instance.OnLevelEnd();
         }

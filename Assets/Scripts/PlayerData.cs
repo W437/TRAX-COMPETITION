@@ -11,11 +11,11 @@ public class PlayerData
     public int[] UNLOCKED_TRAILS;
     public int SELECTED_TRAIL_ID;
     [NonSerialized]
-    public Dictionary<string, LevelStats> levelStatsDictionary = new Dictionary<string, LevelStats>();
+    public Dictionary<string, LevelStats> LEVEL_DICTIONARY = new Dictionary<string, LevelStats>();
     public List<LevelDictionaryEntry> serializableLevelStatsList;
 
     // Stats
-    public int TOTAL_XP; // 
+    public int TOTAL_XP; // SAVES ONLY ON LEVEL FINISH
     public int TOTAL_TROPHIES; // DOING
     public float TOTAL_DISTANCE; // DONE
     public float TOTAL_FAULTS; // DONE
@@ -32,7 +32,7 @@ public class PlayerData
 
     // XP SYSTEM
     // XP is calculated by stat weights
-    const int MAX_XP = 1200000;
+    const int MAX_XP = 1330007;
     const float PLAYTIME_WEIGHT = 0.3f;
     const float FAULTS_WEIGHT = 0.1f;
     const float FLIPS_WEIGHT = 0.5f;
@@ -42,10 +42,10 @@ public class PlayerData
     const float MAX_XP_SCORE = 5777;
 
     // Settings
-    public bool SETTINGS_isMuted;
-    public bool SETTINGS_isHapticEnabled;
-    public float SETTINGS_mainVolume;
-    public float SETTINGS_sfxVolume;
+    public bool SETTINGS_isMuted = false;
+    public bool SETTINGS_isHapticEnabled = true;
+    public float SETTINGS_mainVolume = 0.85f;
+    public float SETTINGS_sfxVolume = 0.55f;
 
     public void AddXP(int amount)
     {
@@ -94,6 +94,7 @@ public class PlayerData
         }
     }
 
+
     public float GetCurrentXPProgress()
     {
         var _playerData = SaveSystem.LoadPlayerData();
@@ -103,15 +104,14 @@ public class PlayerData
         return currentLevelXP / nextLevelXP; 
     }
 
-
     // Add or update LevelStats for a specific category and level id (not needed now since all levels have unique ids)
     public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
     {
         var _levelList = LevelManager.Instance.levels;
         string key = $"{category}_{levelId}";
-        if (levelStatsDictionary.ContainsKey(key))
+        if (LEVEL_DICTIONARY.ContainsKey(key))
         {
-            LevelStats existingStats = levelStatsDictionary[key];
+            LevelStats existingStats = LEVEL_DICTIONARY[key];
             int xp = CalculateXpForLevel(newStats);
             TOTAL_XP += xp;
 
@@ -125,12 +125,12 @@ public class PlayerData
             {
                 if (newStats.Faults < existingStats.Faults) 
                 {
-                    levelStatsDictionary[key] = newStats;
+                    LEVEL_DICTIONARY[key] = newStats;
                     return Result.NewTimeRecord;
                 }
                 else if (newStats.Faults == existingStats.Faults && newStats.Time < existingStats.Time)
                 {
-                    levelStatsDictionary[key] = newStats;
+                    LEVEL_DICTIONARY[key] = newStats;
                     return Result.NewTimeRecord;
                 }
             }
@@ -139,23 +139,23 @@ public class PlayerData
             {
                 if (newStats.Flips > existingStats.Flips) 
                 {
-                    levelStatsDictionary[key] = newStats;
+                    LEVEL_DICTIONARY[key] = newStats;
                     return Result.NewFlipsRecord;
                 }
                 else if (newStats.Flips == existingStats.Flips && newStats.Faults < existingStats.Faults)
                 {
-                    levelStatsDictionary[key] = newStats;
+                    LEVEL_DICTIONARY[key] = newStats;
                     return Result.NewFlipsRecord;
                 }
 
                 if (newStats.Wheelie > existingStats.Wheelie) 
                 {
-                    levelStatsDictionary[key] = newStats;
+                    LEVEL_DICTIONARY[key] = newStats;
                     return Result.NewWheelieRecord;
                 }
                 else if (newStats.Wheelie == existingStats.Wheelie && newStats.Faults < existingStats.Faults)
                 {
-                    levelStatsDictionary[key] = newStats;return Result.NewWheelieRecord;
+                    LEVEL_DICTIONARY[key] = newStats;return Result.NewWheelieRecord;
 
                 }
             }
@@ -163,7 +163,7 @@ public class PlayerData
         else
         {
             newStats.Trophies = _levelList[levelId].CalculateTrophies(newStats.Time, newStats.Faults);
-            levelStatsDictionary.Add(key, newStats);
+            LEVEL_DICTIONARY.Add(key, newStats);
             return Result.NoRecord;
         } 
         return Result.FirstRecord;
@@ -179,11 +179,11 @@ public class PlayerData
         NewFlipsRecord
     }
 
-    public int GetTotalFaultsOnFinishedLevels()
+    public int GetPlayerFinishedLevelsTotalFaults()
     {
         int totalFaults = 0;
 
-        foreach (KeyValuePair<string, LevelStats> entry in levelStatsDictionary)
+        foreach (KeyValuePair<string, LevelStats> entry in LEVEL_DICTIONARY)
         {
             LevelStats stats = entry.Value;
         
@@ -196,13 +196,13 @@ public class PlayerData
         return totalFaults;
     }
 
-    private int CalculateXpForLevel(LevelStats stats)
+    public int CalculateXpForLevel(LevelStats stats)
     {
         // Normalize each stat to a range between 0 and 1
-        float normalizedPlayTime = NormalizeStat(TOTAL_PLAYTIME, 0, 60); // 60s
-        float normalizedFaults = NormalizeStat(stats.Faults, 0, 10);
-        float normalizedFlips = NormalizeStat(stats.Flips, 0, 20);
-        float normalizedWheeliePoints = NormalizeStat(stats.Wheelie, 0, 25);
+        float normalizedPlayTime = NormalizeStat(TOTAL_PLAYTIME, 0, 2000); // 60s
+        float normalizedFaults = NormalizeStat(stats.Faults, 0, 600);
+        float normalizedFlips = NormalizeStat(stats.Flips, 0, 1300);
+        float normalizedWheeliePoints = NormalizeStat(stats.Wheelie, 0, 850);
 
         // Calculate the weighted average of the normalized stats
         float average = normalizedPlayTime * PLAYTIME_WEIGHT +
@@ -224,28 +224,28 @@ public class PlayerData
     // Convert Dictionary to List for serialization
     public void UpdateSerializableLevelStatsList()
     {
-        serializableLevelStatsList = new List<LevelDictionaryEntry>(levelStatsDictionary.Count);
-        foreach (var entry in levelStatsDictionary)
+        serializableLevelStatsList = new List<LevelDictionaryEntry>(LEVEL_DICTIONARY.Count);
+        foreach (var entry in LEVEL_DICTIONARY)
         {
             serializableLevelStatsList.Add(new LevelDictionaryEntry { levelKey = entry.Key, levelStats = entry.Value });
         }
     }
 
     // Convert List back to Dictionary after deserialization
-    public void UpdateLevelStatsDictionaryFromList()
+    public void UpdatePlayerLevelStatsDictionaryFromList()
     {
-        levelStatsDictionary = new Dictionary<string, LevelStats>(serializableLevelStatsList.Count);
+        LEVEL_DICTIONARY = new Dictionary<string, LevelStats>(serializableLevelStatsList.Count);
         foreach (var entry in serializableLevelStatsList)
         {
-            levelStatsDictionary.Add(entry.levelKey, entry.levelStats);
+            LEVEL_DICTIONARY.Add(entry.levelKey, entry.levelStats);
         }
     }
 
     // Get LevelStats for a specific category and level id
-    public LevelStats GetLevelStats(Level.Category category, int levelId)
+    public LevelStats GetPlayerLevelStats(Level.Category category, int levelId)
     {
         string key = $"{category}_{levelId}";
-        return levelStatsDictionary.ContainsKey(key) ? levelStatsDictionary[key] : null;
+        return LEVEL_DICTIONARY.ContainsKey(key) ? LEVEL_DICTIONARY[key] : null;
     }
 
 }

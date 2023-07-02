@@ -10,6 +10,7 @@ public class LevelEntry : MonoBehaviour
     public TMPro.TextMeshProUGUI T_LevelName;
     public TMPro.TextMeshProUGUI T_Faults;
     public TMPro.TextMeshProUGUI T_Timer;
+    public GameObject trophy1, trophy2, trophy3;
 
     private void Start()
     {

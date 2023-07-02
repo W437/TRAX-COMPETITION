@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Lofelt.NiceVibrations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -47,10 +48,31 @@ public class ShopManager : MonoBehaviour
 
     void Start()
     {
-        bikeButton.onClick.AddListener(() => SwitchToBikeMode());
-        trailButton.onClick.AddListener(() => SwitchToTrailMode());
-        nextButton.onClick.AddListener(() => NextPrefab());
-        previousButton.onClick.AddListener(() => PreviousPrefab());
+        bikeButton.onClick.AddListener(delegate
+        {
+            SwitchToBikeMode();
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
+        });
+
+
+        trailButton.onClick.AddListener(delegate
+        {
+            SwitchToTrailMode();
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
+        });
+        
+        
+        nextButton.onClick.AddListener(delegate
+        {
+            NextPrefab();
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.Selection);
+        });
+            
+        nextButton.onClick.AddListener(delegate
+        {
+            PreviousPrefab();
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.Selection);
+        });
         
         buyButton.onClick.AddListener(delegate
         {
@@ -70,13 +92,14 @@ public class ShopManager : MonoBehaviour
         {
             if(BuyBike(currentBikeIndex) == BuyResult.Success)
             {
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.Success);
                 SelectBike(currentBikeIndex);
                 buyButton.GetComponent<Image>().sprite = buyButton_UnlockedImg;
                 BikeStatus.GetComponent<Image>().sprite = UnlockedIcon;
             }
             else if(BuyBike(currentBikeIndex) == BuyResult.InsufficientFunds)
             {
-
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);
             }
   
         }
@@ -84,13 +107,14 @@ public class ShopManager : MonoBehaviour
         {
             if(BuyTrail(currentTrailIndex) == BuyResult.Success)
             {
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.Success);
                 SelectTrail(currentTrailIndex);
                 buyButton.GetComponent<Image>().sprite = buyButton_UnlockedImg;
                 TrailStatus.GetComponent<Image>().sprite = UnlockedIcon;
             }
             else if(BuyTrail(currentTrailIndex) == BuyResult.InsufficientFunds)
             {
-
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);   
             }
         }
 

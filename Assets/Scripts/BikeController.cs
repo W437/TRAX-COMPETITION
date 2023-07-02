@@ -1,15 +1,17 @@
 using Cinemachine;
-using MoreMountains.Feedbacks;
 using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using static GameManager;
+using Lofelt.NiceVibrations;
 
 public class BikeController : MonoBehaviour
 {
     public static BikeController Instance;
+    public HapticSource haptic;
+
+    public bool CAN_CONTROL = false;
 
     public BikeParticles CurrentBikeParticles { get; private set; }
     public BikeComponents CurrentBikeComponents { get; private set; }
@@ -41,10 +43,13 @@ public class BikeController : MonoBehaviour
     SpriteRenderer frontWheelSpriteRenderer, backWheelSpriteRenderer;
     ParticleSystem bikeDirtParticles, bikeLandingParticles;
     Collider2D bikeGroundCheckCol;
-    WheelJoint2D bikeRearWheelJoint;
+    public WheelJoint2D bikeRearWheelJoint;
     JointMotor2D bikeMotor;
     Vector2 wheelieStartPosition;
 
+
+    private float _previousSpeed = 0;
+    private float _acceleration = 0;
     float bikeMotorSpeed;
     float bikeMaxTorque;
     float bikeDownwardForce;
@@ -56,7 +61,7 @@ public class BikeController : MonoBehaviour
     float currentMotorSpeed = 0f;
     float initialMotorSpeed;
     float accelerationStartTime;
-    bool isAccelerating = false;
+    public bool isAccelerating = false; // private set
     float prevMotorSpeed;
     float prevPlayerRotation;
     float prevAngularVelocity;
@@ -148,9 +153,26 @@ public class BikeController : MonoBehaviour
             bikeRearWheelJoint.useMotor = false;    
     }
 
+    public float GetBikeAcceleration()
+    {
+        return _acceleration;
+    }
+
 
     void Update()
     {
+        // For Haptic System
+        float currentSpeed = GetBikeSpeed();
+        _acceleration = (currentSpeed - _previousSpeed) / Time.deltaTime;
+        _previousSpeed = currentSpeed;
+
+
+
+
+
+
+
+        //Debug.Log("Rear wheel speed: " + isAccelerating);
         var _gameState = GameManager.Instance.gameState;
         if(_gameState == GameState.Playing)
         {
@@ -591,8 +613,10 @@ public class BikeController : MonoBehaviour
             // Only count a flip if the bike has been upside down and completed a full rotation
             if (hasBeenUpsideDown && Mathf.Abs(rotationCounter) >= 360f)
             {
+                
                 rotationCounter = 0;
                 internalFlipCount++;
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.SoftImpact);
                 //StatsJuice.PlayFeedbacks();
                 Debug.Log("Internal Flips: " + internalFlipCount);
                 // SAVE DATA
@@ -751,7 +775,9 @@ public class BikeController : MonoBehaviour
 
     public float GetBikeSpeed()
     {
-        return bikeRb.velocity.magnitude;
+        if(bikeRb)
+            return bikeRb.velocity.magnitude;
+        else return 0;
     }
 
 
@@ -767,7 +793,10 @@ public class BikeController : MonoBehaviour
     public bool IsRearWheelGrounded()
     {
         RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.Instance.groundLayer);
-        return hitBack.collider != null;
+        if(hitBack != false){
+            return hitBack.collider != null;
+        }
+        return false;
     }
 
 
@@ -780,7 +809,7 @@ public class BikeController : MonoBehaviour
 
     private void FaultFlip()
     {
-        internalFlipCount = 0;
+        HapticPatterns.PlayConstant(0.70f, 0.55f, 0.1f); 
         faults++;
         GameManager.Instance.UpdateFaultCountText();
 
@@ -964,6 +993,7 @@ public class BikeController : MonoBehaviour
 
             // Determine the landing force based on the maximum height achieved
             float landingForce = CalculateLandingForce(maxAirHeight, transform.position.y);
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.MediumImpact);
 
             // Play the landing particle effect
             CurrentBikeParticles.PlayLandingParticles(landingForce);
