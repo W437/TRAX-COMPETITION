@@ -776,7 +776,7 @@ public class BikeController : MonoBehaviour
     {
         HapticPatterns.PlayConstant(0.70f, 0.55f, 0.1f); 
         faults++;
-        GameManager.Instance.UpdateFaultCountText();
+        GameManager.Instance.UpdateGameFaultCountText();
 
         // SAVE DATA
         var _data = SaveSystem.LoadPlayerData();

@@ -9,7 +9,7 @@ public class BikeHapticManager : MonoBehaviour
     public bool HAPTIC_ON = false;
     public float MinimumPower = 0.1f;
     public float MaximumPower = 1.0f;
-    private BikeController _bikeController;
+    private BikeController _bikeController; // Capitalize all instances
     private float _power;
     private float _targetPower;
     public float BuildUpTime = 3f;
@@ -37,18 +37,19 @@ public class BikeHapticManager : MonoBehaviour
                 float accelerationPower = Mathf.Clamp(Mathf.Abs(bikeAcceleration) / 10f, MinimumPower, MaximumPower);
 
                 // Weighted average of the two power values giving more weight to speed
-                _targetPower = (1 * speedPower + 1.5f * accelerationPower) / 2.5f;
+                _targetPower = (1 * speedPower + 1.5f * accelerationPower) / 1.5f;
 
                 // Smoothly interpolate current power towards target power
                 float t = (Time.time - _startTime) / BuildUpTime;
                 _power = Mathf.Lerp(_power, _targetPower, t);
 
                 // Send haptic feedback with a constant intensity based on the current power.
-                HapticPatterns.PlayConstant(_power, _power, 0f);
+                HapticPatterns.PlayConstant(_power, _power, 0.05f);
                 Debug.Log("Haptic: " + _power);
             }
             else
             {
+                // Have haptic lerp from last val to 0 then stop.
                 _startTime = Time.time; // Reset start time when the bike stops accelerating
                 _power = 0;
                 HapticController.Stop();

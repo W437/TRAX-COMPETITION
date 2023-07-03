@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour
     public AudioClip countdownClip;
     public AudioClip goClip;
 
-    Vector2 initialCountdownTextPosition;
+    Vector2 _initialCountdownTextPosition;
 
     void Awake()
     {
@@ -64,17 +64,12 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         sessionStartTime = Time.time;
-        initialCountdownTextPosition = countdownText.transform.position;
-        //SaveSystem.ResetSaveFile();
-
+        _initialCountdownTextPosition = countdownText.transform.position;
     }
 
 
     void Update()
     {
-        // Playtime tracker
-        playerData.TOTAL_PLAYTIME = CurrentPlayTime;
-
         if (Input.GetKeyUp(KeyCode.R))
         {
             SceneManager.LoadScene(0);
@@ -89,8 +84,8 @@ public class GameManager : MonoBehaviour
 
             case GameState.Playing:
                 LevelTimer += Time.deltaTime;
-                UpdateTimerText();
-                UpdateFlipCountText();
+                UpdateGameTimerText();
+                UpdateGameFlipCountText();
                 UpdateWheeliePointsText();
                 break;
 
@@ -102,6 +97,13 @@ public class GameManager : MonoBehaviour
 
                 break;
         }
+    }
+
+    void OnApplicationQuit()
+    {
+        var _data = SaveSystem.LoadPlayerData();
+        SaveSystem.SavePlayerData(_data);
+        SavePlayTime();
     }
 
     public void AddPlayTime(float seconds)
@@ -131,7 +133,7 @@ public class GameManager : MonoBehaviour
         BikeController.Instance.totalWheelieTime = 0;
     }
 
-    void UpdateTimerText()
+    void UpdateGameTimerText()
     {
         // Convert the time back to seconds for display and format it as M:SS:MS
         TimeSpan _timeSpan = TimeSpan.FromSeconds(LevelTimer);
@@ -140,13 +142,13 @@ public class GameManager : MonoBehaviour
     }
 
 
-    void UpdateFlipCountText()
+    void UpdateGameFlipCountText()
     {
         int _flipCount = BikeController.Instance.flipCount;
         flipCountText.text = "" + _flipCount;
     }
 
-    public void UpdateFaultCountText()
+    public void UpdateGameFaultCountText()
     {
         int _faultCount = BikeController.Instance.GetFaultCount();
         faultCountText.text = "" + _faultCount;
@@ -190,7 +192,7 @@ public class GameManager : MonoBehaviour
     {
         countdownTime = 3;
         // Reset the position of the countdownText to its initial position
-        countdownText.transform.position = initialCountdownTextPosition;
+        countdownText.transform.position = _initialCountdownTextPosition;
 
         if (!countdownText.gameObject.activeSelf)
         {
@@ -199,9 +201,9 @@ public class GameManager : MonoBehaviour
 
         while (countdownTime > 0)
         {
-            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.35f); 
             countdownText.text = Mathf.CeilToInt(countdownTime).ToString();
 
+            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.25f); 
             LeanTween.scale(countdownText.gameObject, Vector3.one * 1.5f, 0.1f)
                      .setOnComplete(() => LeanTween.scale(countdownText.gameObject, Vector3.one, 0.1f));
 
@@ -215,8 +217,8 @@ public class GameManager : MonoBehaviour
 
         countdownAudioSource.clip = goClip;
         countdownAudioSource.Play();
-        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.65f); 
         countdownText.text = "GO!";
+        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.65f); 
 
         LeanTween.scale(countdownText.gameObject, Vector3.one * 1.5f, 0.1f)
                  .setOnComplete(() => LeanTween.scale(countdownText.gameObject, Vector3.one, 0.1f));
@@ -224,10 +226,10 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         LeanTween.moveY(countdownText.rectTransform, -Screen.height, 0.5f)
-                 .setOnComplete(() =>
-                 {
-                     countdownText.gameObject.SetActive(false);
-                 });
+        .setOnComplete(() =>
+        {
+            countdownText.gameObject.SetActive(false);
+        });
 
         // Start game
         BikeController.Instance.ResumeBike();
@@ -257,6 +259,7 @@ public class GameManager : MonoBehaviour
         else if (gameState == GameState.Menu)
         {
 
+            ScreenManager.Instance.RefreshTextValuesFromPlayerData();
             // Delete the previous level instance if it exists
             if (LevelManager.Instance.CurrentLevelInstance != null)
             {
@@ -302,8 +305,22 @@ public class GameManager : MonoBehaviour
         while (CameraController.Instance.gameCamera != null)
             yield return null;
 
-        // Add other conditions here, such as waiting for the level to load
-
         BackgroundParalax.Instance.ResetParallax();
     }
+
+    private void OnApplicationFocus(bool hasFocus)
+    {
+        if (!hasFocus && gameState == GameState.Playing)
+        {
+            ScreenManager.Instance.PauseGame();
+
+        }
+        else
+        {
+            // Game regained focus
+            // Add your code here for when the game is back in focus (e.g., resume the game)
+        }
+    }
+
+
 }

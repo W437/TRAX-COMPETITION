@@ -25,7 +25,7 @@ public class ScreenManager : MonoBehaviour
     #region Variables
 
     private float _lastButtonClickTime = 0f;
-    private float _buttonClickCooldown = 0.75f;
+    private float _buttonClickCooldown = 1.5f;
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////// LEVEL SELECTION MENU
@@ -200,7 +200,6 @@ public class ScreenManager : MonoBehaviour
 
     void Start()
     {
-        SaveSystem.ResetSaveFile();
         // Init Managers
         _playerData = SaveSystem.LoadPlayerData();
         _bikeController = BikeController.Instance;
@@ -261,8 +260,8 @@ public class ScreenManager : MonoBehaviour
         /////////////////////////////////////////////////////////////////////////////////////
 
         ToggleMute.isOn = _playerData.SETTINGS_isMuted;
+        ToggleHaptic.isOn = _playerData.SETTINGS_isHapticEnabled;
 
-        // Subscribes the method to the toggle's onValueChanged event
         ToggleMute.onValueChanged.AddListener(OnMuteToggleClick);
 
         if(_playerData.SETTINGS_isMuted)
@@ -272,6 +271,7 @@ public class ScreenManager : MonoBehaviour
             ToggleMuteBG.color = new Color(0,0,0,0.5f);
             T_ToggleMute.text = "Unmute";
         }
+
         else
         {
             _audioManager.MainAudioSource.volume = _playerData.SETTINGS_mainVolume;
@@ -279,17 +279,18 @@ public class ScreenManager : MonoBehaviour
             ToggleMuteBG.color = new Color(0,0,0,0.2f);
             T_ToggleMute.text = "Mute";
         }
-
-
         UpdateMuteToggleImage();
 
-        OnHapticToggleClick(_playerData.SETTINGS_isHapticEnabled);
+
+        if(!ToggleHaptic.isOn)
+        {
+            _playerData.SETTINGS_isHapticEnabled = false;
+            HapticController.hapticsEnabled = _playerData.SETTINGS_isHapticEnabled;
+            ToggleHapticBG.color = new Color(0,0,0,0.2f);
+        }
+
         SliderMainVol.value = _playerData.SETTINGS_isMuted ? 0 : _playerData.SETTINGS_mainVolume;
         SliderSFXVol.value = _playerData.SETTINGS_isMuted ? 0 : _playerData.SETTINGS_sfxVolume;
-
-        Debug.Log("MainAudioSource volume: " + _audioManager.MainAudioSource.volume);
-        Debug.Log("SFXAudioSource volume: " + _audioManager.SFXAudioSource.volume);
-    
         SliderLevelProgress.interactable = false;
         // Stats Data
         RefreshTextValuesFromPlayerData();
@@ -509,7 +510,7 @@ public class ScreenManager : MonoBehaviour
 
         B_About.onClick.AddListener(delegate 
         { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+2)
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
             return; 
             _lastButtonClickTime = Time.time;
 
@@ -520,7 +521,7 @@ public class ScreenManager : MonoBehaviour
 
         B_AboutBack.onClick.AddListener(delegate 
         { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+2)
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
             return; 
             _lastButtonClickTime = Time.time;
 
@@ -683,7 +684,6 @@ public class ScreenManager : MonoBehaviour
             var _playerData = SaveSystem.LoadPlayerData();
             _playerData.UpdateLevel();
             _gameManager.SavePlayTime();
-            RefreshTextValuesFromPlayerData();
             _cameraController.SwitchToMenuCamera(); 
         });
             
@@ -697,11 +697,12 @@ public class ScreenManager : MonoBehaviour
         btn_AddCoins.onClick.AddListener(delegate 
         {
             var _data = SaveSystem.LoadPlayerData();
+            Debug.Log("Coins before save: " + _data.COINS);
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
             Debug.Log("Coins before: " + _data.COINS);
             _data.COINS += 1231;
-            Debug.Log("Coins after: " + _data.COINS);
             SaveSystem.SavePlayerData(_data);
+            Debug.Log("Coins after save: " + _data.COINS);
             RefreshTextValuesFromPlayerData();
         });
 
@@ -748,11 +749,12 @@ public class ScreenManager : MonoBehaviour
         btn_AddXP.onClick.AddListener(delegate 
         {
             var _playerData = SaveSystem.LoadPlayerData();
-            _playerData.TOTAL_XP += 86167;
+            int addedXP = 5167;
+            _playerData.TOTAL_XP += addedXP;
             SaveSystem.SavePlayerData(_playerData);
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
             StatsLevelProgressRefresh();
-            UpdateXPBar();
+            SaveSystem.SavePlayerData(_playerData);
         });
 
         btn_ShuffleSoundtrack.onClick.AddListener(delegate 
@@ -777,7 +779,11 @@ public class ScreenManager : MonoBehaviour
         });
 
         SaveSystem.SavePlayerData(_data);
+        RefreshTextValuesFromPlayerData();
     }
+
+
+
 
     private void UpdateSlider(float value)
     {
@@ -790,8 +796,8 @@ public class ScreenManager : MonoBehaviour
         float currentLevelXP = _playerData.TOTAL_XP - _playerData.XPForLevel(_playerData.PLAYER_LEVEL);
         float nextLevelXP = _playerData.XPForLevel(_playerData.PLAYER_LEVEL + 1) - _playerData.XPForLevel(_playerData.PLAYER_LEVEL);
 
-        SliderLevelProgress.maxValue = 1; 
-        SliderLevelProgress.value = currentLevelXP / nextLevelXP;
+        // SliderLevelProgress.maxValue = 1; 
+        // SliderLevelProgress.value = currentLevelXP / nextLevelXP;
 
         T_PlayerLevel.text = "Level: " + _playerData.PLAYER_LEVEL.ToString() + "/100";
         T_PlayerXP.text = _playerData.TOTAL_XP.ToString() + " XP";
@@ -802,7 +808,7 @@ public class ScreenManager : MonoBehaviour
     void OnMuteToggleClick(bool isOn)
     {
         if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+            return;
         _lastButtonClickTime = Time.time;
 
         _playerData = SaveSystem.LoadPlayerData();
@@ -844,20 +850,18 @@ public class ScreenManager : MonoBehaviour
 
         HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact); 
         _playerData = SaveSystem.LoadPlayerData();
-        if (isOn)
+        if (!isOn)
         {
-            _playerData.SETTINGS_isHapticEnabled = false;
-            HapticController.hapticsEnabled = false;
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact); 
-            ToggleHapticBG.color = new Color(0,0,0,0.2f);
+            _playerData.SETTINGS_isHapticEnabled = true;
+            HapticController.hapticsEnabled = _playerData.SETTINGS_isHapticEnabled;
+            ToggleHapticBG.color = new Color(0,0,0,0.5f);
         }
         else
         {
-            //BikeHapticManager.Instance.HAPTIC_ON = true;
-            _playerData.SETTINGS_isHapticEnabled = true;
-            HapticController.hapticsEnabled = true;
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact); 
-            ToggleHapticBG.color = new Color(0,0,0,0.5f);
+            //BikeHapticManager.Instance.HAPTIC_ON = true; // separate haptic for bike
+            _playerData.SETTINGS_isHapticEnabled = false;
+            HapticController.hapticsEnabled = _playerData.SETTINGS_isHapticEnabled;
+            ToggleHapticBG.color = new Color(0,0,0,0.2f);
         }
         SaveSystem.SavePlayerData(_playerData);
     }
@@ -894,7 +898,6 @@ public class ScreenManager : MonoBehaviour
         Image toggleImage = ToggleMuteImage;
         if (toggleImage != null)
         {
-            Debug.Log("Image: " + ToggleMute.isOn);
             toggleImage.sprite = ToggleMute.isOn ? UnmuteSprite : MuteSprite;
         }
     }
@@ -1017,7 +1020,6 @@ public class ScreenManager : MonoBehaviour
         BikeAnimationInCoroutine = StartCoroutine(_cameraController.AnimateScreenX(-0.15f, 0.88f, wheelieDuration+maintainRotationTime));
 
         yield return new WaitForSeconds(_delay);
-        Debug.Log("Animating IN");
 
         while (elapsedTime < wheelieDuration)
         {
@@ -1164,7 +1166,7 @@ public class ScreenManager : MonoBehaviour
         {
             SliderLevelProgress.value = 0;
             Panel_Settings.SetActive(true);
-            LeanTween.moveX(PanelStats.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(StatsLevelProgressRefresh);
+            LeanTween.moveX(PanelStats.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(delegate() {StatsLevelProgressRefresh();});
             LeanTween.moveX(PanelSettings.GetComponent<RectTransform>(), -0, 0.50f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveX(temp_PanelDev.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveY(B_SettingsBackMenu.GetComponent<RectTransform>(), -85f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(0f);
@@ -1193,7 +1195,6 @@ public class ScreenManager : MonoBehaviour
 
     public IEnumerator PlayEndTransition()
     {
-        HapticPatterns.PlayConstant(0.4f, 0.4f, ScreenManager.Instance.GetEndTransitionDuration() );
         ScreenManager.Instance.startTransition.SetActive(false); 
         ScreenManager.Instance.endTransition.SetActive(true);
         yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
@@ -1208,7 +1209,6 @@ public class ScreenManager : MonoBehaviour
         yield return new WaitForSeconds(startTransitionDuration-0.5f);
         StartCoroutine(PlayEndTransition());
         yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
-        HapticPatterns.PlayConstant(0.4f, 0.4f, ScreenManager.Instance.GetEndTransitionDuration() );
     }
 
     public float GetStartTransitionDuration()
@@ -1385,9 +1385,13 @@ public class ScreenManager : MonoBehaviour
                 LeanTween.moveX(B_NextLvl.GetComponent<RectTransform>(), 0f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
                 LeanTween.scale(B_Leaderboard.GetComponent<RectTransform>(), new Vector3(1.45f, 1.45f, 1.45f), 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
                 LeanTween.moveY(T_XPGained.GetComponent<RectTransform>(), -280f, 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
-                LeanTween.value(T_XPGained.gameObject, 0, _playerData.CalculateXpForLevel(CurrentLevelStats), 3f).setEase(LeanTweenType.easeOutExpo).setDelay(0.3f).setOnUpdate((float value) =>
+                LeanTween.value(T_XPGained.gameObject, 0, _playerData.CalculateXpForLevel(CurrentLevelStats), 1.5f).setEase(LeanTweenType.easeOutExpo).setDelay(1f).setOnUpdate((float value) =>
                 {
                     T_XPGained.text = Mathf.RoundToInt(value).ToString() + " XP GAINED!";
+                    // Calculate haptic strength based on current value
+                    float hapticStrength = value / _playerData.CalculateXpForLevel(CurrentLevelStats);
+                    // Play haptic feedback
+                    HapticPatterns.PlayConstant(hapticStrength, 0.1f, 0.05f); // Juice
                 });
                 LeanTween.moveY(B_Back.GetComponent<RectTransform>(), -85f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f); 
             });
@@ -1545,7 +1549,6 @@ public class ScreenManager : MonoBehaviour
         _bikeController.bikeRearWheelJoint.useMotor = false;
         
         HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
-        var _playerData = SaveSystem.LoadPlayerData(); 
         var _currentLevelID = LevelManager.Instance.CurrentLevelID;
         var _levels = LevelManager.Instance.Levels;
         var _LevelTime = _gameManager.LevelTimer;
@@ -1554,8 +1557,7 @@ public class ScreenManager : MonoBehaviour
         var _LevelWheelie = BikeController.Instance.wheeliePoints;
         var _trophyCount = 3; //_levels[_currentLevelID].CalculateTrophies(_LevelTime, _LevelFaults);       
 
-        _playerData.UpdateLevel();
-
+        Debug.Log("Time: " + _gameManager.LevelTimer);
         CurrentLevelStats = new LevelStats 
         { 
             Time = _gameManager.LevelTimer, 
@@ -1566,8 +1568,13 @@ public class ScreenManager : MonoBehaviour
             // ADD OTHER STATS
         };
 
+        Debug.Log("statsL " + CurrentLevelStats.Time);
+
         // SAVE DATA
 
+        var _playerData = SaveSystem.LoadPlayerData(); 
+        
+        _playerData.UpdateLevel();
         // Actions based on outcome
         Result result = _playerData.AddLevelStats(_levels[_currentLevelID].LevelCategory, _levels[_currentLevelID].LevelID, CurrentLevelStats);
         switch (result)
@@ -1575,18 +1582,22 @@ public class ScreenManager : MonoBehaviour
             case Result.NoRecord:
                 // No existing record for the level
                 Debug.Log("No existing record");
+                SaveSystem.SavePlayerData(_playerData);
                 break;
             case Result.NewTimeRecord:
                 // New time record
                 Debug.Log("New time record");
+                SaveSystem.SavePlayerData(_playerData);
                 break;
             case Result.NewWheelieRecord:
                 // New wheelie record
                 Debug.Log("New wheelie record");
+                SaveSystem.SavePlayerData(_playerData);
                 break;
             case Result.NewFlipsRecord:
                 // New flips record
                 Debug.Log("New flips record");
+                SaveSystem.SavePlayerData(_playerData);
                 break;
         }
 
@@ -1625,7 +1636,6 @@ public class ScreenManager : MonoBehaviour
                 break;
         }
         
-        SaveSystem.SavePlayerData(_playerData);
         _playerData.TOTAL_FAULTS_ALL_LEVELS = _playerData.GetPlayerFinishedLevelsTotalFaults();
         SaveSystem.SavePlayerData(_playerData);
 
@@ -1649,10 +1659,10 @@ public class ScreenManager : MonoBehaviour
     private void TrophyAnimation(GameObject trophy, float targetScale, float delay)
     {
         trophy.transform.localScale = Vector3.zero;
-        LeanTween.scale(trophy, Vector3.one * targetScale, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(delay+1)
+        LeanTween.scale(trophy, Vector3.one * targetScale, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(delay)
         .setOnComplete(delegate()
         {
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.LightImpact);
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact);
         }
         );
         

@@ -38,7 +38,7 @@ public class BackgroundParalax : MonoBehaviour
     void Initialize()
     {
         playerCamera = playerCam.GetComponent<Camera>();
-        Debug.Log("Paralax Init");
+
         lastPos = playerCam.position;
         initialPlayerY = playerCam.position.y-5;
         backgroundLayers = new List<LinkedList<SpriteRenderer>>(backgrounds.Length);

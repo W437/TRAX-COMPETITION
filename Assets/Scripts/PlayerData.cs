@@ -32,7 +32,10 @@ public class PlayerData
 
     // XP SYSTEM
     // XP is calculated by stat weights
-    const int MAX_XP = 7330007;
+    public float[] LEVEL_UP_DIFFICULTIES = new float[10] {1.1f, 1.2f, 1.3f, 1.5f, 1.7f, 2.1f, 2.6f, 2.9f, 3.5f, 4.9f}; // multiplier for each set of 10 levels
+
+    const int MAX_XP = 777777;
+
     const float PLAYTIME_WEIGHT = 0.3f;
     const float FAULTS_WEIGHT = 0.1f;
     const float FLIPS_WEIGHT = 0.5f;
@@ -40,6 +43,14 @@ public class PlayerData
 
     const float MIN_XP_SCORE = 511;
     const float MAX_XP_SCORE = 5777;
+
+    // Calculating XP per LVL
+    const int BASE_XP = 1000; // per lvl complete
+    const int TIME_BONUS_XP = 7;  // awarded per second under time limit
+    const int FLIP_BONUS_XP = 40; // awarded per flip
+    const int WHEELIE_BONUS_XP = 35; // awarded per wheelie point
+    const int FAULT_PENALTY_XP = 17; // deducted per fault
+
 
     // Settings
     public bool SETTINGS_isMuted = false;
@@ -50,48 +61,86 @@ public class PlayerData
     public void AddXP(int amount)
     {
         TOTAL_XP += amount;
-        UpdateLevel();
     }
 
 
+    // LVL SYS UNDER CONSTRUCTION
     public void UpdateLevel()
     {
-        // Level 0 - 20 require 30% of XP, 20 - 70 require additional 20% and 70 - 100 require the remaining 50% of XP
-        if (TOTAL_XP <= MAX_XP * 0.3)
+        int levelGroup;
+        float currentGroupDifficulty;
+        int baseXP = TOTAL_XP - 1500;
+        
+        if (baseXP >= 0) 
         {
-            // The player is in the first 20 levels (0% - 30% experience)
-            PLAYER_LEVEL = (int)((TOTAL_XP / (MAX_XP * 0.3)) * 20);
-        }
-        else if (TOTAL_XP <= MAX_XP * 0.5)
-        {
-            // The player is between level 20 and 70 (30% - 50% experience)
-            PLAYER_LEVEL = 20 + (int)(((TOTAL_XP - (MAX_XP * 0.3)) / (MAX_XP * 0.2)) * 50);
+            levelGroup = baseXP / (MAX_XP / 10);
+            currentGroupDifficulty = LEVEL_UP_DIFFICULTIES[levelGroup];
+        
+            if (levelGroup == 0)
+            {
+                PLAYER_LEVEL = (int)((baseXP / (MAX_XP * 0.1 * currentGroupDifficulty)) * 10);
+            }
+            else
+            {
+                PLAYER_LEVEL = 10 * levelGroup + (int)(((baseXP - (MAX_XP * 0.1 * levelGroup)) / (MAX_XP * 0.1 * currentGroupDifficulty)) * 10);
+            }
         }
         else
         {
-            // The player is in the last 30 levels (50% - 100% experience)
-            PLAYER_LEVEL = 70 + (int)(((TOTAL_XP - (MAX_XP * 0.5)) / (MAX_XP * 0.5)) * 30);
+            PLAYER_LEVEL = 1;
         }
 
         var _data = SaveSystem.LoadPlayerData();
         _data.PLAYER_LEVEL = PLAYER_LEVEL;
+        Debug.Log("Player Level: " + PLAYER_LEVEL);
         SaveSystem.SavePlayerData(_data);
     }
 
+
     public int XPForLevel(int level)
     {
-        if (level <= 20)
+        if (level == 1) 
         {
-            return (int)(level / 20.0f * (MAX_XP * 0.3));
+            return 1500;
         }
-        else if (level <= 70)
+        else 
         {
-            return (int)((MAX_XP * 0.3) + ((level - 20) / 50.0f * (MAX_XP * 0.2)));
+            int levelGroup = (level - 1) / 10;
+            float currentGroupDifficulty = LEVEL_UP_DIFFICULTIES[levelGroup];
+            int baseLevel = level - 1;
+
+            if (levelGroup == 0)
+            {
+                return 1500 + (int)(baseLevel / 10.0f * (MAX_XP * 0.1 * currentGroupDifficulty));
+            }
+            else
+            {
+                return 1500 + (int)((MAX_XP * 0.1 * levelGroup) + ((baseLevel - 10 * levelGroup) / 10.0f * (MAX_XP * 0.1 * currentGroupDifficulty)));
+            }
         }
-        else // 70 <= level <= 100
+    }
+
+
+    public int CalculateXpForLevel(LevelStats stats)
+    {
+        // TODO: different base level xp for level categories.
+        int xp = BASE_XP;
+
+        // Award bonus XP for fast completion
+        if (stats.Time < 60)  // assuming 60 seconds is the time limit
         {
-            return (int)((MAX_XP * 0.5) + ((level - 70) / 30.0f * (MAX_XP * 0.5)));
+            xp += (int)(TIME_BONUS_XP * (60 - stats.Time));
         }
+
+        // Award bonus XP for flips and wheelies
+        xp += FLIP_BONUS_XP * stats.Flips;
+        xp += (int)(WHEELIE_BONUS_XP * stats.Wheelie);
+
+        // Deduct XP for faults
+        xp -= FAULT_PENALTY_XP * stats.Faults;
+
+        // Make sure XP awarded is never negative
+        return Mathf.Max(xp, 0);
     }
 
 
@@ -105,69 +154,62 @@ public class PlayerData
     }
 
     // Add or update LevelStats for a specific category and level id (not needed now since all levels have unique ids)
-    public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
+public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
+{
+    var _levelList = LevelManager.Instance.Levels;
+    string key = $"{category}_{levelId}";
+    Debug.Log($"Added stats for: {category}_{levelId}");
+
+    if (LEVEL_DICTIONARY.ContainsKey(key))
     {
-        var _levelList = LevelManager.Instance.Levels;
-        string key = $"{category}_{levelId}";
-        if (LEVEL_DICTIONARY.ContainsKey(key))
+        // Existing level stats found
+        LevelStats existingStats = LEVEL_DICTIONARY[key];
+
+        // Update trophies if necessary
+        int newTrophies = _levelList[levelId].CalculateTrophies(newStats.Time, newStats.Faults);
+        newStats.Trophies = Math.Max(newTrophies, existingStats.Trophies);
+
+        // Compare and update other stats as needed
+        if (category == Level.Category.Easy || category == Level.Category.Medium || category == Level.Category.Hard)
         {
-            LevelStats existingStats = LEVEL_DICTIONARY[key];
-            int xp = CalculateXpForLevel(newStats);
-            TOTAL_XP += xp;
-
-
-            int newTrophies = _levelList[levelId].CalculateTrophies(newStats.Time, newStats.Faults);
-            newStats.Trophies = Math.Max(newTrophies, existingStats.Trophies);
-
-            
-            // For time-based levels (Easy, Medium, Hard), prioritizing on faults
-            if ((category == Level.Category.Easy || category == Level.Category.Medium || category == Level.Category.Hard))
+            // Time-based levels (Easy, Medium, Hard)
+            if (newStats.Faults < existingStats.Faults)
             {
-                if (newStats.Faults < existingStats.Faults) 
-                {
-                    LEVEL_DICTIONARY[key] = newStats;
-                    return Result.NewTimeRecord;
-                }
-                else if (newStats.Faults == existingStats.Faults && newStats.Time < existingStats.Time)
-                {
-                    LEVEL_DICTIONARY[key] = newStats;
-                    return Result.NewTimeRecord;
-                }
+                LEVEL_DICTIONARY[key] = newStats;
+                return Result.NewTimeRecord;
             }
-            // For Wheelie and Flips levels, we save if new faults are less or new faults are equal but flips/wheelies are more
-            else if ((category == Level.Category.Wheelie || category == Level.Category.Flips))
+            else if (newStats.Faults == existingStats.Faults && newStats.Time < existingStats.Time)
             {
-                if (newStats.Flips > existingStats.Flips) 
-                {
-                    LEVEL_DICTIONARY[key] = newStats;
-                    return Result.NewFlipsRecord;
-                }
-                else if (newStats.Flips == existingStats.Flips && newStats.Faults < existingStats.Faults)
-                {
-                    LEVEL_DICTIONARY[key] = newStats;
-                    return Result.NewFlipsRecord;
-                }
-
-                if (newStats.Wheelie > existingStats.Wheelie) 
-                {
-                    LEVEL_DICTIONARY[key] = newStats;
-                    return Result.NewWheelieRecord;
-                }
-                else if (newStats.Wheelie == existingStats.Wheelie && newStats.Faults < existingStats.Faults)
-                {
-                    LEVEL_DICTIONARY[key] = newStats;return Result.NewWheelieRecord;
-
-                }
+                LEVEL_DICTIONARY[key] = newStats;
+                return Result.NewTimeRecord;
             }
         }
-        else
+        else if (category == Level.Category.Wheelie || category == Level.Category.Flips)
         {
-            newStats.Trophies = _levelList[levelId].CalculateTrophies(newStats.Time, newStats.Faults);
-            LEVEL_DICTIONARY.Add(key, newStats);
-            return Result.NoRecord;
-        } 
-        return Result.FirstRecord;
+            // Wheelie and Flips levels
+            if (newStats.Flips > existingStats.Flips || (newStats.Flips == existingStats.Flips && newStats.Faults < existingStats.Faults))
+            {
+                LEVEL_DICTIONARY[key] = newStats;
+                return Result.NewFlipsRecord;
+            }
+            else if (newStats.Wheelie > existingStats.Wheelie || (newStats.Wheelie == existingStats.Wheelie && newStats.Faults < existingStats.Faults))
+            {
+                LEVEL_DICTIONARY[key] = newStats;
+                return Result.NewWheelieRecord;
+            }
+        }
     }
+    else
+    {
+        // New level stats
+        newStats.Trophies = _levelList[levelId].CalculateTrophies(newStats.Time, newStats.Faults);
+        LEVEL_DICTIONARY.Add(key, newStats);
+        return Result.NoRecord;
+    }
+
+    return Result.FirstRecord;
+}
+
 
 
     public enum Result
@@ -196,25 +238,6 @@ public class PlayerData
         return totalFaults;
     }
 
-    public int CalculateXpForLevel(LevelStats stats)
-    {
-        // Normalize each stat to a range between 0 and 1
-        float normalizedPlayTime = NormalizeStat(TOTAL_PLAYTIME, 0, 2000); // 60s
-        float normalizedFaults = NormalizeStat(stats.Faults, 0, 600);
-        float normalizedFlips = NormalizeStat(stats.Flips, 0, 1300);
-        float normalizedWheeliePoints = NormalizeStat(stats.Wheelie, 0, 850);
-
-        // Calculate the weighted average of the normalized stats
-        float average = normalizedPlayTime * PLAYTIME_WEIGHT +
-                        normalizedFaults * FAULTS_WEIGHT +
-                        normalizedFlips * FLIPS_WEIGHT +
-                        normalizedWheeliePoints * WHEELIE_WEIGHT;
-
-        // Map the average to the XP range
-        int xp = (int)(MIN_XP_SCORE + average * (MAX_XP_SCORE - MIN_XP_SCORE));
-
-        return xp;
-    }
 
     private float NormalizeStat(float value, float min, float max)
     {
