@@ -6,28 +6,22 @@ public class CameraController : MonoBehaviour
 {
 
     public static CameraController Instance;
-    // Duration of the transition
-    public float transitionDuration = 1.5f;
 
+    public float transitionDuration = 1.5f;
     public CinemachineVirtualCamera gameCamera;
     public CinemachineVirtualCamera menuCamera;
     public CinemachineVirtualCamera shopCamera;
     public CinemachineVirtualCamera settingsCamera;
     // Target values
-
     float targetOrthographicSize;
     float targetScreenX;
-
     // Time passed since transition start
     float transitionTime;
-
     // Reference to the VirtualCamera
     public CinemachineVirtualCamera virtualCamera;
     public Camera mainCamera;
-
     // Reference to the Composer
     public CinemachineFramingTransposer mainComposer, menuComposer;
-
     private CinemachineBrain mainCameraBrain;
     private CinemachineBlendDefinition originalBlendDefinition;
 

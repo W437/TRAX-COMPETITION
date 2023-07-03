@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TrailManager : MonoBehaviour
 {
-    public static TrailManager Instance; // singleton instance
+    public static TrailManager Instance;
 
     [SerializeField] private Trail[] trails;
 
@@ -42,9 +42,9 @@ public class TrailManager : MonoBehaviour
         // Find the Trail in the allTrails list with the matching ID and return its prefab
         foreach (var trail in trails)
         {
-            if (trail.trailId == selectedTrailId)
+            if (trail.TrailID == selectedTrailId)
             {
-                return trail.trailPrefab;
+                return trail.TrailPrefab;
             }
         }
         return null; // if no match is found
@@ -57,7 +57,7 @@ public class TrailManager : MonoBehaviour
 
     public Trail GetTrailById(int id)
     {
-        return trails.FirstOrDefault(t => t.trailId == id);
+        return trails.FirstOrDefault(t => t.TrailID == id);
     }
 
 }

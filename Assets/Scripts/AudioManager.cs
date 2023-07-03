@@ -36,7 +36,6 @@ public class AudioManager : MonoBehaviour
 
     public void PlayNextTrack()
     {
-        // play the track
         MainAudioSource.clip = shuffledTracks[currentTrackIndex];
         MainAudioSource.Play();
 

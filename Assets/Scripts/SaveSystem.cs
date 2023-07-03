@@ -20,12 +20,12 @@ public static class SaveSystem
         if (!File.Exists(filePath))
         {
             PlayerData data = new PlayerData();
-            data.COINS = 125;
+            data.COINS = 150;
             data.UNLOCKED_BIKES = new int[] { 0 };
             data.SELECTED_BIKE_ID = 0;
             data.UNLOCKED_TRAILS = new int[] { 0 };
             data.SELECTED_TRAIL_ID = 0;
-            data.TOTAL_XP = 0;
+            data.TOTAL_XP = 100;
             data.TOTAL_TROPHIES = 0;
             data.TOTAL_DISTANCE = 0;
             data.TOTAL_FAULTS = 0; 
@@ -57,7 +57,7 @@ public static class SaveSystem
             // Use JsonUtility to convert the json to a PlayerData object
             PlayerData data = JsonUtility.FromJson<PlayerData>(json);
             data.UpdatePlayerLevelStatsDictionaryFromList(); // Convert list back to dictionary after loading
-            Debug.Log("Loaded savedata: " + data.ToString() + " at: " + filePath.ToString());
+            //Debug.Log("Loaded savedata: " + data.ToString() + " at: " + filePath.ToString());
 
             return data;
         }
@@ -73,13 +73,4 @@ public static class SaveSystem
         }
     }
 
-    public static void ResetVolumeDefault()
-    {
-        // Load current data
-        var _playerData = LoadPlayerData();
-        _playerData.SETTINGS_mainVolume = 0.95f;
-        _playerData.SETTINGS_sfxVolume = 0.85f;
-        // Save the updated data
-        SavePlayerData(_playerData);
-    }
 }

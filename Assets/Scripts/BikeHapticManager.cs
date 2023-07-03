@@ -4,13 +4,11 @@ using Lofelt.NiceVibrations;
 public class BikeHapticManager : MonoBehaviour
 {
     public static BikeHapticManager Instance;
-    public bool HAPTIC_ON = false;
+    
     [Header("Haptic Settings")]
+    public bool HAPTIC_ON = false;
     public float MinimumPower = 0.1f;
     public float MaximumPower = 1.0f;
-    public float AccelerationIncreaseSpeed = 0.1f; // Adjust as needed
-    public float DecelerationDecreaseSpeed = 0.2f; // Adjust as needed
-
     private BikeController _bikeController;
     private float _power;
     private float _targetPower;
@@ -26,7 +24,6 @@ public class BikeHapticManager : MonoBehaviour
 
     private void Update()
     {
-        //Debug.Log("Haptic: " + _power);
         if(HAPTIC_ON && (GameManager.Instance.gameState == GameManager.GameState.Playing))
         {
             if (_bikeController.isAccelerating && _bikeController.IsGrounded())
@@ -40,20 +37,20 @@ public class BikeHapticManager : MonoBehaviour
                 float accelerationPower = Mathf.Clamp(Mathf.Abs(bikeAcceleration) / 10f, MinimumPower, MaximumPower);
 
                 // Weighted average of the two power values giving more weight to speed
-                _targetPower = (2 * speedPower + 0.5f * accelerationPower) / 2.5f;
+                _targetPower = (1 * speedPower + 1.5f * accelerationPower) / 2.5f;
 
                 // Smoothly interpolate current power towards target power
                 float t = (Time.time - _startTime) / BuildUpTime;
                 _power = Mathf.Lerp(_power, _targetPower, t);
 
-                // Use this line to send haptic feedback with a constant intensity based on the current power.
+                // Send haptic feedback with a constant intensity based on the current power.
                 HapticPatterns.PlayConstant(_power, _power, 0f);
                 Debug.Log("Haptic: " + _power);
             }
             else
             {
                 _startTime = Time.time; // Reset start time when the bike stops accelerating
-                _power = 0; // Set power to 0 when the bike is not accelerating
+                _power = 0;
                 HapticController.Stop();
             }
         }

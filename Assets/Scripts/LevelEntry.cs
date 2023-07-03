@@ -3,36 +3,35 @@ using UnityEngine.UI;
 
 public class LevelEntry : MonoBehaviour 
 {
-    public int level;
-    public Button leaderboardButton;
-    public Level.Category category;
-    public Button playButton;
-    public TMPro.TextMeshProUGUI T_LevelName;
-    public TMPro.TextMeshProUGUI T_Faults;
-    public TMPro.TextMeshProUGUI T_Timer;
-    public GameObject trophy1, trophy2, trophy3;
+    public int Level;
+    public Button Btn_Leaderboard;
+    public Level.Category Category;
+    public Button Btn_Play;
+    public TMPro.TextMeshProUGUI Txt_LevelName;
+    public TMPro.TextMeshProUGUI Txt_Faults;
+    public TMPro.TextMeshProUGUI Txt_Timer;
+    public GameObject Trophy1, Trophy2, Trophy3;
 
     private void Start()
     {
-        leaderboardButton.onClick.AddListener(OnLeaderboardButtonClick);
-        playButton.onClick.AddListener(OnPlayButtonClick);
+        Btn_Leaderboard.onClick.AddListener(OnLeaderboardButtonClick);
+        Btn_Play.onClick.AddListener(OnPlayButtonClick);
     }
 
     public void SetLevel(int level)
     {
-        this.level = level;
+        this.Level = level;
     }
 
     private void OnLeaderboardButtonClick()
     {
         // Show leaderboard for this level
-       // LevelManager.Instance.ShowLeaderboardForLevel(level);
     }
 
     private void OnPlayButtonClick()
     {
         // Start the level associated with this button
         ScreenManager.Instance.TweenLevelsSection(false);
-        LevelManager.Instance.StartLevel(level);
+        LevelManager.Instance.StartLevel(Level);
     }
 }

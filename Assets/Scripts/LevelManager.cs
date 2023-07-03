@@ -7,17 +7,13 @@ using System.Collections;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance; // Singleton instance
-    public Transform levelsGameObject;
-    public BackgroundParalax bgParalax;
-
-    public TMPro.TextMeshProUGUI levelInfoText;
-
-
-
-    [SerializeField] public Level[] levels;
-
+    public Transform LevelGameObject;
+    public BackgroundParalax BackgroundParalax;
+    public TMPro.TextMeshProUGUI Txt_LevelInfo;
+    [SerializeField] public Level[] Levels;
     public int CurrentLevelID { get; private set; } = 0;
-    public GameObject currentLevelInstance;
+    public GameObject CurrentLevelInstance;
+
 
     void Awake()
     {
@@ -35,9 +31,9 @@ public class LevelManager : MonoBehaviour
 
     public Level GetCurrentLevelData()
     {
-        if (CurrentLevelID < levels.Length)
+        if (CurrentLevelID < Levels.Length)
         {
-            return levels[CurrentLevelID];
+            return Levels[CurrentLevelID];
         }
         else
         {
@@ -47,91 +43,77 @@ public class LevelManager : MonoBehaviour
     }
 
 
-public void StartLevel(int level)
-{
-    // Check if the level number is valid
-    if (level >= 0 && level < levels.Length)
+    public void StartLevel(int level)
     {
-        CurrentLevelID = level;
-        var currentLevelData = GetCurrentLevelData();
-        var currentLevelCategory = currentLevelData.category;
-        StartCoroutine(StartLevelTransition(level));
-        CameraController.Instance.SwitchToGameCamera();
-
-        // Stop the previous BikeAnimationInCoroutine if it exists
-        if (ScreenManager.Instance.BikeAnimationInCoroutine != null)
+        // Check if the level number is valid
+        if (level >= 0 && level < Levels.Length)
         {
-            ScreenManager.Instance.StopCoroutine(ScreenManager.Instance.BikeAnimationInCoroutine);
-            ScreenManager.Instance.BikeAnimationInCoroutine = null;
+            CurrentLevelID = level;
+            var currentLevelData = GetCurrentLevelData();
+            var currentLevelCategory = currentLevelData.LevelCategory;
+            StartCoroutine(StartLevelTransition(level));
+            CameraController.Instance.SwitchToGameCamera();
+
+            // Stop the previous BikeAnimationInCoroutine if it exists
+            if (ScreenManager.Instance.BikeAnimationInCoroutine != null)
+            {
+                ScreenManager.Instance.StopCoroutine(ScreenManager.Instance.BikeAnimationInCoroutine);
+                ScreenManager.Instance.BikeAnimationInCoroutine = null;
+            }
+
+            // Stop the previous BikeAnimationOutCoroutine if it exists
+            if (ScreenManager.Instance.BikeAnimationOutCoroutine != null)
+            {
+                ScreenManager.Instance.StopCoroutine(ScreenManager.Instance.BikeAnimationOutCoroutine);
+                ScreenManager.Instance.BikeAnimationOutCoroutine = null;
+            }
         }
-
-        // Stop the previous BikeAnimationOutCoroutine if it exists
-        if (ScreenManager.Instance.BikeAnimationOutCoroutine != null)
+        else
         {
-            ScreenManager.Instance.StopCoroutine(ScreenManager.Instance.BikeAnimationOutCoroutine);
-            ScreenManager.Instance.BikeAnimationOutCoroutine = null;
+            Debug.LogError("Invalid level number: " + level);
         }
     }
-    else
-    {
-        Debug.LogError("Invalid level number: " + level);
-    }
-}
-
-
 
     IEnumerator StartLevelTransition(int level)
     {
         yield return ScreenManager.Instance.PlayStartTransition();
         LoadLevel(level);
 
-        // Enable the levelInfoText during the transition
-        levelInfoText.gameObject.SetActive(true);
+        Txt_LevelInfo.gameObject.SetActive(true);
 
-        // Update the levelInfoText with the level category and level number
-        levelInfoText.text = levels[level].category.ToString() + " - Level " + (levels[level].levelID+1);
+        Txt_LevelInfo.text = Levels[level].LevelCategory.ToString() + " - Level " + (Levels[level].LevelID+1);
 
-        yield return new WaitForSeconds(0.5f);  // optional delay
+        yield return new WaitForSeconds(0.5f);
 
-        // Disable the levelInfoText after the transition ends
-        levelInfoText.gameObject.SetActive(false);
+        Txt_LevelInfo.gameObject.SetActive(false);
         StartCoroutine(ScreenManager.Instance.PlayEndTransition());
     }
 
 
     void LoadLevel(int level)
     {
-        // Delete the previous level instance if it exists
-        if (currentLevelInstance != null)
+        if (CurrentLevelInstance != null)
         {
-            Destroy(currentLevelInstance);
+            Destroy(CurrentLevelInstance);
         }
 
-        // Instantiate the new level
-        currentLevelInstance = Instantiate(levels[CurrentLevelID].levelPrefab, levelsGameObject);
-        currentLevelInstance.SetActive(true);
+        CurrentLevelInstance = Instantiate(Levels[CurrentLevelID].LevelPrefab, LevelGameObject);
+        CurrentLevelInstance.SetActive(true);
 
-        // Find the finish line in the new level instance
-        Transform finishLine = currentLevelInstance.transform.Find("Finish"); 
+        Transform finishLine = CurrentLevelInstance.transform.Find("Finish"); 
                                                                                 
-        bgParalax.SetFinishLine(finishLine);
-
-        // Fetch PlayerData to get the selected bike ID
+        BackgroundParalax.SetFinishLine(finishLine);
         PlayerData playerData = SaveSystem.LoadPlayerData();
 
-        // Instantiate the bike
         BikeController.Instance.LoadPlayerBike(playerData.SELECTED_BIKE_ID);
 
         // Find the bike's starting position in the new level instance
-        Transform bikeStartPosition = currentLevelInstance.transform.GetChild(0);
+        Transform bikeStartPosition = CurrentLevelInstance.transform.GetChild(0);
         GameManager.Instance.ResetLevelStats();
         // Set the bike's position to the starting position for the level
-
         GameManager.Instance.GAME_PlayerBike.SetActive(true);
         GameManager.Instance.GAME_PlayerBike.transform.SetPositionAndRotation(bikeStartPosition.position, bikeStartPosition.rotation);
-
         BikeController.Instance.PauseBike();
-
         ScreenManager.Instance.TweenMainMenu(false);
         GameManager.Instance.SetGameState(GameState.Starting);
         ScreenManager.Instance.TweenGameHUD(true);

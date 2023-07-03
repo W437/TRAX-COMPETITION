@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80170f18c76b1d042a74094fb287b124, type: 3}
   m_Name: TrailData 11
   m_EditorClassIdentifier: 
-  trailPrefab: {fileID: 7143726258993357292, guid: 4162450f559d3664bae32a5b95c444ea, type: 3}
-  trailId: 10
-  price: 250
+  TrailPrefab: {fileID: 7143726258993357292, guid: 4162450f559d3664bae32a5b95c444ea, type: 3}
+  TrailID: 10
+  Price: 250

@@ -30,43 +30,17 @@ public class BikeComponents : MonoBehaviour
     [SerializeField] WheelJoint2D bikeWheelJoint;
     [SerializeField] JointMotor2D bikeMotor;
     [SerializeField] Rigidbody2D rb_Bike;
-
-    //[SerializeField] TrailRenderer trailRenderer;
-
-    //private TrailManager trailManager; // Declare this
-
     [SerializeField] float motorSpeed;
     [SerializeField] float downwardForce;
     [SerializeField] float accelerationTime;
     [SerializeField] float groundCheckDistance;
-    [SerializeField] float initialMaxTorque; // Starting torque
-    [SerializeField] float maxTorque; // Starting torque
-    [SerializeField] float maxAirRotationSpeed; // Starting torque
+    [SerializeField] float initialMaxTorque; 
+    [SerializeField] float maxTorque; 
+    [SerializeField] float maxAirRotationSpeed;
     [SerializeField] float flipTorque;
-
     [SerializeField] Color originalFrontWheelColor;
     [SerializeField] Color originalBackWheelColor;
 
-    /*
-    public void SetTrail(int trailId)
-    {
-        // Get reference to TrailManager
-        trailManager = TrailManager.Instance;
-
-        // Get selected trail prefab
-        GameObject selectedTrailPrefab = trailManager.GetSelectedTrail(trailId);
-
-        // Instantiate trail and assign it to trailRenderer
-        GameObject trailInstance = Instantiate(selectedTrailPrefab, transform.position, Quaternion.identity, transform);
-        trailRenderer = trailInstance.GetComponent<TrailRenderer>();
-    }
-
-    public TrailRenderer TrailRenderer
-    {
-        get { return trailRenderer; }
-        set { trailRenderer = value; }
-    }
-    */
 
     public float BikeColorAlpha
     {
@@ -75,8 +49,8 @@ public class BikeComponents : MonoBehaviour
         {
             bikeColorAlpha = value;
             Color bikeColor = GetBikeBodyColor();
-            bikeColor.a = bikeColorAlpha; // Set the alpha component of the color
-            SetBikeBodyColor(bikeColor); // Apply the new color to the bike body
+            bikeColor.a = bikeColorAlpha; 
+            SetBikeBodyColor(bikeColor); 
         }
     }
 
@@ -87,8 +61,8 @@ public class BikeComponents : MonoBehaviour
         {
             originalBikeColor = value;
             Color bikeColor = GetBikeBodyColor();
-            bikeColor.a = originalBikeColor.a; // Set the alpha component of the color
-            SetBikeBodyColor(bikeColor); // Apply the original color to the bike body
+            bikeColor.a = originalBikeColor.a; 
+            SetBikeBodyColor(bikeColor); 
         }
     }
 
@@ -113,7 +87,6 @@ public class BikeComponents : MonoBehaviour
         get { return maxAirRotationSpeed; }
         set { maxAirRotationSpeed = value; }
     }
-
 
     public float FlipTorque
     {

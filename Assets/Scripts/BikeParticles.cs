@@ -36,8 +36,6 @@ public class BikeParticles : MonoBehaviour
 
     void Update()
     {
-
-        // Cast a ray downwards from the rear wheel to find the ground.
         rearHit = Physics2D.Raycast(BikeController.Instance.CurrentBikeComponents.BackWheelTransform.position, -Vector2.up, Mathf.Infinity, groundLayer);
         bikeHit = Physics2D.Raycast(BikeController.Instance.CurrentBikeComponents.RB_Bike.position, -Vector2.up, Mathf.Infinity, groundLayer);
 
@@ -49,7 +47,6 @@ public class BikeParticles : MonoBehaviour
 
         if (bikeHit.collider != null)
         {
-            // If the ray hit the ground, update the position of the Particle System to the hit point.
             BikeController.Instance.CurrentBikeComponents.LandingParticles.transform.position = bikeHit.point + Vector2.up * 0.1f;
         }
 

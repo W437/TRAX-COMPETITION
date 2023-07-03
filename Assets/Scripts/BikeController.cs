@@ -9,17 +9,14 @@ using Lofelt.NiceVibrations;
 public class BikeController : MonoBehaviour
 {
     public static BikeController Instance;
-    public HapticSource haptic;
+    public bool CAN_CONTROL = false; // debugging
 
-    public bool CAN_CONTROL = false;
-
+    /////////////////////////////////////////////////////////////////////////////////////
+    /////// BIKE STUFF
+    /////////////////////////////////////////////////////////////////////////////////////
     public BikeParticles CurrentBikeParticles { get; private set; }
     public BikeComponents CurrentBikeComponents { get; private set; }
 
-    //public MMFeedbacks StatsJuice;
-
-    #region Bike Components & Config    
-    
     // Distance counter system
     private float previousXPosition;
     private float totalDistance;
@@ -32,70 +29,70 @@ public class BikeController : MonoBehaviour
     public Bike bikeData;
     private GameObject currentTrailInstance;
 
-    TrailRenderer trailRenderer;
-    Rigidbody2D bikeRb;
-    WheelJoint2D rearWheel,frontWheel;
-    Rigidbody2D rearWheelRb, frontWheelRb;
-    CircleCollider2D rearWheelCol;
-    Transform backWheelTransform, frontWheelTransform;
-    CapsuleCollider2D bikeBodyCol;
-    SpriteRenderer bikeBodyRenderer;
-    SpriteRenderer frontWheelSpriteRenderer, backWheelSpriteRenderer;
-    ParticleSystem bikeDirtParticles, bikeLandingParticles;
-    Collider2D bikeGroundCheckCol;
+    private TrailRenderer trailRenderer;
+    private Rigidbody2D bikeRb;
+    private WheelJoint2D rearWheel,frontWheel;
+    private Rigidbody2D rearWheelRb, frontWheelRb;
+    private CircleCollider2D rearWheelCol;
+    private Transform backWheelTransform, frontWheelTransform;
+    private CapsuleCollider2D bikeBodyCol;
+    private SpriteRenderer bikeBodyRenderer;
+    private SpriteRenderer frontWheelSpriteRenderer, backWheelSpriteRenderer;
+    private ParticleSystem bikeDirtParticles, bikeLandingParticles;
+    private Collider2D bikeGroundCheckCol;
     public WheelJoint2D bikeRearWheelJoint;
-    JointMotor2D bikeMotor;
-    Vector2 wheelieStartPosition;
+    private JointMotor2D bikeMotor;
+    private Vector2 wheelieStartPosition;
+    private Coroutine trailFadeCoroutine = null;
 
 
     private float _previousSpeed = 0;
     private float _acceleration = 0;
-    float bikeMotorSpeed;
-    float bikeMaxTorque;
-    float bikeDownwardForce;
-    float bikeAccelerationTime;
-    float bikeGroundCheckDistance;
-    float bikeInitialMaxTorque; // Starting torque
+    private float bikeMotorSpeed;
+    private float bikeMaxTorque;
+    private float bikeDownwardForce;
+    private float bikeAccelerationTime;
+    private float bikeGroundCheckDistance;
+    private float bikeInitialMaxTorque; // Starting torque
     public float wheeliePoints;
-    float maxAirRotationSpeed;
-    float currentMotorSpeed = 0f;
-    float initialMotorSpeed;
-    float accelerationStartTime;
+    private float maxAirRotationSpeed;
+    private float currentMotorSpeed = 0f;
+    private float initialMotorSpeed;
+    private float accelerationStartTime;
     public bool isAccelerating = false; // private set
-    float prevMotorSpeed;
-    float prevPlayerRotation;
-    float prevAngularVelocity;
-    Vector2 prevPlayerVelocity;
-    Vector2 prevRearWheelVelocity, prevFrontWheelVelocity;
+    private float prevMotorSpeed;
+    private float prevPlayerRotation;
+    private float prevAngularVelocity;
+    private Vector2 prevPlayerVelocity;
+    private Vector2 prevRearWheelVelocity, prevFrontWheelVelocity;
 
-    float prevRearWheelAngularVelocity;
-    float prevFrontWheelAngularVelocity;
-    float wheelieDistance = 0f;
+    private float prevRearWheelAngularVelocity;
+    private float prevFrontWheelAngularVelocity;
     public int faults = 0;
-    float lastAirTime;
-    float maxAirHeight;
+    private float lastAirTime;
+    private float maxAirHeight;
 
-    [SerializeField] float doublePressTime = 0.3f; // Double Mouse Press System
-    int mouseClicks = 0;
-    float mouseClickTimer = 0.0f;
-    float originalAngularDrag;
-    float bikeBoostTime;
-    Vector2 doubleClickForceDirection;
-    Quaternion doubleClickRotation;
-    Coroutine rotateBikeCoroutine = null;
-    bool isBeingPushedForward = false;
-    bool isDoubleMousePressed = false;
+    [SerializeField] private float doublePressTime = 0.3f; // Double Mouse Press System
+    private int mouseClicks = 0;
+    private float mouseClickTimer = 0.0f;
+    private float originalAngularDrag;
+    private float bikeBoostTime;
+    private Vector2 doubleClickForceDirection;
+    private Quaternion doubleClickRotation;
+    private Coroutine rotateBikeCoroutine = null;
+    private bool isBeingPushedForward = false;
+    private bool isDoubleMousePressed = false;
 
     // Flip System
     public int flipCount = 0;
-    [SerializeField] float flipDelay = 0.5f; // time in seconds to wait before flipping the bike
-    [SerializeField] float flipTorque;
-    float lastZRotation = 0f;
-    float rotationCounter = 0;
-    int internalFlipCount = 0;
-    bool hasLanded = false;
-    Coroutine currentFlickerCoroutine = null;
-    bool hasBeenUpsideDown = false;
+    [SerializeField] private float flipDelay = 0.5f; // time in seconds to wait before fault flipping the bike
+    [SerializeField] private float flipTorque;
+    private float lastZRotation = 0f;
+    private float rotationCounter = 0;
+    private int internalFlipCount = 0;
+    private bool hasLanded = false;
+    private Coroutine currentFlickerCoroutine = null;
+    private bool hasBeenUpsideDown = false;
 
 
     // Wheelie System
@@ -105,27 +102,20 @@ public class BikeController : MonoBehaviour
     bool isWheelie = false;
     public float wheelieStartTime = 0f;
     public float totalWheelieTime;
+    private float wheelieDistance = 0f;
 
 
     // Speed Boost System
     bool isSpeedBoosted = false;
     float speedBoostEndTime = 0f;
     float normalMotorSpeed;
-    bool isBoosting = false; // Flag to track if the boost is active
+    bool isBoosting = false; 
     float boostMotorSpeed; // The target motor speed during the boost
 
 
     // Bike Trail System
     float defaultTrailTime = 0.2f;
     TrailManager trailManager;
-
-    #endregion
-
-    // Visuals
-    Color originalBikeColor;
-    Color originalFrontWheelColor;
-    Color originalBackWheelColor;
-    Color originalTrailColor;
 
 
     void Awake()
@@ -166,13 +156,6 @@ public class BikeController : MonoBehaviour
         _acceleration = (currentSpeed - _previousSpeed) / Time.deltaTime;
         _previousSpeed = currentSpeed;
 
-
-
-
-
-
-
-        //Debug.Log("Rear wheel speed: " + isAccelerating);
         var _gameState = GameManager.Instance.gameState;
         if(_gameState == GameState.Playing)
         {
@@ -189,8 +172,6 @@ public class BikeController : MonoBehaviour
                 previousXPosition = GameManager.Instance.GAME_PlayerBike.transform.position.x;
                 frameCounter = 0;
             }
-
-        
 
             if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
@@ -272,18 +253,18 @@ public class BikeController : MonoBehaviour
                 }
                 else
                 {
-                    if (Input.GetMouseButtonDown(0) && !isAccelerating) // Mouse click started
+                    if (Input.GetMouseButtonDown(0) && !isAccelerating) 
                     {
                         accelerationStartTime = Time.time;
                         bikeRearWheelJoint.useMotor = true;
                         isAccelerating = true;
                     }
-                    else if (Input.GetMouseButtonUp(0)) // Mouse click ended
+                    else if (Input.GetMouseButtonUp(0))
                     {
                         bikeRearWheelJoint.useMotor = false;
                         isAccelerating = false;
                     }
-                    else if (Input.GetMouseButton(0) && !isAccelerating) // Mouse click continuing -- need?
+                    else if (Input.GetMouseButton(0) && !isAccelerating)
                     {
                         accelerationStartTime = Time.time;
                         bikeRearWheelJoint.useMotor = true;
@@ -293,15 +274,13 @@ public class BikeController : MonoBehaviour
 
             }
             else
-                // No input
                 isAccelerating = false;
 
-
-            //Debug.Log("HasLanded: " + hasLanded);
             CheckGroundContact();
             CheckSpeedBoost();
             HandleTrail();
             HandleFlips();
+
             // Wheelie check
             if (!isWheelie && IsRearWheelGrounded() && !IsFrontWheelGrounded())
                 StartWheelie();
@@ -407,7 +386,7 @@ public class BikeController : MonoBehaviour
             bikeInitialMaxTorque = CurrentBikeComponents.InitialMaxTorque;
             maxAirRotationSpeed = CurrentBikeComponents.MaxAirRotationSpeed;
             flipTorque = CurrentBikeComponents.FlipTorque;
-            Debug.Log("All components linked.");
+            Debug.Log("All bike components linked.");
         }
 
         if (GameManager.Instance.firstLaunch)
@@ -423,14 +402,14 @@ public class BikeController : MonoBehaviour
 
         // Load the trail as a child of the bike
         int _selectedTrailId = _playerData.SELECTED_TRAIL_ID;
-        GameObject selectedTrail = TrailManager.Instance.GetTrailById(_selectedTrailId).trailPrefab;
+        GameObject selectedTrail = TrailManager.Instance.GetTrailById(_selectedTrailId).TrailPrefab;
 
         if (selectedTrail != null)
         {
             // Instantiate the trail as a child of the bike
             currentTrailInstance = Instantiate(selectedTrail, GameManager.Instance.GAME_PlayerBike.transform);
 
-            // Find the BikeTrail empty GameObject in the bike prefab
+            // Find the Bike Trail empty GameObject in the bike prefab
             Transform bikeTrailTransform = GameManager.Instance.GAME_PlayerBike.transform.Find("Bike Trail");
             if (bikeTrailTransform != null)
             {
@@ -469,7 +448,7 @@ public class BikeController : MonoBehaviour
         }
 
         // Find the TrailData with the matching trailId in the TrailDataList
-        Trail matchingTrailData = GameManager.Instance.TrailList.FirstOrDefault(t => t.trailId == trailId);
+        Trail matchingTrailData = GameManager.Instance.TrailList.FirstOrDefault(t => t.TrailID == trailId);
         if (matchingTrailData == null)
         {
             Debug.Log("Trail not found in TrailDataList!");
@@ -477,10 +456,8 @@ public class BikeController : MonoBehaviour
         }
 
         // Instantiate ---> Player Trail
-        GameManager.Instance.GAME_PlayerTrail = Instantiate(matchingTrailData.trailPrefab, GameManager.Instance.GAME_PlayerBike.transform);
+        GameManager.Instance.GAME_PlayerTrail = Instantiate(matchingTrailData.TrailPrefab, GameManager.Instance.GAME_PlayerBike.transform);
         Debug.Log("Trail Instance: " + GameManager.Instance.GAME_PlayerTrail.ToString());
-
-        // You might need to do some additional setup for your trail here...
     }
 
 
@@ -490,7 +467,6 @@ public class BikeController : MonoBehaviour
         if (isBeingPushedForward)
         {
             //rb.angularVelocity = 0; // Reset angular velocity
-            // Don't apply torque while pushing forward
         }
         if (isGrounded && !isSpeedBoosted)
         {
@@ -528,15 +504,10 @@ public class BikeController : MonoBehaviour
         bikeRb.angularVelocity = 0;
         prevMotorSpeed = bikeMotor.motorSpeed;
         bikeMotor.motorSpeed = 0;
-
         prevRearWheelVelocity = rearWheelRb.velocity;
-
         prevFrontWheelVelocity = frontWheelRb.velocity;
-
         prevRearWheelAngularVelocity = rearWheelRb.angularVelocity;
         prevFrontWheelAngularVelocity = frontWheelRb.angularVelocity;
-
-
         bikeRb.isKinematic = true;
     }
 
@@ -544,14 +515,10 @@ public class BikeController : MonoBehaviour
     public void ResumeBike()
     {
         bikeRb.isKinematic = false;
-
         rearWheelRb.velocity = prevRearWheelVelocity;
         frontWheelRb.velocity = prevFrontWheelVelocity;
-
         rearWheelRb.angularVelocity = prevRearWheelAngularVelocity;
         frontWheelRb.angularVelocity = prevFrontWheelAngularVelocity;
-
-
         bikeRb.velocity = prevPlayerVelocity;
         bikeRb.rotation = prevPlayerRotation;
         bikeRb.angularVelocity = prevAngularVelocity;
@@ -689,7 +656,7 @@ public class BikeController : MonoBehaviour
                 _data.TOTAL_WHEELIE += wheeliePoints;
                 SaveSystem.SavePlayerData(_data);
 
-                GameManager.Instance.AccumulateWheelieTime(wheeliePoints);
+                GameManager.Instance.UpdateWheeliePoints(wheeliePoints);
                 wheelieStartTime = 0; // reset
             }
 
@@ -722,8 +689,6 @@ public class BikeController : MonoBehaviour
         }
     }
 
-    private bool wasPreviouslyGrounded = true;
-    private Coroutine trailFadeCoroutine = null;
 
     void HandleTrail()
     {
@@ -851,9 +816,7 @@ public class BikeController : MonoBehaviour
         float flickerDuration = 0.5f;
         float disableColliderDuration = 0.2f;
         float startTime = Time.time;
-
         bikeBodyCol.enabled = false;
-
 
         // Loop while the flicker duration hasn't passed
         while (Time.time - startTime < flickerDuration)
@@ -905,7 +868,7 @@ public class BikeController : MonoBehaviour
             float currentMotorSpeed = Mathf.Lerp(bikeMotorSpeed, boostMotorSpeed, progress);
 
             // Calculate the direction of the boost
-            Vector2 boostDirection = transform.right; // assuming the front of the bike is its right side
+            Vector2 boostDirection = transform.right; 
 
             // Apply the boost force to the bike's rigidbody at the boost position
             bikeRb.AddForceAtPosition(boostDirection * amount * bikeRb.mass, boostPosition, ForceMode2D.Force);
@@ -918,7 +881,7 @@ public class BikeController : MonoBehaviour
             // Apply limited rotation force during the boost
             float rotationForceMultiplier = isSpeedBoosted ? 0.3f : 1f;
             bikeRb.AddTorque(-flipTorque * rotationForceMultiplier);
-            // HEY SOZO!
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -953,20 +916,6 @@ public class BikeController : MonoBehaviour
     public int GetFaultCount()
     {
         return faults;
-    }
-
-
-    private string FormatTime(float time)
-    {
-        int seconds = (int)time;
-        int milliseconds = (int)((time - seconds) * 1000);
-
-        return string.Format("{0:D2}.{1:D3}", seconds, milliseconds);
-    }
-
-    public void MoveAtConstantSpeed()
-    {
-        bikeRb.AddForce(new Vector2(105f, 0), ForceMode2D.Force);
     }
 
     public float CalculateLandingForce(float maxAirHeight, float currentHeight)

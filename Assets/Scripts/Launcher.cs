@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class Launcher : MonoBehaviour
 {
-    public float launchForce = 10f; // The force with which the player will be launched
-    public float launchDelay = 1f; // The delay after which the player will be launched
+    public float launchForce = 10f; 
+    public float launchDelay = 1f; 
     public enum LaunchPoint { LeftPivot, Center, RightPivot }
     public LaunchPoint launchPoint;
     private bool flag = false;
@@ -40,13 +40,11 @@ public class Launcher : MonoBehaviour
 
     private IEnumerator LaunchPlayer(Rigidbody2D playerRb)
     {
-        // Set isLaunching to true
         isLaunching = true;
 
         // Remember the initial rotation
         Quaternion initialRotation = playerRb.transform.rotation;
 
-        // Wait for the specified delay
         yield return new WaitForSeconds(launchDelay);
 
         // Calculate launch direction based on selected launch point
@@ -64,14 +62,12 @@ public class Launcher : MonoBehaviour
                 break;
         }
 
-        // Set the velocity of the player's Rigidbody
         playerRb.velocity = launchDirection * launchForce;
 
         // Reset the angular velocity and set the rotation to initial rotation
         playerRb.angularVelocity = 0;
         playerRb.transform.rotation = initialRotation;
 
-        // Wait for a short delay before setting isLaunching to false
         yield return new WaitForSeconds(0.1f);
         isLaunching = false;
     }

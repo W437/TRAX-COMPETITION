@@ -3,15 +3,15 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "LevelData", menuName = "Game/Level Data")]
 public class Level : ScriptableObject
 {
-    public GameObject levelPrefab;
-    public int levelID;
-    public float star1Time;
-    public float star2Time;
-    public float star3Time;
-    public int leaderboardID;
-    public int maxFaultsFor2Stars = 5;
-    public int maxFaultsFor1Star = 10;
-    public Category category;
+    public GameObject LevelPrefab;
+    public int LevelID;
+    public float Trophy1Time;
+    public float Trophy2Time;
+    public float Trophy3Time;
+    public int LeaderboardID;
+    public int MaxFault2Trophies = 5;
+    public int MaxFaults1Trophy = 10;
+    public Category LevelCategory;
 
     [System.Serializable]
     public enum Category
@@ -25,15 +25,15 @@ public class Level : ScriptableObject
 
     public int CalculateTrophies(float playerTime, int playerFaults)
     {
-        if (playerTime <= star1Time && playerFaults == 0)
+        if (playerTime <= Trophy1Time && playerFaults == 0)
         {
             return 3;
         }
-        else if (playerTime <= star2Time && playerFaults <= maxFaultsFor2Stars)
+        else if (playerTime <= Trophy2Time && playerFaults <= MaxFault2Trophies)
         {
             return 2;
         }
-        else if (playerTime <= star3Time && playerFaults <= maxFaultsFor1Star)
+        else if (playerTime <= Trophy3Time && playerFaults <= MaxFaults1Trophy)
         {
             return 1;
         }

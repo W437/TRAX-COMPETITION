@@ -12,7 +12,7 @@ public class PlayerData
     public int SELECTED_TRAIL_ID;
     [NonSerialized]
     public Dictionary<string, LevelStats> LEVEL_DICTIONARY = new Dictionary<string, LevelStats>();
-    public List<LevelDictionaryEntry> serializableLevelStatsList;
+    public List<LevelDictionaryEntry> SerializableLevelStatsList;
 
     // Stats
     public int TOTAL_XP; // SAVES ONLY ON LEVEL FINISH
@@ -32,7 +32,7 @@ public class PlayerData
 
     // XP SYSTEM
     // XP is calculated by stat weights
-    const int MAX_XP = 1330007;
+    const int MAX_XP = 7330007;
     const float PLAYTIME_WEIGHT = 0.3f;
     const float FAULTS_WEIGHT = 0.1f;
     const float FLIPS_WEIGHT = 0.5f;
@@ -107,7 +107,7 @@ public class PlayerData
     // Add or update LevelStats for a specific category and level id (not needed now since all levels have unique ids)
     public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
     {
-        var _levelList = LevelManager.Instance.levels;
+        var _levelList = LevelManager.Instance.Levels;
         string key = $"{category}_{levelId}";
         if (LEVEL_DICTIONARY.ContainsKey(key))
         {
@@ -224,20 +224,20 @@ public class PlayerData
     // Convert Dictionary to List for serialization
     public void UpdateSerializableLevelStatsList()
     {
-        serializableLevelStatsList = new List<LevelDictionaryEntry>(LEVEL_DICTIONARY.Count);
+        SerializableLevelStatsList = new List<LevelDictionaryEntry>(LEVEL_DICTIONARY.Count);
         foreach (var entry in LEVEL_DICTIONARY)
         {
-            serializableLevelStatsList.Add(new LevelDictionaryEntry { levelKey = entry.Key, levelStats = entry.Value });
+            SerializableLevelStatsList.Add(new LevelDictionaryEntry { LevelKey = entry.Key, LevelStats = entry.Value });
         }
     }
 
     // Convert List back to Dictionary after deserialization
     public void UpdatePlayerLevelStatsDictionaryFromList()
     {
-        LEVEL_DICTIONARY = new Dictionary<string, LevelStats>(serializableLevelStatsList.Count);
-        foreach (var entry in serializableLevelStatsList)
+        LEVEL_DICTIONARY = new Dictionary<string, LevelStats>(SerializableLevelStatsList.Count);
+        foreach (var entry in SerializableLevelStatsList)
         {
-            LEVEL_DICTIONARY.Add(entry.levelKey, entry.levelStats);
+            LEVEL_DICTIONARY.Add(entry.LevelKey, entry.LevelStats);
         }
     }
 

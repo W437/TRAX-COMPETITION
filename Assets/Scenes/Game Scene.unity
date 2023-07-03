@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_RaycastPadding: {x: -10, y: -10, z: -10, w: -10}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -2710,7 +2710,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 100, y: 90, z: 100, w: 60}
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -4792,7 +4792,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_RaycastPadding: {x: -20, y: 0, z: -20, w: -20}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -6673,15 +6673,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5383c352fe35d164ab64d181a24adff8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelsGameObject: {fileID: 1330162004}
-  bgParalax: {fileID: 1908450796}
-  levelInfoText: {fileID: 624790800}
-  levels:
+  LevelGameObject: {fileID: 0}
+  BackgroundParalax: {fileID: 1908450796}
+  Txt_LevelInfo: {fileID: 624790800}
+  Levels:
   - {fileID: 11400000, guid: 4edc3609d7fc90c458993d999eae0cef, type: 2}
   - {fileID: 11400000, guid: d7bcb97cb42f30a4eb57a37fabb7ccba, type: 2}
   - {fileID: 11400000, guid: a346dde24569b3e4ea6715414ba31b64, type: 2}
   - {fileID: 11400000, guid: a7e1f85a2722c4441bad2f0b4d9b6cfc, type: 2}
-  currentLevelInstance: {fileID: 0}
+  CurrentLevelInstance: {fileID: 0}
 --- !u!4 &623875926
 Transform:
   m_ObjectHideFlags: 0
@@ -8660,7 +8660,7 @@ MonoBehaviour:
     SELECTED_BIKE_ID: 0
     UNLOCKED_TRAILS: 
     SELECTED_TRAIL_ID: 0
-    serializableLevelStatsList: []
+    SerializableLevelStatsList: []
     TOTAL_XP: 0
     TOTAL_TROPHIES: 0
     TOTAL_DISTANCE: 0
@@ -9009,7 +9009,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_RaycastPadding: {x: -10, y: -10, z: -10, w: -10}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -11422,7 +11422,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 100, y: 90, z: 100, w: 60}
+  m_RaycastPadding: {x: 20, y: 20, z: 20, w: 20}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -11939,11 +11939,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b2a30174f554fa1499b488112988eba6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bikeButton: {fileID: 1560601424}
-  trailButton: {fileID: 760395519}
-  nextButton: {fileID: 1230736130}
-  previousButton: {fileID: 200873836}
-  buyButton: {fileID: 886207043}
+  Btn_SwitchBike: {fileID: 1560601424}
+  Btn_SwitchTrail: {fileID: 760395519}
+  Btn_Next: {fileID: 1230736130}
+  Btn_Prev: {fileID: 200873836}
+  Btn_Buy: {fileID: 886207043}
   T_Coins: {fileID: 1207765726}
   T_UnlockedBikes: {fileID: 635002301}
   T_UnlockedTrails: {fileID: 55802740}
@@ -11953,8 +11953,8 @@ MonoBehaviour:
   TrailStatus: {fileID: 1253248145}
   LockedIcon: {fileID: 21300000, guid: b7cbaf4b2aaec294ca5063f79efca999, type: 3}
   UnlockedIcon: {fileID: 21300000, guid: 0492b495f152ceb409e97819786ea559, type: 3}
-  selectedPrice: {fileID: 1366762618}
-  selectedID: {fileID: 682262078}
+  SelectedShopItemPrice: {fileID: 1366762618}
+  SelectedShopItemID: {fileID: 682262078}
   isBikeSwitched: 0
 --- !u!4 &931330313
 Transform:
@@ -18536,7 +18536,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1164675974}
   m_Layer: 5
-  m_Name: Game Over
+  m_Name: Level Finish
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -19378,7 +19378,7 @@ MonoBehaviour:
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
-  m_RaycastPadding: {x: 100, y: 90, z: 100, w: 60}
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -21431,7 +21431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 283873a034cfcbf46aefa45eed804d33, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  haptic: {fileID: 0}
+  CAN_CONTROL: 0
   bikeList:
   - {fileID: 11400000, guid: 7cbc5b36201d1234ab7bacf3a39c9117, type: 2}
   - {fileID: 11400000, guid: 687e2a007d914224f8adb3bbb56f43f7, type: 2}
@@ -21454,6 +21454,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f14365ebe44f98147a2b1a23651d4446, type: 2}
   - {fileID: 11400000, guid: 13c6aa912c3bc74489c22f576a23c845, type: 2}
   bikeData: {fileID: 0}
+  bikeRearWheelJoint: {fileID: 0}
   wheeliePoints: 0
   isAccelerating: 0
   faults: 0
@@ -21478,8 +21479,6 @@ MonoBehaviour:
   HAPTIC_ON: 1
   MinimumPower: 0.1
   MaximumPower: 1
-  AccelerationIncreaseSpeed: 0.1
-  DecelerationDecreaseSpeed: 0.2
   BuildUpTime: 3
 --- !u!1 &1391779842
 GameObject:
@@ -32892,7 +32891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.49019608}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1

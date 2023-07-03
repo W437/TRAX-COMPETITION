@@ -20,7 +20,6 @@ public class BikeSound : MonoBehaviour
 
     }
 
-    // Update is called once per frame
     void Update()
     {
         UpdateSound(BikeController.Instance.GetBikeSpeed());

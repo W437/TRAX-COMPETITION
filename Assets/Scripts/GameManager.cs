@@ -18,7 +18,6 @@ public class GameManager : MonoBehaviour
     // for level load
     public GameObject GAME_PlayerBike;
     public GameObject GAME_PlayerTrail;
-    // level load
 
     public PlayerData playerData;
 
@@ -28,8 +27,8 @@ public class GameManager : MonoBehaviour
     public GameObject playerObjectParent;
     public LayerMask groundLayer;
 
-    [Header("Game HUD")]
 
+    [Header("Game HUD")]
     public TMPro.TextMeshProUGUI timerText;
     public TMPro.TextMeshProUGUI countdownText;
     public TMPro.TextMeshProUGUI flipCountText;
@@ -48,7 +47,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Sound Effects")]
 
-    public AudioSource countdownAudioSource;  // for countdown and Go sounds
+    public AudioSource countdownAudioSource; 
     public AudioClip countdownClip;
     public AudioClip goClip;
 
@@ -78,31 +77,32 @@ public class GameManager : MonoBehaviour
     {
         // Playtime tracker
         playerData.TOTAL_PLAYTIME = CurrentPlayTime;
-        //Debug.Log("TotalPlayTime: " + playerData.TOTAL_PLAYTIME + " current: " + CurrentPlayTime);
+
         if (Input.GetKeyUp(KeyCode.R))
         {
             SceneManager.LoadScene(0);
         }
+
         // Manage Game State
         switch (gameState)
         {
             case GameState.Paused:
-                // Pause game logic here
+
                 break;
 
             case GameState.Playing:
                 LevelTimer += Time.deltaTime;
                 UpdateTimerText();
                 UpdateFlipCountText();
-                UpdateWheelieTimeText();
+                UpdateWheeliePointsText();
                 break;
 
             case GameState.Menu:
-                // Menu display logic here
+
                 break;
 
             case GameState.Starting:
-                // The countdown logic has been moved to SetGameState(), so nothing is needed here
+
                 break;
         }
     }
@@ -110,13 +110,6 @@ public class GameManager : MonoBehaviour
     public void AddPlayTime(float seconds)
     {
         playerData.TOTAL_PLAYTIME += seconds;
-    }
-
-    public string FormatPlayTime(float totalSeconds)
-    {
-        int hours = (int) totalSeconds / 3600;
-        int minutes = ((int) totalSeconds % 3600) / 60;
-        return $"{hours}h {minutes}m";
     }
 
     public void SavePlayTime()
@@ -158,18 +151,17 @@ public class GameManager : MonoBehaviour
 
     public void UpdateFaultCountText()
     {
-        // Get the flip count from the BikeController script
         int _faultCount = BikeController.Instance.GetFaultCount();
         faultCountText.text = "" + _faultCount;
     }
 
-    public void AccumulateWheelieTime(float wheelieTime)
+    public void UpdateWheeliePoints(float wheelieTime)
     {
         totalWheelieTime += wheelieTime;
-        UpdateWheelieTimeText();
+        UpdateWheeliePointsText();
     }
 
-    void UpdateWheelieTimeText()
+    void UpdateWheeliePointsText()
     {
         int _totalWheelieTimeSeconds = (int)totalWheelieTime;
         int _totalWheelieTimeMilliseconds = (int)((totalWheelieTime - _totalWheelieTimeSeconds) * 1000);
@@ -188,33 +180,6 @@ public class GameManager : MonoBehaviour
         wheelieTimeText.text = "" + _wheelieTimeString + "";
     }
 
-    public void PauseGame()
-    {
-        SetGameState(GameState.Paused);
-        ScreenManager.Instance.TweenPauseGame(true);
-    }
-
-    public void ResumeGame()
-    {
-        SetGameState(GameState.Playing);
-        ScreenManager.Instance.TweenPauseGame(false);
-    }
-
-    public void RestartLevel()
-    {
-        SceneManager.LoadScene(0);
-    }
-
-    void LevelFinish()
-    {
-
-    }
-    
-    void OnGameOver()
-    {
-
-    }
-
     public enum GameState
     {
         Menu,
@@ -224,25 +189,22 @@ public class GameManager : MonoBehaviour
         Starting
     }
 
-
     IEnumerator CountdownRoutine()
     {
         countdownTime = 3;
-
         // Reset the position of the countdownText to its initial position
         countdownText.transform.position = initialCountdownTextPosition;
 
-        // Make the game object active if it's initially inactive
         if (!countdownText.gameObject.activeSelf)
         {
             countdownText.gameObject.SetActive(true);
         }
-        HapticPatterns.PlayConstant(0.35f, 0.35f, 0.4f); 
+
         while (countdownTime > 0)
         {
+            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.35f); 
             countdownText.text = Mathf.CeilToInt(countdownTime).ToString();
 
-            // Scale animation using LeanTween
             LeanTween.scale(countdownText.gameObject, Vector3.one * 1.5f, 0.1f)
                      .setOnComplete(() => LeanTween.scale(countdownText.gameObject, Vector3.one, 0.1f));
 
@@ -252,21 +214,18 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(1.0f);
 
             countdownTime--;
-            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.4f); 
         }
 
         countdownAudioSource.clip = goClip;
         countdownAudioSource.Play();
-        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.70f); 
+        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.65f); 
         countdownText.text = "GO!";
 
-        // Scale animation using LeanTween
         LeanTween.scale(countdownText.gameObject, Vector3.one * 1.5f, 0.1f)
                  .setOnComplete(() => LeanTween.scale(countdownText.gameObject, Vector3.one, 0.1f));
 
         yield return new WaitForSeconds(0.5f);
 
-        // Push animation using LeanTween
         LeanTween.moveY(countdownText.rectTransform, -Screen.height, 0.5f)
                  .setOnComplete(() =>
                  {
@@ -283,6 +242,7 @@ public class GameManager : MonoBehaviour
     {
         var _bikeController = BikeController.Instance;
         gameState = newState;
+
         if (gameState == GameState.Paused)
         {
             _bikeController.StopSavingDistance();
@@ -300,9 +260,9 @@ public class GameManager : MonoBehaviour
         {
 
             // Delete the previous level instance if it exists
-            if (LevelManager.Instance.currentLevelInstance != null)
+            if (LevelManager.Instance.CurrentLevelInstance != null)
             {
-                Destroy(LevelManager.Instance.currentLevelInstance);
+                Destroy(LevelManager.Instance.CurrentLevelInstance);
             }
 
             if (GameManager.Instance.GAME_PlayerBike != null && GameManager.Instance.GAME_PlayerBike.activeSelf)
@@ -310,9 +270,9 @@ public class GameManager : MonoBehaviour
                 GameManager.Instance.GAME_PlayerBike.SetActive(false);
             }
 
-
             CameraController.Instance.SwitchToMenuCamera();
             ScreenManager.Instance.TweenMainMenu(true);
+
             if(!ScreenManager.Instance.GameLogo.activeSelf)
                 ScreenManager.Instance.TweenGameLogo(true);
         }
@@ -327,7 +287,7 @@ public class GameManager : MonoBehaviour
             ScreenManager.Instance.MenuPlatformObject.SetActive(false);
             ScreenManager.Instance.PlayerMenuBike.SetActive(false);
             CameraController.Instance.SwitchToGameCamera();
-            // Call the Countdown Coroutine when the GameState is set to Starting
+            // Call the Countdown
             StartCoroutine(CountdownRoutine());
         }
         else if (gameState == GameState.Finished)
