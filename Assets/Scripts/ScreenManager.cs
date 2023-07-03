@@ -509,7 +509,7 @@ public class ScreenManager : MonoBehaviour
 
         B_About.onClick.AddListener(delegate 
         { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+2)
             return; 
             _lastButtonClickTime = Time.time;
 
@@ -520,7 +520,7 @@ public class ScreenManager : MonoBehaviour
 
         B_AboutBack.onClick.AddListener(delegate 
         { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+2)
             return; 
             _lastButtonClickTime = Time.time;
 
@@ -532,7 +532,7 @@ public class ScreenManager : MonoBehaviour
 
         B_Leaderboard.onClick.AddListener(delegate {  HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);  });
         B_Settings.onClick.AddListener(delegate {
-                if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
                 return; 
                 _lastButtonClickTime = Time.time;
 
@@ -649,7 +649,7 @@ public class ScreenManager : MonoBehaviour
         // Shop Section
         B_ShopBackMenu.onClick.AddListener(delegate 
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
             return; 
             _lastButtonClickTime = Time.time;
 
@@ -672,7 +672,7 @@ public class ScreenManager : MonoBehaviour
         // Settings
         B_SettingsBackMenu.onClick.AddListener(delegate 
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
             return; 
             _lastButtonClickTime = Time.time;
 
@@ -699,7 +699,7 @@ public class ScreenManager : MonoBehaviour
             var _data = SaveSystem.LoadPlayerData();
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
             Debug.Log("Coins before: " + _data.COINS);
-            _data.COINS += 1000;
+            _data.COINS += 1231;
             Debug.Log("Coins after: " + _data.COINS);
             SaveSystem.SavePlayerData(_data);
             RefreshTextValuesFromPlayerData();
@@ -708,13 +708,12 @@ public class ScreenManager : MonoBehaviour
         btn_ResetCoins.onClick.AddListener(delegate 
         {
             var _data = SaveSystem.LoadPlayerData();
-            _data.COINS = 1;
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
-            SaveSystem.SavePlayerData(_data);
             _gameManager.AddPlayTime(2134); // TESTING
             _data.UpdateLevel();
             Debug.Log("TotalPlayTime: " + _data.TOTAL_PLAYTIME + " current: " + _gameManager.CurrentPlayTime);
             _gameManager.SavePlayTime();
+            SaveSystem.SavePlayerData(_data);
             RefreshTextValuesFromPlayerData(); 
         });
 
@@ -749,9 +748,11 @@ public class ScreenManager : MonoBehaviour
         btn_AddXP.onClick.AddListener(delegate 
         {
             var _playerData = SaveSystem.LoadPlayerData();
-            _playerData.TOTAL_XP += 29167;
-            HapticPatterns.PlayEmphasis(0.6f, 1.0f);
+            _playerData.TOTAL_XP += 86167;
             SaveSystem.SavePlayerData(_playerData);
+            HapticPatterns.PlayEmphasis(0.6f, 1.0f);
+            StatsLevelProgressRefresh();
+            UpdateXPBar();
         });
 
         btn_ShuffleSoundtrack.onClick.AddListener(delegate 
@@ -1486,10 +1487,10 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveX(CoinsBar.GetComponent<RectTransform>(), -550f, 0.95f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_About.GetComponent<RectTransform>(), -450f, 0.15f).setEase(LeanTweenType.easeInOutExpo);
             LeanTween.moveX(LvlsFinishedBar.GetComponent<RectTransform>(), -550f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
-            LeanTween.moveY(B_Shop.GetComponent<RectTransform>(), -1100f, 0.75f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(B_Settings.GetComponent<RectTransform>(), -1100f, 0.7f).setEase(LeanTweenType.easeOutExpo).setDelay(0.05f);
-            LeanTween.moveY(B_MainLeaderboard.GetComponent<RectTransform>(), -1100f, 0.8f).setEase(LeanTweenType.easeOutExpo).setDelay(0.05f);
-            LeanTween.moveY(B_Start.GetComponent<RectTransform>(), -1100f, 0.85f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(
+            LeanTween.moveY(B_Shop.GetComponent<RectTransform>(), -1200f, 0.75f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(B_Settings.GetComponent<RectTransform>(), -1200f, 0.7f).setEase(LeanTweenType.easeOutExpo).setDelay(0.05f);
+            LeanTween.moveY(B_MainLeaderboard.GetComponent<RectTransform>(), -1200f, 0.8f).setEase(LeanTweenType.easeOutExpo).setDelay(0.05f);
+            LeanTween.moveY(B_Start.GetComponent<RectTransform>(), -1200f, 0.85f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(
                 delegate ()
                 {
                     Panel_MainMenu.SetActive(false);
@@ -1504,7 +1505,7 @@ public class ScreenManager : MonoBehaviour
             Panel_About.SetActive(true);
             TweenGameLogo(false);
             LeanTween.moveX(AboutPanel.GetComponent<RectTransform>(), 0, 0.8f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(B_AboutBack.GetComponent<RectTransform>(), -85f, 1f).setEase(LeanTweenType.easeInOutSine).setDelay(0.5f);
+            LeanTween.moveY(B_AboutBack.GetComponent<RectTransform>(), -85f, 2f).setEase(LeanTweenType.easeInOutSine).setDelay(0.5f);
         }
         else
         {

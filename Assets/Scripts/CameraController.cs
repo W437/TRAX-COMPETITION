@@ -142,7 +142,7 @@ public class CameraController : MonoBehaviour
             mainCameraBrain.m_DefaultBlend = blendDef;
             StartCoroutine(RevertDefaultBlend());
         }
-        else if ((fromCam == (shopCamera || settingsCamera)) && toCam == menuCamera)
+        else if ((fromCam == (shopCamera || settingsCamera)) && toCam == menuCamera || fromCam == menuCamera && toCam == shopCamera)
         {
             mainCameraBrain.m_DefaultBlend = originalBlendDefinition;
         }
