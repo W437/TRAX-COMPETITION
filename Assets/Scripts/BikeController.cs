@@ -933,23 +933,4 @@ public class BikeController : MonoBehaviour
         return bikeList.FirstOrDefault(b => b.bikeId == id);
     }
 
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        // check if the collided object is on the ground layer
-        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
-        {
-            isBodyTouchingGround = true;
-
-            // Determine the landing force based on the maximum height achieved
-            float landingForce = CalculateLandingForce(maxAirHeight, transform.position.y);
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.MediumImpact);
-
-            // Play the landing particle effect
-            CurrentBikeParticles.PlayLandingParticles(landingForce);
-
-            // Reset the maximum height
-            maxAirHeight = transform.position.y;
-        }
-    }
-
 }

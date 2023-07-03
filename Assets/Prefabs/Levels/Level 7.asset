@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ca84d256e6b6e2448923fb2bafc9c2e7, type: 3}
-  m_Name: Level 1
+  m_Name: Level 7
   m_EditorClassIdentifier: 
-  LevelPrefab: {fileID: 8065877448607636436, guid: 43344954e3576d448b6002e8b614d75f, type: 3}
-  LevelID: 0
+  LevelPrefab: {fileID: 8065877448607636436, guid: 7082a99d449c2b84c914196fcb30f11c, type: 3}
+  LevelID: 6
   Trophy1Time: 0
   Trophy2Time: 0
   Trophy3Time: 0

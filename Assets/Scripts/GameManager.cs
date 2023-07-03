@@ -35,9 +35,6 @@ public class GameManager : MonoBehaviour
     public TMPro.TextMeshProUGUI wheelieTimeText;
     public TMPro.TextMeshProUGUI faultCountText;
 
-    public BackgroundParalax backgroundParalax;
-
-
     float totalWheelieTime = 0f;
     public GameState gameState;
 
@@ -249,6 +246,7 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Playing)
         {
+            BackgroundParalax.Instance.ResetParallax();
             _bikeController.CAN_CONTROL = true;
             if (BikeController.Instance.saveDistanceCoroutine == null)
             {
@@ -278,6 +276,7 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Starting)
         {
+            StartCoroutine(ResetParallaxWhenReady());
             if (!GAME_PlayerBike.activeSelf)
             {
                 GAME_PlayerBike.SetActive(true);
@@ -287,6 +286,7 @@ public class GameManager : MonoBehaviour
             ScreenManager.Instance.MenuPlatformObject.SetActive(false);
             ScreenManager.Instance.PlayerMenuBike.SetActive(false);
             CameraController.Instance.SwitchToGameCamera();
+            BackgroundParalax.Instance.ResetParallax();
             // Call the Countdown
             StartCoroutine(CountdownRoutine());
         }
@@ -294,5 +294,16 @@ public class GameManager : MonoBehaviour
         {
             _bikeController.CAN_CONTROL = false;
         }
+    }
+
+    IEnumerator ResetParallaxWhenReady()
+    {
+        // Wait until the game camera is active
+        while (CameraController.Instance.gameCamera != null)
+            yield return null;
+
+        // Add other conditions here, such as waiting for the level to load
+
+        BackgroundParalax.Instance.ResetParallax();
     }
 }

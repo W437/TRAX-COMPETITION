@@ -22,7 +22,7 @@ public class LevelEnd : MonoBehaviour
             collided = true;
             FinishLineParticles.Play();
 
-            ScreenManager.Instance.OnLevelEnd();
+            ScreenManager.Instance.OnLevelFinish();
         }
     }
 

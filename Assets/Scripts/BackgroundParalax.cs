@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 
 public class BackgroundParalax : MonoBehaviour
 {
+    public static BackgroundParalax Instance;
     public Transform playerCam;
     public Transform[] backgrounds;
     public Transform overlay;
@@ -20,9 +22,14 @@ public class BackgroundParalax : MonoBehaviour
 
     private Vector2 lastPos = Vector2.zero;
     private Vector2 delta = Vector2.zero;
+    private float initialPlayerY;
 
     private List<LinkedList<SpriteRenderer>> backgroundLayers;
 
+    void Awake()
+    {
+        Instance = this;
+    }
     private void Start()
     {
         Initialize();
@@ -31,8 +38,9 @@ public class BackgroundParalax : MonoBehaviour
     void Initialize()
     {
         playerCamera = playerCam.GetComponent<Camera>();
-
+        Debug.Log("Paralax Init");
         lastPos = playerCam.position;
+        initialPlayerY = playerCam.position.y-5;
         backgroundLayers = new List<LinkedList<SpriteRenderer>>(backgrounds.Length);
 
         for (int i = 0; i < backgrounds.Length; ++i)
@@ -114,6 +122,7 @@ public class BackgroundParalax : MonoBehaviour
             totalDistance = Mathf.Abs(finishLine.position.x - playerCam.position.x);
             playerStartPosition = playerCam.position;
             initialSunPosition = sun.position;
+            Debug.Log("Sun finish distance: " + totalDistance );
         }
     }
 
@@ -185,6 +194,8 @@ public class BackgroundParalax : MonoBehaviour
                 Destroy(spriteRenderer.gameObject);
             }
             backgroundLayer.Clear();
+            clearInvisible();
+            Debug.Log("Paralax Reset");
         }
 
         // Reset the parallax
@@ -227,7 +238,10 @@ public class BackgroundParalax : MonoBehaviour
         var newObject = Instantiate(sprite.gameObject, sampleTransform.position, sprite.transform.rotation);
         var position = newObject.transform.position;
 
-        newObject.transform.position = new Vector3(position.x, sprite.transform.position.y, position.z);
+        // Check if the player's current Y position is within the acceptable range of +-10 units
+        float newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? initialPlayerY : sprite.transform.position.y;
+
+        newObject.transform.position = new Vector3(position.x, newY, position.z);
         newObject.SetActive(true);
 
         // Adjusting the x-axis translation by the offset
@@ -235,8 +249,10 @@ public class BackgroundParalax : MonoBehaviour
         return newObject;
     }
 
+
     protected virtual float getExtraOffset(int id)
     {
         return 0;
     }
+
 }

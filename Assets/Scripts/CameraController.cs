@@ -15,7 +15,6 @@ public class CameraController : MonoBehaviour
     // Target values
     float targetOrthographicSize;
     float targetScreenX;
-    // Time passed since transition start
     float transitionTime;
     // Reference to the VirtualCamera
     public CinemachineVirtualCamera virtualCamera;
@@ -137,7 +136,7 @@ public class CameraController : MonoBehaviour
 
     private void SetCameraBlendStyle(CinemachineVirtualCamera fromCam, CinemachineVirtualCamera toCam)
     {
-        if (fromCam == gameCamera && toCam == menuCamera)
+        if ((fromCam == gameCamera && toCam == menuCamera) || fromCam == menuCamera && toCam == gameCamera)
         {
             CinemachineBlendDefinition blendDef = new CinemachineBlendDefinition(CinemachineBlendDefinition.Style.Cut, 0);
             mainCameraBrain.m_DefaultBlend = blendDef;

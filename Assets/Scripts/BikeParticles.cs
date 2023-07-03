@@ -1,4 +1,5 @@
 using System.Collections;
+using Lofelt.NiceVibrations;
 using UnityEngine;
 
 public class BikeParticles : MonoBehaviour
@@ -8,6 +9,7 @@ public class BikeParticles : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
     [SerializeField] BikeComponents bikeComponents;
 
+    bool isBodyTouchingGround = false;
 
     float speedThreshold = 0.2f;
     float minEmissionRate = 35f;
@@ -20,7 +22,7 @@ public class BikeParticles : MonoBehaviour
     public float maxParticleSize;
 
     float maxBikeSpeed;
-
+    private float maxAirHeight;
     RaycastHit2D rearHit;
     RaycastHit2D bikeHit;
 
@@ -36,6 +38,8 @@ public class BikeParticles : MonoBehaviour
 
     void Update()
     {
+        maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
+
         rearHit = Physics2D.Raycast(BikeController.Instance.CurrentBikeComponents.BackWheelTransform.position, -Vector2.up, Mathf.Infinity, groundLayer);
         bikeHit = Physics2D.Raycast(BikeController.Instance.CurrentBikeComponents.RB_Bike.position, -Vector2.up, Mathf.Infinity, groundLayer);
 
@@ -91,17 +95,39 @@ public class BikeParticles : MonoBehaviour
     public void PlayLandingParticles(float landingForce)
     {
         // Set the particle size and ratio over time
-        var main = landingParticles.main;
+        var _landingParticles = BikeController.Instance.CurrentBikeComponents.LandingParticles;
+        var main = _landingParticles.main;
         main.startSize = landingForce * 0.05f; 
         main.startLifetime = landingForce * 0.05f;
 
         // Set the emission rate based on the landing force
-        var emission = landingParticles.emission;
-        emission.rateOverTime = landingForce * 10;
+        var emission = _landingParticles.emission;
+        emission.rateOverTime = landingForce * 5;
 
         // Play the particles
-        landingParticles.Stop();
-        landingParticles.Play();
+        _landingParticles.Stop();
+        _landingParticles.Play();
+    }
+
+    
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        // check if the collided object is on the ground layer
+        if (collision.gameObject.layer == LayerMask.NameToLayer("Ground"))
+        {
+            isBodyTouchingGround = true;
+
+            // Determine the landing force based on the maximum height achieved
+            float landingForce = BikeController.Instance.CalculateLandingForce(maxAirHeight, transform.position.y);
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.MediumImpact);
+            Debug.Log("Landing ForcE: "  + landingForce);
+            // Play the landing particle effect
+            PlayLandingParticles(landingForce);
+
+            // Reset the maximum height
+            maxAirHeight = transform.position.y;
+        }
+        isBodyTouchingGround = false;
     }
 
 }

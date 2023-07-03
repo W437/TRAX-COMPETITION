@@ -52,8 +52,9 @@ public class LevelManager : MonoBehaviour
             var currentLevelData = GetCurrentLevelData();
             var currentLevelCategory = currentLevelData.LevelCategory;
             StartCoroutine(StartLevelTransition(level));
+            BackgroundParalax.ResetParallax();
             CameraController.Instance.SwitchToGameCamera();
-
+            BackgroundParalax.ResetParallax();
             // Stop the previous BikeAnimationInCoroutine if it exists
             if (ScreenManager.Instance.BikeAnimationInCoroutine != null)
             {
@@ -97,6 +98,8 @@ public class LevelManager : MonoBehaviour
             Destroy(CurrentLevelInstance);
         }
 
+        BackgroundParalax.ResetParallax();
+
         CurrentLevelInstance = Instantiate(Levels[CurrentLevelID].LevelPrefab, LevelGameObject);
         CurrentLevelInstance.SetActive(true);
 
@@ -118,7 +121,8 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.SetGameState(GameState.Starting);
         ScreenManager.Instance.TweenGameHUD(true);
         GameManager.Instance.ResetLevelStats();
-        CameraController.Instance.SwitchToGameCamera();
+        //CameraController.Instance.SwitchToGameCamera();
+        BackgroundParalax.ResetParallax();
     }
 
 }

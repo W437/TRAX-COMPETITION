@@ -53,6 +53,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject Panel_Paused;
     public GameObject Panel_Levels;
     public GameObject Panel_Shop;
+    public GameObject Panel_About;
     public GameObject Panel_Settings;
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -77,12 +78,15 @@ public class ScreenManager : MonoBehaviour
     public Button B_Start;
     public Button B_Settings;
     public Button B_Shop;
+    public Button B_About;
     public GameObject CoinsBar;
     public GameObject GameLogo;
     public GameObject LvlsFinishedBar;
     public GameObject Overlay_Menu;
     public TextMeshProUGUI T_Coins;
     public TextMeshProUGUI T_LvlsFinished;
+    public GameObject AboutPanel;
+    public Button B_AboutBack;
 
     public float menuBikeSpeed = 0f;
     public float menuBikeMaxSpeed = 9.5f;
@@ -309,6 +313,10 @@ public class ScreenManager : MonoBehaviour
         B_Settings.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
 
+        obj = B_About.transform.localPosition;
+        B_About.transform.localPosition =
+            new Vector2(obj.x, obj.y-400);
+
         obj = B_Shop.transform.localPosition;
         B_Shop.transform.localPosition =
             new Vector2(obj.x, obj.y - 900f);
@@ -324,6 +332,14 @@ public class ScreenManager : MonoBehaviour
         obj = GameLogo.transform.localPosition;
         GameLogo.transform.localPosition =
             new Vector2(obj.x, obj.y+450);
+
+        obj = B_AboutBack.transform.localPosition;
+        B_AboutBack.transform.localPosition =
+            new Vector2(obj.x, obj.y-500);
+
+        obj = AboutPanel.transform.localPosition;
+        AboutPanel.transform.localPosition =
+            new Vector2(obj.x+900, obj.y);
 
         // Game HUD
         obj = B_PauseGame.transform.localPosition;
@@ -476,7 +492,10 @@ public class ScreenManager : MonoBehaviour
 
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
             LoadLevelsScreen(true);
-            _gameManager.SavePlayTime(); });
+            _gameManager.SavePlayTime();
+        });
+
+
         B_Shop.onClick.AddListener(delegate 
         { 
             if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
@@ -486,6 +505,31 @@ public class ScreenManager : MonoBehaviour
             GoToShop(); 
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
         });
+
+
+        B_About.onClick.AddListener(delegate 
+        { 
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+            return; 
+            _lastButtonClickTime = Time.time;
+
+            TweenAboutSection(true);
+            TweenMainMenu(false); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+        });
+
+        B_AboutBack.onClick.AddListener(delegate 
+        { 
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
+            return; 
+            _lastButtonClickTime = Time.time;
+
+            TweenAboutSection(false);
+            TweenMainMenu(true); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+        });
+
+
         B_Leaderboard.onClick.AddListener(delegate {  HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);  });
         B_Settings.onClick.AddListener(delegate {
                 if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
@@ -906,7 +950,13 @@ public class ScreenManager : MonoBehaviour
 
     IEnumerator GoToMenuFromFinishMenu()
     {
+        StartCoroutine(PlayTransition());
         yield return new WaitForSeconds(0.5f);
+        ScreenManager.Instance.PlayerMenuBike.SetActive(true);
+        ScreenManager.Instance.MenuPlatformObject.SetActive(true);
+        ScreenManager.Instance.PlayerMenuBikeRb.transform.localPosition = new Vector2(0, 0.5f);
+        ScreenManager.Instance.MenuPlatformRb.transform.localPosition = new Vector2(-4, 0);
+        ScreenManager.Instance.PlayerMenuBikeRb.isKinematic = false;
         GoToMainMenu();
     }
 
@@ -917,7 +967,7 @@ public class ScreenManager : MonoBehaviour
         // Show Menu Platform & Bike
         ScreenManager.Instance.PlayerMenuBike.SetActive(true);
         ScreenManager.Instance.MenuPlatformObject.SetActive(true);
-        ScreenManager.Instance.PlayerMenuBikeRb.transform.localPosition = new Vector2(0, 1.5f);
+        ScreenManager.Instance.PlayerMenuBikeRb.transform.localPosition = new Vector2(0, 0.5f);
         ScreenManager.Instance.MenuPlatformRb.transform.localPosition = new Vector2(-4, 0);
         ScreenManager.Instance.PlayerMenuBikeRb.isKinematic = false;
         yield return new WaitForSeconds(0.3f); 
@@ -1410,6 +1460,10 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+
+
+    
+
     public void TweenMainMenu(bool In)
     {
         if (In)
@@ -1419,6 +1473,7 @@ public class ScreenManager : MonoBehaviour
             CameraController.Instance.SwitchToMenuCamera();
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0.5f, 1f);
             LeanTween.moveY(B_Start.GetComponent<RectTransform>(), 57f, 0.8f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(B_About.GetComponent<RectTransform>(), -150f, 1f).setEase(LeanTweenType.easeInOutSine).setDelay(0.5f);
             LeanTween.moveY(B_MainLeaderboard.GetComponent<RectTransform>(), -110f, 0.9f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Shop.GetComponent<RectTransform>(), -244f, 0.95f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Settings.GetComponent<RectTransform>(), -110f, 0.96f).setEase(LeanTweenType.easeOutExpo);
@@ -1429,6 +1484,7 @@ public class ScreenManager : MonoBehaviour
         {
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0f, 1f);
             LeanTween.moveX(CoinsBar.GetComponent<RectTransform>(), -550f, 0.95f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(B_About.GetComponent<RectTransform>(), -450f, 0.15f).setEase(LeanTweenType.easeInOutExpo);
             LeanTween.moveX(LvlsFinishedBar.GetComponent<RectTransform>(), -550f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveY(B_Shop.GetComponent<RectTransform>(), -1100f, 0.75f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_Settings.GetComponent<RectTransform>(), -1100f, 0.7f).setEase(LeanTweenType.easeOutExpo).setDelay(0.05f);
@@ -1438,6 +1494,27 @@ public class ScreenManager : MonoBehaviour
                 {
                     Panel_MainMenu.SetActive(false);
                 });
+        }
+    }
+
+    public void TweenAboutSection(bool In)
+    {
+        if (In)
+        {
+            Panel_About.SetActive(true);
+            TweenGameLogo(false);
+            LeanTween.moveX(AboutPanel.GetComponent<RectTransform>(), 0, 0.8f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(B_AboutBack.GetComponent<RectTransform>(), -85f, 1f).setEase(LeanTweenType.easeInOutSine).setDelay(0.5f);
+        }
+        else
+        {
+            LeanTween.moveX(AboutPanel.GetComponent<RectTransform>(), 900, 0.8f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(B_AboutBack.GetComponent<RectTransform>(), -450f, 0.25f).setEase(LeanTweenType.easeInOutSine)
+            .setOnComplete(delegate()
+            {
+                Panel_About.SetActive(false);
+                TweenGameLogo(true);
+            });
         }
     }
 
@@ -1460,13 +1537,13 @@ public class ScreenManager : MonoBehaviour
         TweenLevelsSection(true);
     }
 
-    public void OnLevelEnd()
+    public void OnLevelFinish()
     {   
         _gameManager.SetGameState(GameState.Finished);
-        // TODO: Stop player in a nicer way.
+        // TODO: Stop player in a nicer way. Smooth out velocity to 0.
         _bikeController.bikeRearWheelJoint.useMotor = false;
-
-        HapticPatterns.PlayPreset(HapticPatterns.PresetType.Success); 
+        
+        HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         var _playerData = SaveSystem.LoadPlayerData(); 
         var _currentLevelID = LevelManager.Instance.CurrentLevelID;
         var _levels = LevelManager.Instance.Levels;
@@ -1474,7 +1551,7 @@ public class ScreenManager : MonoBehaviour
         var _LevelFaults = BikeController.Instance.faults;
         var _LevelFlips = BikeController.Instance.flipCount; 
         var _LevelWheelie = BikeController.Instance.wheeliePoints;
-        var _trophyCount = _levels[_currentLevelID].CalculateTrophies(_LevelTime, _LevelFaults);       
+        var _trophyCount = 3; //_levels[_currentLevelID].CalculateTrophies(_LevelTime, _LevelFaults);       
 
         _playerData.UpdateLevel();
 
@@ -1571,7 +1648,13 @@ public class ScreenManager : MonoBehaviour
     private void TrophyAnimation(GameObject trophy, float targetScale, float delay)
     {
         trophy.transform.localScale = Vector3.zero;
-        LeanTween.scale(trophy, Vector3.one * targetScale, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(delay+1);
+        LeanTween.scale(trophy, Vector3.one * targetScale, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(delay+1)
+        .setOnComplete(delegate()
+        {
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.LightImpact);
+        }
+        );
+        
     }
 
 
