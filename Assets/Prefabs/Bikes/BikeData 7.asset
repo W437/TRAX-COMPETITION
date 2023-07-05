@@ -9,11 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e9e273f729099442961ca919d5a6c63, type: 3}
+  m_Script: {fileID: 11500000, guid: 98d391a382d122541899c54697e16728, type: 3}
   m_Name: BikeData 7
   m_EditorClassIdentifier: 
-  bikePrefab: {fileID: 7845807050704558627, guid: e2224fc2e99456345a39c9ffb6820a38, type: 3}
-  bikeId: 6
-  price: 450
-  maxSpeed: 0
-  mass: 0
+  BikePrefab: {fileID: 7845807050704558627, guid: 50dcaa73409bd984291bb2316473338d, type: 3}
+  ID: 6
+  PRICE: 650
+  MaxSpeed: 0
+  Mass: 0

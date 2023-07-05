@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca84d256e6b6e2448923fb2bafc9c2e7, type: 3}
+  m_Script: {fileID: 11500000, guid: 1e5ab2374cc40514d8fd171ef5423523, type: 3}
   m_Name: Level 4
   m_EditorClassIdentifier: 
   LevelPrefab: {fileID: 8065877448607636436, guid: 6fc79e825675ed04f93ca127f298165f, type: 3}
@@ -20,4 +20,4 @@ MonoBehaviour:
   LeaderboardID: 0
   MaxFault2Trophies: 5
   MaxFaults1Trophy: 10
-  LevelCategory: 2
+  LevelCategory: 0

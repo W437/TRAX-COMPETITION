@@ -418,7 +418,7 @@ GameObject:
   - component: {fileID: 55802740}
   - component: {fileID: 55802739}
   m_Layer: 5
-  m_Name: T_BikesUnlocked
+  m_Name: T_TrailsUnlocked
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3020,7 +3020,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 17
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &200873834
 GameObject:
@@ -3205,7 +3205,7 @@ GameObject:
   - component: {fileID: 212078581}
   - component: {fileID: 212078582}
   m_Layer: 0
-  m_Name: OtherToggle
+  m_Name: MuteToggle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4959,7 +4959,7 @@ GameObject:
   - component: {fileID: 300095346}
   - component: {fileID: 300095345}
   m_Layer: 5
-  m_Name: Pause
+  m_Name: Btn_Pause
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6406,7 +6406,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 524671269}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 583603771117ed84081cb0d1e39914fb, type: 3}
+  m_Script: {fileID: 11500000, guid: 2d75e5dbdb6317549851dcb0b4e2ea63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   trails:
@@ -7487,7 +7487,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.1385217, y: -4.1260014, z: 0}
+  m_LocalPosition: {x: -6.1374526, y: -4.1260014, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7590,11 +7590,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 623875924}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5383c352fe35d164ab64d181a24adff8, type: 3}
+  m_Script: {fileID: 11500000, guid: 69493d6506167f74ea9909660af53238, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LevelGameObject: {fileID: 0}
-  BackgroundParalax: {fileID: 1908450796}
+  LevelGameObject: {fileID: 1330162004}
   Txt_LevelInfo: {fileID: 624790800}
   Levels:
   - {fileID: 11400000, guid: 4edc3609d7fc90c458993d999eae0cef, type: 2}
@@ -7603,6 +7602,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a7e1f85a2722c4441bad2f0b4d9b6cfc, type: 2}
   - {fileID: 11400000, guid: 92e03f7ec91bdd54f82cb95e7e26b6e4, type: 2}
   - {fileID: 11400000, guid: 6af753ebd6637014f8c1dca2041545df, type: 2}
+  - {fileID: 11400000, guid: 5672fe0e9a15afb4aac4585c4e81805b, type: 2}
   CurrentLevelInstance: {fileID: 0}
 --- !u!4 &623875926
 Transform:
@@ -8084,7 +8084,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 15
+  m_RootOrder: 14
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &628274121
 MonoBehaviour:
@@ -9059,18 +9059,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 656827952}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1f9eb223b38dce740bf26e5af59d74b4, type: 3}
+  m_Script: {fileID: 11500000, guid: 92f01011c0abb9847ba28e9d15de16ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  transitionDuration: 1
-  gameCamera: {fileID: 595812098}
-  menuCamera: {fileID: 996525665}
-  shopCamera: {fileID: 1363849784}
-  settingsCamera: {fileID: 668215089}
-  virtualCamera: {fileID: 595812098}
+  GameCamera: {fileID: 595812098}
+  MenuCamera: {fileID: 996525665}
+  ShopCamera: {fileID: 1363849784}
+  SettingsCamera: {fileID: 668215089}
+  MainVirtualCamera: {fileID: 595812098}
   mainCamera: {fileID: 552943425}
-  mainComposer: {fileID: 0}
-  menuComposer: {fileID: 0}
 --- !u!1 &668215087
 GameObject:
   m_ObjectHideFlags: 0
@@ -9569,20 +9566,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 698237677}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14827e8b29463ed48b2d51daa01bcb12, type: 3}
+  m_Script: {fileID: 11500000, guid: ea136d9ce0ef5a34c890104181a1da52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   BikeList: []
   TrailList: []
-  GAME_PlayerBike: {fileID: 0}
-  GAME_PlayerTrail: {fileID: 0}
-  playerData:
+  InGAME_PlayerBike: {fileID: 0}
+  InGAME_PlayerTrail: {fileID: 0}
+  PlayerData:
     COINS: 0
     UNLOCKED_BIKES: 
     SELECTED_BIKE_ID: 0
     UNLOCKED_TRAILS: 
     SELECTED_TRAIL_ID: 0
-    SerializableLevelStatsList: []
+    serializableLevelStatsList: []
     TOTAL_XP: 0
     TOTAL_TROPHIES: 0
     TOTAL_DISTANCE: 0
@@ -9609,20 +9606,20 @@ MonoBehaviour:
     - 3.5
     - 4.9
     SETTINGS_isMuted: 0
-    SETTINGS_isHapticEnabled: 0
-    SETTINGS_mainVolume: 0
-    SETTINGS_sfxVolume: 0
+    SETTINGS_isHapticEnabled: 1
+    SETTINGS_mainVolume: 0.85
+    SETTINGS_sfxVolume: 0.55
   firstLaunch: 1
   playerObjectParent: {fileID: 628274118}
-  groundLayer:
+  GroundLayer:
     serializedVersion: 2
     m_Bits: 256
+  gameState: 0
   timerText: {fileID: 1907559284}
   countdownText: {fileID: 2147138783}
   flipCountText: {fileID: 760254247}
   wheelieTimeText: {fileID: 1425888467}
   faultCountText: {fileID: 626359163}
-  gameState: 0
   countdownAudioSource: {fileID: 548109958}
   countdownClip: {fileID: 8300000, guid: dd8251ac0af0a8f41a04acab1c56fe7a, type: 3}
   goClip: {fileID: 8300000, guid: e06916adfa1e20f4e98d0ec3f1ea8c85, type: 3}
@@ -11098,7 +11095,7 @@ GameObject:
   - component: {fileID: 815275656}
   - component: {fileID: 815275655}
   m_Layer: 5
-  m_Name: Body
+  m_Name: BG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11883,7 +11880,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 862939906}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e940f71e68121f044a24db3235df8cfb, type: 3}
+  m_Script: {fileID: 11500000, guid: 7463ea65feb2f1b46b8bca2f739159f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   levelUnitPrefab: {fileID: 526618310052981894, guid: d61a6cd0df8ea0842b6ad15512d4414c, type: 3}
@@ -11891,7 +11888,6 @@ MonoBehaviour:
   LevelsSection: {fileID: 1423544429}
   LevelsView: {fileID: 935570635}
   B_LevelsMenuBack: {fileID: 145357186}
-  backgroundParalax: {fileID: 1908450796}
   Panel_MainMenu: {fileID: 1948922797}
   Panel_GameHUD: {fileID: 379998925}
   Panel_GameOver: {fileID: 1164675973}
@@ -11900,48 +11896,46 @@ MonoBehaviour:
   Panel_Shop: {fileID: 1418137075}
   Panel_About: {fileID: 216356061}
   Panel_Settings: {fileID: 1831701440}
-  B_PauseGame: {fileID: 300095345}
-  FaultsBar: {fileID: 2039184888}
-  TimerBar: {fileID: 1423011147}
-  WheelieBar: {fileID: 74818325}
-  FlipsBar: {fileID: 2098215801}
-  wheelieText: {fileID: 1425888467}
-  flipText: {fileID: 760254247}
-  B_MainLeaderboard: {fileID: 132770379}
-  B_Start: {fileID: 1743119100}
-  B_Settings: {fileID: 1277799315}
-  B_Shop: {fileID: 1573044289}
-  B_About: {fileID: 121353053}
-  CoinsBar: {fileID: 1945448590}
-  GameLogo: {fileID: 1688082807}
-  LvlsFinishedBar: {fileID: 1172253576}
+  Btn_HUD_PauseGame: {fileID: 300095345}
+  HUD_FaultsBar: {fileID: 2039184888}
+  HUD_TimerBar: {fileID: 1423011147}
+  HUD_WheelieBar: {fileID: 74818325}
+  HUD_FlipsBar: {fileID: 2098215801}
+  Btn_Menu_MainLeaderboard: {fileID: 132770379}
+  Btn_Menu_Start: {fileID: 1743119100}
+  Btn_Menu_Settings: {fileID: 1277799315}
+  Btn_Menu_Shop: {fileID: 1573044289}
+  Btn_Menu_About: {fileID: 121353053}
+  MENU_CoinsBar: {fileID: 1945448590}
+  MENU_GameLogo: {fileID: 1688082807}
+  MENU_LvlsFinishedBar: {fileID: 1172253576}
   Overlay_Menu: {fileID: 548814291}
-  T_Coins: {fileID: 1339077625}
-  T_LvlsFinished: {fileID: 734208556}
+  Txt_Menu_Coins: {fileID: 1339077625}
+  Txt_Menu_LvlsFinished: {fileID: 734208556}
   AboutPanel: {fileID: 912815985}
-  B_AboutBack: {fileID: 1140119373}
+  Btn_About_Back: {fileID: 1140119373}
   menuBikeSpeed: 0
-  menuBikeMaxSpeed: 8.5
+  menuBikeMaxSpeed: 9.5
   accelerationTimer: 0
-  accelerationTime: 3.5
-  PanelStats: {fileID: 1116453325}
-  PanelSettings: {fileID: 492198911}
+  accelerationTime: 3
+  Settings_Stats: {fileID: 1116453325}
+  Settings_Main: {fileID: 492198911}
   temp_PanelDev: {fileID: 1215080317}
-  TextStats_1: {fileID: 1821491727}
-  TextStats_2: {fileID: 169420392}
-  T_PlayerLevel: {fileID: 1543475598}
-  T_PlayerXP: {fileID: 873882401}
-  ToggleMute: {fileID: 212078582}
-  ToggleHaptic: {fileID: 265745596}
-  T_ToggleMute: {fileID: 146308406}
+  Txt_Stats1: {fileID: 1821491727}
+  Txt_Stats2: {fileID: 169420392}
+  Txt_PlayerLevel: {fileID: 1543475598}
+  Txt_PlayerXP: {fileID: 873882401}
+  Settings_Toggle_Mute: {fileID: 212078582}
+  Settings_Toggle_Haptic: {fileID: 265745596}
+  Txt_ToggleMuteStatus: {fileID: 146308406}
   MuteSprite: {fileID: 21300000, guid: c213c536068b5a34bac3eba2ae45b9c2, type: 3}
   UnmuteSprite: {fileID: 21300000, guid: 07f4af28214e60447bfa7e00fea8755b, type: 3}
   ToggleMuteImage: {fileID: 1826116011}
   ToggleMuteBG: {fileID: 475975288}
   ToggleHapticBG: {fileID: 2066565295}
-  SliderMainVol: {fileID: 1486495006}
-  SliderSFXVol: {fileID: 310854854}
-  SliderLevelProgress: {fileID: 1352600433}
+  Settings_Slider_MainVol: {fileID: 1486495006}
+  Settings_Slider_SFXVol: {fileID: 310854854}
+  Settings_Slider_LevelProgress: {fileID: 1352600433}
   btn_ResetCoins: {fileID: 1049682221}
   btn_AddCoins: {fileID: 1014102375}
   btn_ResetSavedata: {fileID: 530100446}
@@ -11949,40 +11943,41 @@ MonoBehaviour:
   btn_AddXP: {fileID: 85085427}
   btn_ShuffleSoundtrack: {fileID: 2062594698}
   B_SettingsBackMenu: {fileID: 1488408514}
-  B_ShopBackMenu: {fileID: 338783385}
-  B_RightBtn: {fileID: 1230736130}
-  B_LeftBtn: {fileID: 200873836}
-  B_Trails: {fileID: 760395519}
-  B_Bikes: {fileID: 1560601424}
-  B_BuyButton: {fileID: 886207043}
+  Btn_Shop_BackMenu: {fileID: 338783385}
+  Btn_Shop_RightBtn: {fileID: 1230736130}
+  Btn_Shop_LeftBtn: {fileID: 200873836}
+  Btn_Shop_Trails: {fileID: 760395519}
+  Btn_Shop_Bikes: {fileID: 1560601424}
+  Btn_Shop_BuyButton: {fileID: 886207043}
   ShopSelectionObject: {fileID: 1850677900}
   TopMenuHeader: {fileID: 2092797579}
   TopOverlayHeader: {fileID: 2050151392}
-  T_ShopCoins: {fileID: 1207765726}
-  T_ShopUnlockedBikes: {fileID: 635002301}
-  T_ShopUnlockedTrails: {fileID: 55802740}
+  Txt_Shop_Coins: {fileID: 1207765726}
+  Txt_Shop_UnlockedBikes: {fileID: 635002301}
+  Txt_Shop_UnlockedTrails: {fileID: 55802740}
+  Txt_Shop_ID: {fileID: 682262078}
   PrefabPrice: {fileID: 1366762616}
-  B_Leaderboard: {fileID: 1456367307}
-  B_Restart: {fileID: 1433906156}
-  B_NextLvl: {fileID: 1436903974}
-  B_Back: {fileID: 1832545718}
+  Btn_LevelFinish_Leaderboard: {fileID: 1456367307}
+  Btn_LevelFinish_Restart: {fileID: 1433906156}
+  Btn_LevelFinish_NextLvl: {fileID: 1436903974}
+  Btn_LevelFinish_Back: {fileID: 1832545718}
   FinishLevelStatsPanel: {fileID: 685397099}
   Trophy1: {fileID: 380454163}
   Trophy2: {fileID: 2129495255}
   Trophy3: {fileID: 1529892333}
   LevelFinishOverlay: {fileID: 1827675603}
-  T_LevelTime: {fileID: 1860067573}
-  T_Faults: {fileID: 992732251}
-  T_Wheelie: {fileID: 2106061939}
-  T_Flips: {fileID: 223367695}
-  T_XPGained: {fileID: 641726901}
+  Txt_LevelFinish_LevelTime: {fileID: 1860067573}
+  Txt_LevelFinish_Faults: {fileID: 992732251}
+  Txt_LevelFinish_Wheelie: {fileID: 2106061939}
+  Txt_LevelFinish_Flips: {fileID: 223367695}
+  Txt_LevelFinish_XPGained: {fileID: 641726901}
   Overlay_Paused: {fileID: 625775344}
   T_PausedText: {fileID: 1144758115}
   B_Paused_Restart: {fileID: 1562480294}
   B_Paused_Resume: {fileID: 1703820003}
   B_Paused_Menu: {fileID: 391039773}
-  startTransitionName: startTransition
-  endTransitionName: endTransition
+  startTransitionName: start
+  endTransitionName: end
   startTransition: {fileID: 1143556191}
   endTransition: {fileID: 264792300}
   startTransitionAnimator: {fileID: 1143556193}
@@ -12597,7 +12592,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 18
+  m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &912815985
 GameObject:
@@ -13026,7 +13021,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 931330311}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2a30174f554fa1499b488112988eba6, type: 3}
+  m_Script: {fileID: 11500000, guid: e413566221e58fd4ba6868e117e18dfe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Btn_SwitchBike: {fileID: 1560601424}
@@ -19144,14 +19139,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1049682219}
   m_CullTransparentMesh: 1
---- !u!222 &1071401910
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2029078651}
-  m_CullTransparentMesh: 1
 --- !u!1 &1072962855
 GameObject:
   m_ObjectHideFlags: 0
@@ -22181,7 +22168,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 19
+  m_RootOrder: 18
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1335859129
 GameObject:
@@ -22803,7 +22790,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1355773967}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9e864f8612b2f214cb7551eb69f3bfef, type: 3}
+  m_Script: {fileID: 11500000, guid: fada901f0f53dbf4e88855ef082146d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   soundTracks:
@@ -23202,11 +23189,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1381680330}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 283873a034cfcbf46aefa45eed804d33, type: 3}
+  m_Script: {fileID: 11500000, guid: c92501d9de597994b985ebcd6ea6911c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   CAN_CONTROL: 0
-  bikeList:
+  BikeList:
   - {fileID: 11400000, guid: 7cbc5b36201d1234ab7bacf3a39c9117, type: 2}
   - {fileID: 11400000, guid: 687e2a007d914224f8adb3bbb56f43f7, type: 2}
   - {fileID: 11400000, guid: a0c8a003357b0d94a80b915ac6f75dc5, type: 2}
@@ -23232,10 +23219,10 @@ MonoBehaviour:
   wheeliePoints: 0
   isAccelerating: 0
   faults: 0
-  doublePressTime: 0.3
+  doublePressTime: 0.15
   flipCount: 0
-  flipDelay: 0.3
-  flipTorque: 0
+  flipDelay: 0.4
+  flipTorque: 0.25
   wheelieStartTime: 0
   totalWheelieTime: 0
 --- !u!114 &1381680334
@@ -23247,13 +23234,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 1381680330}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 916a7120ff3a4f34781195da5751831d, type: 3}
+  m_Script: {fileID: 11500000, guid: 440dabae0f53e7444980458cd06bd952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HAPTIC_ON: 1
-  MinimumPower: 0.1
+  HAPTIC_ON: 0
+  MinimumPower: 0
   MaximumPower: 1
-  BuildUpTime: 3
 --- !u!1 &1391779842
 GameObject:
   m_ObjectHideFlags: 0
@@ -35260,7 +35246,7 @@ Transform:
   m_Children:
   - {fileID: 1003908736}
   m_Father: {fileID: 0}
-  m_RootOrder: 16
+  m_RootOrder: 15
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1840328189
 GameObject:
@@ -36221,7 +36207,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1908450794}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 487831c0481de5a479b5db99fd7e80b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 765eea46e2fcabb43931a42d35142d7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerCam: {fileID: 552943426}
@@ -36232,10 +36218,11 @@ MonoBehaviour:
   - {fileID: 1341659863}
   - {fileID: 66047528}
   overlay: {fileID: 2141944644}
-  startSensitivity: 0.5
-  endSensitivity: 0.3
+  startSensitivity: 0
+  endSensitivity: 0.4
   horizontalSpawnOffsetUnits: 5
   sun: {fileID: 1727319154}
+  finishLine: {fileID: 0}
 --- !u!1 &1913881914
 GameObject:
   m_ObjectHideFlags: 0
@@ -37177,38 +37164,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2025548222}
   m_CullTransparentMesh: 1
---- !u!1 &2029078651
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2029078652}
-  - component: {fileID: 1071401910}
-  m_Layer: 0
-  m_Name: 'Recovery GameObject for CanvasRenderer (ID in file: 1071401910)'
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2029078652
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2029078651}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 14
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2031756652
 GameObject:
   m_ObjectHideFlags: 3

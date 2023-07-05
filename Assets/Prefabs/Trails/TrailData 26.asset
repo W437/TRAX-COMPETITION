@@ -9,9 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80170f18c76b1d042a74094fb287b124, type: 3}
+  m_Script: {fileID: 11500000, guid: f7f7f05442b9fd249ae1f2889e5bd6f0, type: 3}
   m_Name: TrailData 26
   m_EditorClassIdentifier: 
   TrailPrefab: {fileID: 7143726258993357292, guid: 64ea1b9e3e9963b499bebdf46961eead, type: 3}
-  TrailID: 25
-  Price: 600
+  ID: 25
+  PRICE: 680

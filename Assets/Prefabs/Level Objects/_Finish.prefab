@@ -97,11 +97,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5814815902090549207}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b9c31c9f4f63cb54da98d66f4bd2aaf7, type: 3}
+  m_Script: {fileID: 11500000, guid: 0ffa65bc087dce247b735e3ad0c9b2e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerCollider: {fileID: 0}
-  finishLineParticles: {fileID: 5814815902508764093}
+  FinishLineParticles: {fileID: 5814815902508764093}
 --- !u!61 &5814815902090549202
 BoxCollider2D:
   m_ObjectHideFlags: 0
