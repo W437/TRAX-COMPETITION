@@ -3,6 +3,7 @@ using UnityEngine;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System;
 
 public class LevelManager : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class LevelManager : MonoBehaviour
     public TMPro.TextMeshProUGUI Txt_LevelInfo;
     public Level[] Levels;
     public int CurrentLevelID { get; private set; } = 0;
-    public GameObject CurrentLevelInstance;
+    [NonSerialized] public GameObject CurrentLevelInstance;
 
 
     void Awake()

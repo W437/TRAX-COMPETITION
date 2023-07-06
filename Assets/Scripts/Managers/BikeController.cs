@@ -27,7 +27,7 @@ public class BikeController : MonoBehaviour
     public IEnumerator saveDistanceCoroutine;
 
     [SerializeField] private Bike[] BikeList;
-    public Bike bikeData;
+    [NonSerialized] public Bike bikeData;
     private GameObject currentTrailInstance;
 
     private TrailRenderer trailRenderer;
@@ -41,7 +41,7 @@ public class BikeController : MonoBehaviour
     private SpriteRenderer frontWheelSpriteRenderer, backWheelSpriteRenderer;
     private ParticleSystem bikeDirtParticles, bikeLandingParticles;
     private Collider2D bikeGroundCheckCol;
-    public WheelJoint2D bikeRearWheelJoint;
+    [NonSerialized] public WheelJoint2D bikeRearWheelJoint;
     private JointMotor2D bikeMotor;
     private Vector2 wheelieStartPosition;
     private Coroutine trailFadeCoroutine = null;

@@ -170,8 +170,6 @@ public class ScreenManager : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////////////////
 
     [Header("Screen Transitions")]
-    public string startTransitionName;
-    public string endTransitionName;
     public GameObject startTransition;
     public GameObject endTransition;
     public Animator startTransitionAnimator;

@@ -16,8 +16,8 @@ public class GameManager : MonoBehaviour
     public Trail[] TrailList;
 
     // for level load
-    public GameObject InGAME_PlayerBike;
-    public GameObject InGAME_PlayerTrail;
+    [NonSerialized] public GameObject InGAME_PlayerBike;
+    [NonSerialized] public GameObject InGAME_PlayerTrail;
 
     public PlayerData PlayerData;
 
