@@ -716,6 +716,10 @@ public class BikeController : MonoBehaviour
         // SAVE DATA
         var _data = SaveSystem.LoadPlayerData();
         _data.TOTAL_FAULTS += faults;
+
+        // reset flip counter due to fault
+        internalFlipCount = 0;
+
         SaveSystem.SavePlayerData(_data);
 
         // If a previous flip is still in progress

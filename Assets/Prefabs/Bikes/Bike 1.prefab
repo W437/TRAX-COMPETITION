@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6847700771245722019}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.31, y: -0.699997, z: 0}
+  m_LocalPosition: {x: 0.5, y: -0.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -442,10 +442,10 @@ MonoBehaviour:
   rb_Bike: {fileID: 7845807050704558629}
   motorSpeed: -5500
   downwardForce: 50
-  accelerationTime: 2
+  accelerationTime: 0.1
   groundCheckDistance: 0.3
   initialMaxTorque: 0
-  maxTorque: 10
+  maxTorque: 1
   maxAirRotationSpeed: 500
   flipTorque: 0.25
   originalFrontWheelColor: {r: 1, g: 1, b: 1, a: 0}

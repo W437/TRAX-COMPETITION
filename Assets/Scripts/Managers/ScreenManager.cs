@@ -22,6 +22,7 @@ public class ScreenManager : MonoBehaviour
     private AudioManager AudioManager;
     private GameManager GameManager;
     private BackgroundParalax BackgroundParalax;
+    private LeaderboardManager LeaderboardManager;
 
     #region Variables
 
@@ -56,6 +57,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject Panel_Shop;
     public GameObject Panel_About;
     public GameObject Panel_Settings;
+    public GameObject Panel_Leaderboard;
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////// GAME HUD UI
@@ -520,6 +522,16 @@ public class ScreenManager : MonoBehaviour
             TweenAboutSection(true);
             TweenMainMenu(false); 
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+        });
+
+        Btn_Menu_MainLeaderboard.onClick.AddListener(delegate {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
+            _lastButtonClickTime = Time.time;
+
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);
+            //Panel_Leaderboard.SetActive(true);
+            //LeaderboardManager.UpdateLeaderboardUI();
         });
 
         Btn_About_Back.onClick.AddListener(delegate 

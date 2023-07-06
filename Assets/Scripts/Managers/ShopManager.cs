@@ -23,6 +23,7 @@ public class ShopManager : MonoBehaviour
     public Sprite LockedIcon, UnlockedIcon;
 
     public TextMeshProUGUI SelectedShopItemPrice, SelectedShopItemID;
+    bool isBikeMode = true; // If true, we're cycling bikes. If false, we're cycling trails
     public bool isBikeSwitched = false;
 
     public int CurrentBikeIndex { get; private set; } = 0;
@@ -36,7 +37,6 @@ public class ShopManager : MonoBehaviour
         return CurrentBikeIndex;
     }
 
-    bool isBikeMode = true; // If true, we're cycling bikes. If false, we're cycling trails
 
     private void Awake()
     {
@@ -304,19 +304,18 @@ public class ShopManager : MonoBehaviour
 
     public GameObject DisplayBikePrefab(GameObject prefab)
     {
+        isBikeSwitched = true;
         TrailStatus.SetActive(false);
         BikeStatus.SetActive(true);
         var _playerData = SaveSystem.LoadPlayerData();
         SelectBike(CurrentBikeIndex);
         SelectTrail(CurrentTrailIndex);
+
         if (prefab == null)
         {
             Debug.LogError("Prefab is null");
             return null;
         }
-
-
-        isBikeSwitched = true;
 
         // Check if exists
         GameObject _currentBike = ScreenManager.Instance.PlayerMenuBike;
@@ -326,21 +325,23 @@ public class ShopManager : MonoBehaviour
 
         // Store the current trail so it can be reattached to the new bike
         Transform _currentTrail = null;
+        Transform _newBikeTrailTransform = null;
         Vector3 _currentTrailLocalPosition = Vector3.zero;
         Quaternion _currentTrailLocalRotation = Quaternion.identity;
 
-        if(_currentBike == null)
+        if (_currentBike == null)
             Debug.Log("_currentBike null.");
 
         if (_currentBike != null)
         {
+            _newBikeTrailTransform = _currentBike.transform.Find("Bike Trail");
             Transform _currentTrailTransform = _currentBike.transform.Find("Trail");
             if (_currentTrailTransform != null)
             {
                 // Detach the trail from the bike
                 _currentTrail = _currentTrailTransform;
-                _currentTrailLocalPosition = _currentTrail.localPosition;
-                _currentTrailLocalRotation = _currentTrail.localRotation;
+                _currentTrailLocalPosition = _newBikeTrailTransform.localPosition;
+                _currentTrailLocalRotation = _newBikeTrailTransform.localRotation;
                 _currentTrailTransform.parent = null;
             }
 
@@ -351,24 +352,21 @@ public class ShopManager : MonoBehaviour
         }
 
         _currentBike = Instantiate(prefab, new Vector2(0, 0.7f), Quaternion.identity);
+
         if (_currentBike == null)
         {
             Debug.LogError("Failed to instantiate bike");
             return null;
         }
-        // Remove the default trail from the new bike
-        Transform _newBikeTrailTransform = _currentBike.transform.Find("Bike Trail");
-        if (_newBikeTrailTransform != null)
-        {
-            Destroy(_newBikeTrailTransform.gameObject);
-        }
+
 
         // If a trail was detached from the old bike, attach it to the new one
         if (_currentTrail != null)
         {
             _currentTrail.parent = _currentBike.transform;
-            _currentTrail.localPosition = _currentTrailLocalPosition;
-            _currentTrail.localRotation = _currentTrailLocalRotation;
+            _currentTrail.localPosition = _newBikeTrailTransform.localPosition;
+            _currentTrail.localRotation = _newBikeTrailTransform.localRotation;
+            Destroy(_newBikeTrailTransform.gameObject);
         }
 
         //Debug.Log("Instantiated bike: " + _currentBike.ToString());
@@ -378,7 +376,7 @@ public class ShopManager : MonoBehaviour
 
         ScreenManager.Instance.PlayerMenuBikeRb = _currentBike.GetComponent<Rigidbody2D>();
 
-        StartCoroutine(ApplyImpulseAndFreezeRotation());
+        StartCoroutine(ApplyImpulseAndFreezeRotation()); // Pops bike when switched
 
 
         // Update the PlayerMenuBike reference in ScreenManager script
@@ -453,7 +451,7 @@ public class ShopManager : MonoBehaviour
 
         ScreenManager.Instance.PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        float impulseTime = 0.5f;
+        float impulseTime = 0.7f;
         yield return new WaitForSeconds(impulseTime);
 
         ScreenManager.Instance.PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.None;
@@ -466,6 +464,7 @@ public class ShopManager : MonoBehaviour
         TrailStatus.SetActive(true);
         var _playerData = SaveSystem.LoadPlayerData();
         var _currentBike = ScreenManager.Instance.PlayerMenuBike;
+        Transform _trailPosition = (_currentBike != null) ? _currentBike.transform.Find("Bike Trail") : null;
 
         if (prefab == null) 
         {
@@ -481,12 +480,13 @@ public class ShopManager : MonoBehaviour
 
         // Corrected the name to "Trail"
         Transform currentTrailTransform = _currentBike.transform.Find("Trail");
-        Vector3 position = _currentBike.transform.position;
+        Vector3 position = _trailPosition.transform.position;
 
         if (currentTrailTransform != null)
         {
             position = currentTrailTransform.position;
             Destroy(currentTrailTransform.gameObject);
+            Destroy(_trailPosition.gameObject);
         }
 
         // Instantiate the new trail at the position of the "Trail" gameobject
