@@ -186,6 +186,7 @@ public class BackgroundParalax : MonoBehaviour
 
     public void ResetParallax()
     {
+        clearInvisible();
         // Clear the background layers
         foreach (var backgroundLayer in backgroundLayers)
         {
@@ -194,7 +195,6 @@ public class BackgroundParalax : MonoBehaviour
                 Destroy(spriteRenderer.gameObject);
             }
             backgroundLayer.Clear();
-            clearInvisible();
             //Debug.Log("Paralax Reset");
         }
 

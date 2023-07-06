@@ -33,7 +33,6 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
-        BackgroundParalax = BackgroundParalax.Instance;
     }
     public Level GetCurrentLevelData()
     {
@@ -57,9 +56,8 @@ public class LevelManager : MonoBehaviour
             var currentLevelData = GetCurrentLevelData();
             var currentLevelCategory = currentLevelData.LevelCategory;
             StartCoroutine(StartLevelTransition(level));
-            BackgroundParalax.ResetParallax();
             CameraController.Instance.SwitchToGameCamera();
-            BackgroundParalax.ResetParallax();
+
             // Stop the previous BikeAnimationInCoroutine if it exists
             if (ScreenManager.Instance.BikeAnimationInCoroutine != null)
             {
@@ -102,14 +100,12 @@ public class LevelManager : MonoBehaviour
             Destroy(CurrentLevelInstance);
         }
 
-        BackgroundParalax.ResetParallax();
-
         CurrentLevelInstance = Instantiate(Levels[CurrentLevelID].LevelPrefab, LevelGameObject);
         CurrentLevelInstance.SetActive(true);
 
         Transform finishLine = CurrentLevelInstance.transform.Find("Finish"); 
                                                                                 
-        BackgroundParalax.setFinishLine(finishLine);
+        BackgroundParalax.Instance.setFinishLine(finishLine);
         PlayerData playerData = SaveSystem.LoadPlayerData();
 
         BikeController.Instance.LoadPlayerBike(playerData.SELECTED_BIKE_ID);
@@ -125,8 +121,10 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.SetGameState(GameState.Starting);
         ScreenManager.Instance.TweenGameHUD(true);
         GameManager.Instance.ResetLevelStats();
-        //CameraController.Instance.SwitchToGameCamera();
-        BackgroundParalax.ResetParallax();
+        CameraController.Instance.SwitchToGameCamera();
+        BackgroundParalax.Instance.ResetParallax();
+        BackgroundParalax.Instance.enabled = true;
+
     }
 
 }

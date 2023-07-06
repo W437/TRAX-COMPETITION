@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelPrefab: {fileID: 8065877448607636436, guid: 7082a99d449c2b84c914196fcb30f11c, type: 3}
   LevelID: 6
-  Trophy1Time: 0
-  Trophy2Time: 0
-  Trophy3Time: 0
+  Trophy1Time: 300
+  Trophy2Time: 200
+  Trophy3Time: 150
   LeaderboardID: 0
   MaxFault2Trophies: 5
   MaxFaults1Trophy: 10

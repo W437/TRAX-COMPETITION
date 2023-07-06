@@ -205,9 +205,9 @@ public class GameManager : MonoBehaviour
                 Destroy(LevelManager.Instance.CurrentLevelInstance);
             }
 
-            if (GameManager.Instance.InGAME_PlayerBike != null && GameManager.Instance.InGAME_PlayerBike.activeSelf)
+            if (InGAME_PlayerBike != null && InGAME_PlayerBike.activeSelf)
             {
-                GameManager.Instance.InGAME_PlayerBike.SetActive(false);
+                InGAME_PlayerBike.SetActive(false);
             }
 
             CameraController.Instance.SwitchToMenuCamera();
@@ -218,17 +218,18 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Starting)
         {
-            StartCoroutine(ResetParallaxWhenReady());
+            BackgroundParalax.Instance.ResetParallax();
             if (!InGAME_PlayerBike.activeSelf)
             {
                 InGAME_PlayerBike.SetActive(true);
             }
 
+            ScreenManager.Instance.ResetTrophiesDefaultScale();
             ScreenManager.Instance.PlayerMenuBikeRb.isKinematic = true;
             ScreenManager.Instance.MenuPlatformObject.SetActive(false);
             ScreenManager.Instance.PlayerMenuBike.SetActive(false);
             CameraController.Instance.SwitchToGameCamera();
-            BackgroundParalax.Instance.ResetParallax();
+
             // Call the Countdown
             StartCoroutine(CountdownRoutine());
         }

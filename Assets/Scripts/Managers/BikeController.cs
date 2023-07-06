@@ -5,11 +5,14 @@ using System.Linq;
 using UnityEngine;
 using static GameManager;
 using Lofelt.NiceVibrations;
+using UnityEngine.UIElements;
+using UnityEngine.UI;
 
 public class BikeController : MonoBehaviour
 {
     public static BikeController Instance;
     private TrailManager TrailManager;
+
     public bool CAN_CONTROL = false; // debugging
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -48,18 +51,26 @@ public class BikeController : MonoBehaviour
 
 
     private float _previousSpeed = 0;
-    private float _acceleration = 0;
-    private float bikeMotorSpeed;
-    private float bikeMaxTorque;
-    private float bikeDownwardForce;
-    private float bikeAccelerationTime;
-    private float bikeGroundCheckDistance;
-    private float bikeInitialMaxTorque; // Starting torque
-    public float wheeliePoints;
-    private float maxAirRotationSpeed;
-    private float currentMotorSpeed = 0f;
-    private float initialMotorSpeed;
+
+    [SerializeField] private float _acceleration = 0;
+    [SerializeField] private float bikeMotorSpeed;
+    [SerializeField] private float bikeMaxTorque;
+    [SerializeField] private float bikeDownwardForce;
+    [SerializeField] private float bikeAccelerationTime;
+    [SerializeField] private float maxAirRotationSpeed;
+    [SerializeField] private float bikeGroundCheckDistance;
+    [SerializeField] private float initialMotorSpeed;
+
     private float accelerationStartTime;
+
+    private float bikeInitialMaxTorque; // Starting torque
+
+    public float wheeliePoints;
+
+
+    private float currentMotorSpeed = 0f;
+
+
     public bool isAccelerating = false; // private set
 
     private float prevMotorSpeed;
@@ -129,8 +140,8 @@ public class BikeController : MonoBehaviour
         {
             previousXPosition = GameManager.Instance.InGAME_PlayerBike.transform.position.x;
             lastZRotation = bikeRb.transform.eulerAngles.z;
-/*            saveDistanceCoroutine = SaveDistanceEveryFewSeconds(30.0f);
-            StartCoroutine(saveDistanceCoroutine);*/
+            /*            saveDistanceCoroutine = SaveDistanceEveryFewSeconds(30.0f);
+                        StartCoroutine(saveDistanceCoroutine);*/
         }
 
     }
@@ -231,11 +242,15 @@ public class BikeController : MonoBehaviour
                         bikeRearWheelJoint.useMotor = true;
                         isAccelerating = true;
                     }
-
-                    if (_touch.phase == TouchPhase.Ended)
+                    else if (_touch.phase == TouchPhase.Ended)
                     {
                         bikeRearWheelJoint.useMotor = false;
                         isAccelerating = false;
+
+                        // Reset acceleration variables
+                        bikeMotor.maxMotorTorque = bikeInitialMaxTorque;
+                        bikeMotor.motorSpeed = 0;
+                        bikeRearWheelJoint.motor = bikeMotor;
                     }
 
                     if ((_touch.phase == TouchPhase.Moved || _touch.phase == TouchPhase.Stationary) && !isAccelerating)
@@ -257,6 +272,11 @@ public class BikeController : MonoBehaviour
                     {
                         bikeRearWheelJoint.useMotor = false;
                         isAccelerating = false;
+
+                        // Reset acceleration variables
+                        bikeMotor.maxMotorTorque = bikeInitialMaxTorque;
+                        bikeMotor.motorSpeed = 0;
+                        bikeRearWheelJoint.motor = bikeMotor;
                     }
                     else if (Input.GetMouseButton(0) && !isAccelerating)
                     {
@@ -268,7 +288,13 @@ public class BikeController : MonoBehaviour
 
             }
             else
+            {
                 isAccelerating = false;
+                // Reset acceleration variables when there is no input
+                bikeMotor.maxMotorTorque = bikeInitialMaxTorque;
+                bikeMotor.motorSpeed = 0;
+                bikeRearWheelJoint.motor = bikeMotor;
+            }
 
             CheckGroundContact();
             CheckSpeedBoost();
@@ -441,6 +467,8 @@ public class BikeController : MonoBehaviour
         Debug.Log("Trail Instance: " + GameManager.Instance.InGAME_PlayerTrail.ToString());
     }
 
+    [SerializeField] public EasingFunction currentEasingFunction = EasingFunction.Linear;
+
     private void HandleBike()
     {
         bool isGrounded = IsGrounded();
@@ -453,10 +481,10 @@ public class BikeController : MonoBehaviour
             float elapsedTime = Time.time - accelerationStartTime;
             float progress = elapsedTime / bikeAccelerationTime;
 
-            float easedProgress = 0.5f * (1 - Mathf.Cos(progress * Mathf.PI)); // Sine easing
+            float easedProgress = ApplyEasing(progress);
 
             bikeMotor.maxMotorTorque = Mathf.Lerp(bikeInitialMaxTorque, bikeMaxTorque, easedProgress);
-            bikeMotor.motorSpeed = bikeMotorSpeed;
+            bikeMotor.motorSpeed = Mathf.Lerp(0, bikeMotorSpeed, easedProgress);
             bikeRearWheelJoint.motor = bikeMotor;
         }
 
@@ -471,6 +499,62 @@ public class BikeController : MonoBehaviour
                 bikeRb.angularVelocity = Mathf.Sign(currentRotationSpeed) * maxAirRotationSpeed;
             }
             bikeRb.AddTorque(flipTorque);
+        }
+    }
+
+    void ChangeEasingFunction(int index)
+    {
+        if (GameManager.Instance.InGAME_PlayerBike != null)
+        {
+            // The index should match the order of options in your Dropdown and the order of your EasingFunction enum
+            currentEasingFunction = (EasingFunction)index;
+        }
+    }
+
+    public enum EasingFunction
+    {
+        Linear,
+        Quadratic,
+        Cubic,
+        Quartic,
+        Quintic,
+        Sine,
+        Cosine,
+        Smoothstep,
+        EaseOutQuad,
+        EaseInOutSine,
+        EaseInSine
+    }
+
+    public float ApplyEasing(float progress)
+    {
+        switch (currentEasingFunction)
+        {
+            case EasingFunction.Linear:
+                return progress;
+            case EasingFunction.Quadratic:
+                return progress * progress;
+            case EasingFunction.Cubic:
+                return progress * progress * progress;
+            case EasingFunction.Quartic:
+                return progress * progress * progress * progress;
+            case EasingFunction.Quintic:
+                return progress * progress * progress * progress * progress;
+            case EasingFunction.Sine:
+                return 0.5f * (1 - Mathf.Cos(progress * Mathf.PI));
+            case EasingFunction.Cosine:
+                return 1 - Mathf.Sin(progress * Mathf.PI / 2);
+            case EasingFunction.Smoothstep:
+                return progress * progress * (3 - 2 * progress);
+            case EasingFunction.EaseOutQuad:
+                return -1 * progress * (progress - 2);
+            case EasingFunction.EaseInOutSine:
+                return -0.5f * (Mathf.Cos(Mathf.PI * progress) - 1);
+            case EasingFunction.EaseInSine:
+                return -1 * Mathf.Cos(progress * (Mathf.PI / 2)) + 1;
+
+            default:
+                return progress;
         }
     }
 
@@ -502,6 +586,8 @@ public class BikeController : MonoBehaviour
         bikeRb.angularVelocity = prevAngularVelocity;
         bikeMotor.motorSpeed = prevMotorSpeed;
     }
+
+ 
 
     private void CheckGroundContact()
     {
