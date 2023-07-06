@@ -7857,7 +7857,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 92e03f7ec91bdd54f82cb95e7e26b6e4, type: 2}
   - {fileID: 11400000, guid: 6af753ebd6637014f8c1dca2041545df, type: 2}
   - {fileID: 11400000, guid: 5672fe0e9a15afb4aac4585c4e81805b, type: 2}
-  CurrentLevelInstance: {fileID: 0}
 --- !u!4 &623875926
 Transform:
   m_ObjectHideFlags: 0
@@ -9825,8 +9824,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BikeList: []
   TrailList: []
-  InGAME_PlayerBike: {fileID: 0}
-  InGAME_PlayerTrail: {fileID: 0}
   PlayerData:
     COINS: 0
     UNLOCKED_BIKES: 
@@ -12340,8 +12337,6 @@ MonoBehaviour:
   B_Paused_Restart: {fileID: 1562480294}
   B_Paused_Resume: {fileID: 1703820003}
   B_Paused_Menu: {fileID: 391039773}
-  startTransitionName: start
-  endTransitionName: end
   startTransition: {fileID: 1143556191}
   endTransition: {fileID: 264792300}
   startTransitionAnimator: {fileID: 1143556193}
@@ -19397,7 +19392,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1043603573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -23802,8 +23797,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 13c6aa912c3bc74489c22f576a23c845, type: 2}
   - {fileID: 11400000, guid: a546880061c35a841a36a40922e57e67, type: 2}
   - {fileID: 11400000, guid: 9f8c90ceeb47d3841b880e27a1d85114, type: 2}
-  bikeData: {fileID: 0}
-  bikeRearWheelJoint: {fileID: 0}
   wheeliePoints: 0
   isAccelerating: 0
   faults: 0

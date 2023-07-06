@@ -43,10 +43,6 @@ public class ShopManager : MonoBehaviour
         Instance = this;
     }
 
-    void Update()
-    {
-    }
-
     void Start()
     {
         Btn_SwitchBike.onClick.AddListener(delegate
@@ -325,7 +321,7 @@ public class ShopManager : MonoBehaviour
 
         // Store the current trail so it can be reattached to the new bike
         Transform _currentTrail = null;
-        Transform _newBikeTrailTransform = null;
+        Transform _trailPosition = null;
         Vector3 _currentTrailLocalPosition = Vector3.zero;
         Quaternion _currentTrailLocalRotation = Quaternion.identity;
 
@@ -334,14 +330,14 @@ public class ShopManager : MonoBehaviour
 
         if (_currentBike != null)
         {
-            _newBikeTrailTransform = _currentBike.transform.Find("Bike Trail");
+            _trailPosition = _currentBike.transform.Find("Bike Trail");
             Transform _currentTrailTransform = _currentBike.transform.Find("Trail");
             if (_currentTrailTransform != null)
             {
                 // Detach the trail from the bike
                 _currentTrail = _currentTrailTransform;
-                _currentTrailLocalPosition = _newBikeTrailTransform.localPosition;
-                _currentTrailLocalRotation = _newBikeTrailTransform.localRotation;
+                _currentTrailLocalPosition = _trailPosition.localPosition;
+                _currentTrailLocalRotation = _trailPosition.localRotation;
                 _currentTrailTransform.parent = null;
             }
 
@@ -364,9 +360,9 @@ public class ShopManager : MonoBehaviour
         if (_currentTrail != null)
         {
             _currentTrail.parent = _currentBike.transform;
-            _currentTrail.localPosition = _newBikeTrailTransform.localPosition;
-            _currentTrail.localRotation = _newBikeTrailTransform.localRotation;
-            Destroy(_newBikeTrailTransform.gameObject);
+            _currentTrail.localPosition = _trailPosition.localPosition;
+            _currentTrail.localRotation = _trailPosition.localRotation;
+            Destroy(_trailPosition.gameObject);
         }
 
         //Debug.Log("Instantiated bike: " + _currentBike.ToString());
@@ -486,7 +482,7 @@ public class ShopManager : MonoBehaviour
         {
             position = currentTrailTransform.position;
             Destroy(currentTrailTransform.gameObject);
-            Destroy(_trailPosition.gameObject);
+            //Destroy(_trailPosition.gameObject);
         }
 
         // Instantiate the new trail at the position of the "Trail" gameobject
