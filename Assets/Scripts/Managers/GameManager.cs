@@ -189,11 +189,11 @@ public class GameManager : MonoBehaviour
         {
             BackgroundParalax.Instance.ResetParallax();
             _bikeController.CAN_CONTROL = true;
-/*            if (BikeController.Instance.saveDistanceCoroutine == null)
+            if (BikeController.Instance.saveDistanceCoroutine == null)
             {
                 _bikeController.saveDistanceCoroutine = _bikeController.SaveDistanceEveryFewSeconds(30.0f);
                 StartCoroutine(_bikeController.saveDistanceCoroutine);
-            }*/
+            }
         }
         else if (gameState == GameState.Menu)
         {

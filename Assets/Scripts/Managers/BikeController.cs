@@ -768,7 +768,7 @@ public class BikeController : MonoBehaviour
         return maxAirHeight - currentHeight;
     }
 
-/*    public IEnumerator SaveDistanceEveryFewSeconds(float delay)
+    public IEnumerator SaveDistanceEveryFewSeconds(float delay)
     {
         while (true)
         {
@@ -777,7 +777,7 @@ public class BikeController : MonoBehaviour
             _data.TOTAL_DISTANCE += GetTotalDistanceInKilometers();
             SaveSystem.SavePlayerData(_data);
         }
-    }*/
+    }
 
     private IEnumerator FadeTrail(bool fadeIn, float duration)
     {
