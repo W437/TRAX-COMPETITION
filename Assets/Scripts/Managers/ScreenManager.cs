@@ -938,6 +938,9 @@ public class ScreenManager : MonoBehaviour
 
         // Menu
         Txt_Menu_Coins.text = PlayerData.COINS + "";
+
+
+
         Txt_Menu_LvlsFinished.text = PlayerData.TOTAL_LEVELS_FINISHED + "/" + LevelManager.Levels.Length;
 
         // Shop

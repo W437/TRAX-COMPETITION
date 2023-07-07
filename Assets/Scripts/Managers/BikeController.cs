@@ -52,6 +52,7 @@ public class BikeController : MonoBehaviour
 
     private float _previousSpeed = 0;
 
+    [Header("Bike Handling")]
     [SerializeField] private float _acceleration = 0;
     [SerializeField] private float bikeMotorSpeed;
     [SerializeField] private float bikeMaxTorque;
@@ -60,12 +61,13 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float maxAirRotationSpeed;
     [SerializeField] private float bikeGroundCheckDistance;
     [SerializeField] private float initialMotorSpeed;
+    [Header("----end-----")]
 
     private float accelerationStartTime;
 
     private float bikeInitialMaxTorque; // Starting torque
 
-    public float wheeliePoints;
+    [NonSerialized] public float wheeliePoints;
 
 
     private float currentMotorSpeed = 0f;

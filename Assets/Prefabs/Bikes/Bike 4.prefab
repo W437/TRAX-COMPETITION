@@ -440,12 +440,12 @@ MonoBehaviour:
   groundCheckCollider: {fileID: 7845807050319465294}
   bikeWheelJoint: {fileID: 7845807050704558631}
   rb_Bike: {fileID: 7845807050704558629}
-  motorSpeed: -5700
+  motorSpeed: -6500
   downwardForce: 50
-  accelerationTime: 2.7
+  accelerationTime: 0
   groundCheckDistance: 0.3
   initialMaxTorque: 0
-  maxTorque: 3
+  maxTorque: 0.5
   maxAirRotationSpeed: 500
   flipTorque: 0.25
   originalFrontWheelColor: {r: 1, g: 1, b: 1, a: 0}

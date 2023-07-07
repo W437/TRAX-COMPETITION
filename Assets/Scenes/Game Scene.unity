@@ -1772,7 +1772,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 952107916}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -7653,7 +7653,7 @@ MonoBehaviour:
   m_YDamping: 12.27
   m_ZDamping: 1
   m_TargetMovementOnly: 1
-  m_ScreenX: 0.13
+  m_ScreenX: 0.1361072
   m_ScreenY: 0.7039999
   m_CameraDistance: 10
   m_DeadZoneWidth: 0.08
@@ -7887,7 +7887,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.9831395, y: -4.1260014, z: 0}
+  m_LocalPosition: {x: -6.005617, y: -4.113542, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7917,7 +7917,7 @@ MonoBehaviour:
   m_Follow: {fileID: 628274119}
   m_Lens:
     FieldOfView: 6.7
-    OrthographicSize: 5.5
+    OrthographicSize: 5.530537
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -8003,6 +8003,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 92e03f7ec91bdd54f82cb95e7e26b6e4, type: 2}
   - {fileID: 11400000, guid: 6af753ebd6637014f8c1dca2041545df, type: 2}
   - {fileID: 11400000, guid: 5672fe0e9a15afb4aac4585c4e81805b, type: 2}
+  - {fileID: 11400000, guid: 0861a13ee5de29145bd4520dabdb9307, type: 2}
 --- !u!4 &623875926
 Transform:
   m_ObjectHideFlags: 0
@@ -12954,7 +12955,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 61535613}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -14778,7 +14779,7 @@ MonoBehaviour:
       spriteIndex: 0
       corner: 1
       m_CornerMode: 1
-  m_SpriteShape: {fileID: 11400000, guid: 26a3778f3a1c4a244853e72532196e70, type: 2}
+  m_SpriteShape: {fileID: 11400000, guid: 5e1301b62cad7494182a378ca3adf18f, type: 2}
   m_FillPixelPerUnit: 256
   m_StretchTiling: 1
   m_SplineDetail: 16
@@ -14838,7 +14839,7 @@ SpriteShapeRenderer:
   m_SortingOrder: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_MaskInteraction: 0
-  m_ShapeTexture: {fileID: 2800000, guid: 843286db471064b4f9187809676bfcbf, type: 3}
+  m_ShapeTexture: {fileID: 2800000, guid: f796242306cdef04fa808fa1d5a05cb2, type: 3}
   m_Sprites:
   - {fileID: 21300000, guid: be6357b6ce483e5499acfd040c2350e8, type: 3}
   - {fileID: 21300000, guid: 608e61deb05c54660bebf5a4dd2ee02d, type: 3}
@@ -24201,7 +24202,6 @@ MonoBehaviour:
   maxAirRotationSpeed: 0
   bikeGroundCheckDistance: 0
   initialMotorSpeed: 0
-  wheeliePoints: 0
   isAccelerating: 0
   faults: 0
   doublePressTime: 0.15
