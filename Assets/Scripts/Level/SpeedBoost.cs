@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class SpeedBoost : MonoBehaviour
 {
-    public float SpeedBoostAmount; // the amount of speed to add
-    public float SpeedBoostDuration; // the duration of the speed boost in seconds
+    public float SpeedBoostAmount;
+    public float SpeedBoostDuration;
     bool flag = false;
 
     private void OnTriggerEnter2D(Collider2D collision)

@@ -197,7 +197,8 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Menu)
         {
-            if(ScreenManager.Instance != null)
+            BackgroundParalax.Instance.ResetParallax();
+            if (ScreenManager.Instance != null)
                 ScreenManager.Instance.RefreshTextValuesFromPlayerData();
             // Delete the previous level instance if it exists
             if (LevelManager.Instance.CurrentLevelInstance != null)
@@ -219,6 +220,7 @@ public class GameManager : MonoBehaviour
         else if (gameState == GameState.Starting)
         {
             BackgroundParalax.Instance.ResetParallax();
+
             if (!InGAME_PlayerBike.activeSelf)
             {
                 InGAME_PlayerBike.SetActive(true);
@@ -287,14 +289,6 @@ public class GameManager : MonoBehaviour
         SetGameState(GameState.Playing);
     }
 
-    IEnumerator ResetParallaxWhenReady()
-    {
-        // Wait until the game camera is active
-        while (CameraController.Instance.GameCamera != null)
-            yield return null;
-
-        BackgroundParalax.Instance.ResetParallax();
-    }
 
     private void OnApplicationFocus(bool hasFocus)
     {

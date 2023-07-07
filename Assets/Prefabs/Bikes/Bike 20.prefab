@@ -442,7 +442,7 @@ MonoBehaviour:
   rb_Bike: {fileID: 7845807050704558629}
   motorSpeed: -9500
   downwardForce: 50
-  accelerationTime: 0
+  accelerationTime: 0.5
   groundCheckDistance: 0.3
   initialMaxTorque: 0
   maxTorque: 2

@@ -911,17 +911,16 @@ public class BikeController : MonoBehaviour
                 bikeBodyCol.enabled = true;
 
             // Make the bike and its components transparent
-            //GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeComponents>().BikeColorAlpha = 0.5f;
-            //TrailManager.Instance.ChangeTrailAlpha(currentTrailInstance, 0.5f);
+            bikeBodyRenderer.color = new Color(1, 1, 1, 0.5f);
+            frontWheelSpriteRenderer.color = new Color(1, 1, 1, 0.5f);
+            backWheelSpriteRenderer.color = new Color(1, 1, 1, 0.5f);
             yield return new WaitForSeconds(0.1f);
 
             // Return to the original colors
-            // BikeBodyRenderer.color = new Color(originalBikeColor.r, originalBikeColor.g, originalBikeColor.b, 1f);
-            // FrontWheelRenderer.color = new Color(originalFrontWheelColor.r, originalFrontWheelColor.g, originalFrontWheelColor.b, 1f);
-            // BackWheelRenderer.color = new Color(originalBackWheelColor.r, originalBackWheelColor.g, originalBackWheelColor.b, 1f);
-            // TrailRenderer.startColor = new Color(originalTrailColor.r, originalTrailColor.g, originalTrailColor.b, 1f);
-            // GameManager.Instance.GamePlayerBikeInstance.GetComponent<BikeComponents>().BikeColorAlpha = 1f;
-            // TrailManager.Instance.ChangeTrailAlpha(currentTrailInstance, 1f);
+            bikeBodyRenderer.color = new Color(1, 1, 1, 1f);
+            frontWheelSpriteRenderer.color = new Color(1, 1, 1, 1f);
+            backWheelSpriteRenderer.color = new Color(1, 1, 1, 1f);
+
             yield return new WaitForSeconds(0.1f);
         }
 

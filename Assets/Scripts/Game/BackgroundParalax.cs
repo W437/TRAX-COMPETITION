@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
+using static GameManager;
 
 public class BackgroundParalax : MonoBehaviour
 {
@@ -15,10 +16,12 @@ public class BackgroundParalax : MonoBehaviour
 
     public Transform sun;
     public Transform finishLine;
+    public Transform startPosition;
     private float totalDistance;
     private Vector3 initialSunPosition;
     private Vector3 playerStartPosition;
     private Camera playerCamera;
+    private SpriteRenderer mainSprite;
 
     private Vector2 lastPos = Vector2.zero;
     private Vector2 delta = Vector2.zero;
@@ -84,34 +87,39 @@ public class BackgroundParalax : MonoBehaviour
         UpdateSunPosition();
     }
 
+    // The sun will start at the right edge of the screen, and will travel all the way to the left at the finish line.
+
     private void UpdateSunPosition()
     {
         if (finishLine != null)
         {
-            // Calculate the distance the player has moved from the starting position along the X axis
-            float distanceMoved = Mathf.Abs(playerCam.position.x - playerStartPosition.x);
+
+            // Calculate the distance the player has moved from the _startPos along the X axis
+            float distanceMoved = Mathf.Abs(playerCam.position.x - startPosition.transform.position.x);
 
             // Get a normalized value representing how far the player has moved towards the finish
             float progress = Mathf.Clamp01(distanceMoved / totalDistance);
 
-            // Convert the sun's position to viewport space
-            Vector3 sunViewportPosition = playerCamera.WorldToViewportPoint(sun.position);
+            // Start from the right (1.0 in viewport coordinates), end at the left (0.0 in viewport coordinates)
+            float newViewportX = Mathf.Lerp(1, 0, progress);
 
-            // Set the sun's new viewport x position based on the progress
-            sunViewportPosition.x = 1 - progress;
+            // Always be at the middle vertically in the viewport
+            float viewportY = 0.5f;
 
-            // Convert the sun's viewport position back to world space, keeping a fixed Z value
-            Vector3 newSunPosition = playerCamera.ViewportToWorldPoint(sunViewportPosition);
-            newSunPosition.z = sun.position.z;
+            // Convert the new viewport position back to world position
+            Vector3 newSunPosition = playerCamera.ViewportToWorldPoint(new Vector3(newViewportX, viewportY, playerCamera.nearClipPlane));
 
             // Update the sun's position
-            sun.position = newSunPosition;
+            sun.position = new Vector3(newSunPosition.x, sun.position.y, newSunPosition.z);
         }
     }
 
-    public void setFinishLine(Transform finishLineTransform)
+
+
+    public void SetSunCalculations(Transform finishLineTransform, Transform startPosition)
     {
         finishLine = finishLineTransform;
+        this.startPosition = startPosition;
         calculateTotalDistance();
     }
 
@@ -119,8 +127,8 @@ public class BackgroundParalax : MonoBehaviour
     {
         if (finishLine != null)
         {
-            totalDistance = Mathf.Abs(finishLine.position.x - playerCam.position.x);
-            playerStartPosition = playerCam.position;
+            totalDistance = Mathf.Abs(finishLine.position.x - startPosition.position.x);
+            playerStartPosition = startPosition.position;
             initialSunPosition = sun.position;
             Debug.Log("Sun finish distance: " + totalDistance );
         }
@@ -238,10 +246,20 @@ public class BackgroundParalax : MonoBehaviour
         var newObject = Instantiate(sprite.gameObject, sampleTransform.position, sprite.transform.rotation);
         var position = newObject.transform.position;
 
+        float newY;
+/*        if (GameManager.Instance.gameState == GameState.Playing)
+        {
+            // The bounds.min.y gives the lowest point of the sprite on the Y-axis,
+            // so if we set our sprite to spawn at that Y position, it should always spawn underneath the ground.
+            newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? mainSprite.bounds.min.y : sprite.transform.position.y;
+        }*/
+
         // Check if the player's current Y position is within the acceptable range of +-10 units
-        float newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? initialPlayerY : sprite.transform.position.y;
+        newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? initialPlayerY : sprite.transform.position.y;
+        
 
         newObject.transform.position = new Vector3(position.x, newY, position.z);
+
         newObject.SetActive(true);
 
         // Adjusting the x-axis translation by the offset
@@ -249,6 +267,16 @@ public class BackgroundParalax : MonoBehaviour
         return newObject;
     }
 
+
+
+
+    public void SetMainSprite(SpriteRenderer newMainSprite)
+    {
+        if (GameManager.Instance.gameState == GameState.Playing)
+        {
+            mainSprite = newMainSprite;
+        }
+    }
 
     protected virtual float getExtraOffset(int id)
     {

@@ -160,82 +160,6 @@ public class PlayerData
         return currentLevelXP / nextLevelXP; 
     }
 
-
-    /*    public void PrintLevelDictionaryData()
-        {
-            Debug.Log("Print Dictionary Data: ");
-            foreach (KeyValuePair<string, LevelStats> item in LEVEL_DICTIONARY)
-            {
-                Debug.Log($"Key: {item.Key} Value: {item.Value.Time}");
-            }
-        }
-
-
-        // Add or update LevelStats for a specific category and level id
-        public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
-        {
-            var _levelList = LevelManager.Instance.Levels;
-            var _playerData = SaveSystem.LoadPlayerData();
-            string key = $"{category}_{levelId}";
-            Debug.Log($"Added stats for: {category}_{levelId}");
-            Debug.Log($"Stats: Time {newStats.Time} Faults: {newStats.Faults}");
-
-
-
-            if (LEVEL_DICTIONARY.ContainsKey(key))
-            {
-                LevelStats existingStats = LEVEL_DICTIONARY[key];
-                Debug.Log($"Existing stats Found: Time {existingStats.Time} Faults: {existingStats.Faults}");
-
-                // Update trophies if necessary
-                //int newTrophies = _levelList[levelId].CalculateTrophies(newStats.Time, newStats.Faults);
-                //newStats.Trophies = Math.Max(newTrophies, existingStats.Trophies);
-
-                // Compare and update other stats as needed
-                if (category == Level.Category.Easy || category == Level.Category.Medium || category == Level.Category.Hard)
-                {
-                    // Time-based levels (Easy, Medium, Hard)
-                    if (newStats.Faults < existingStats.Faults)
-                    {
-                        LEVEL_DICTIONARY[key] = newStats;
-                        return Result.NewTimeRecord;
-                    }
-                    else if (newStats.Faults == existingStats.Faults && newStats.Time < existingStats.Time)
-                    {
-                        LEVEL_DICTIONARY[key] = newStats;
-                        return Result.NewTimeRecord;
-                    }
-                }
-                else if (category == Level.Category.Wheelie || category == Level.Category.Flips)
-                {
-                    // Wheelie and Flips levels
-                    if (newStats.Flips > existingStats.Flips || (newStats.Flips == existingStats.Flips && newStats.Faults < existingStats.Faults))
-                    {
-                        LEVEL_DICTIONARY[key] = newStats;
-                        return Result.NewFlipsRecord;
-                    }
-                    else if (newStats.Wheelie > existingStats.Wheelie || (newStats.Wheelie == existingStats.Wheelie && newStats.Faults < existingStats.Faults))
-                    {
-                        LEVEL_DICTIONARY[key] = newStats;
-                        return Result.NewWheelieRecord;
-                    }
-                }
-
-            }
-            else if(!LEVEL_DICTIONARY.ContainsKey(key))
-            {
-                // New level stats
-                LEVEL_DICTIONARY.Add(key, newStats);
-                Debug.Log($"No stats found. Adding: {newStats.Time} for key: {key}");
-                Debug.Log($"Saved: {LEVEL_DICTIONARY.ContainsKey(key)} \n Value: {LEVEL_DICTIONARY[key].Time}");
-
-                return Result.FirstRecord;
-            }
-            return Result.NoRecord;
-        }*/
-
-
-
     // Add or update LevelStats for a specific category and level id (not needed now since all levels have unique ids)
     public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
     {
@@ -300,7 +224,6 @@ public class PlayerData
         }
         return Result.FirstRecord;
     }
-
 
     public enum Result
     {

@@ -103,9 +103,19 @@ public class LevelManager : MonoBehaviour
         CurrentLevelInstance = Instantiate(Levels[CurrentLevelID].LevelPrefab, LevelGameObject);
         CurrentLevelInstance.SetActive(true);
 
-        Transform finishLine = CurrentLevelInstance.transform.Find("Finish"); 
-                                                                                
-        BackgroundParalax.Instance.setFinishLine(finishLine);
+        // Find the Main Sprite game object in the current level
+        GameObject mainSprite = CurrentLevelInstance.transform.Find("Main Sprite").gameObject;
+
+        // Here you can pass your mainSprite to where you need it, like the BackgroundParalax script.
+        // If the BackgroundParalax script has a method to set the main sprite, it might look like this:
+        Debug.Log("Sprite: " + mainSprite);
+        BackgroundParalax.Instance.SetMainSprite(mainSprite.GetComponent<SpriteRenderer>());
+
+
+        Transform finishLine = CurrentLevelInstance.transform.Find("_Finish");
+        Transform startPosition = CurrentLevelInstance.transform.Find("_StartPos");
+
+        BackgroundParalax.Instance.SetSunCalculations(finishLine, startPosition);
         PlayerData playerData = SaveSystem.LoadPlayerData();
 
         BikeController.Instance.LoadPlayerBike(playerData.SELECTED_BIKE_ID);

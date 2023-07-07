@@ -41,6 +41,10 @@ public class ShopManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        PlayerData _data = SaveSystem.LoadPlayerData();
+        CurrentBikeIndex = _data.SELECTED_BIKE_ID;
+        CurrentTrailIndex = _data.SELECTED_TRAIL_ID;
+        SaveSystem.SavePlayerData(_data);
     }
 
     void Start()
@@ -267,34 +271,61 @@ public class ShopManager : MonoBehaviour
 
     void NextPrefab()
     {
+        PlayerData playerData = SaveSystem.LoadPlayerData();
+
         if (isBikeMode)
         {
             CurrentBikeIndex = (CurrentBikeIndex + 1) % BikeController.Instance.GetAllBikes().Length; // cycle through array
             Debug.Log("Current bike index: " + CurrentBikeIndex);
             Debug.Log("Bike List Length: " + BikeController.Instance.GetAllBikes().Length);
             DisplayBikePrefab(BikeController.Instance.GetAllBikes()[CurrentBikeIndex].BikePrefab);
+
+            if (playerData.UNLOCKED_BIKES.Contains(CurrentBikeIndex))
+            {
+                playerData.SELECTED_BIKE_ID = CurrentBikeIndex;
+            }
         }
         else
         {
             CurrentTrailIndex = (CurrentTrailIndex + 1) % TrailManager.Instance.GetAllTrails().Length;
             DisplayTrailPrefab(TrailManager.Instance.GetAllTrails()[CurrentTrailIndex].TrailPrefab);
+            if (playerData.UNLOCKED_TRAILS.Contains(CurrentTrailIndex))
+            {
+                playerData.SELECTED_TRAIL_ID = CurrentTrailIndex;
+            }
         }
+
+        SaveSystem.SavePlayerData(playerData);
     }
 
     void PreviousPrefab()
     {
+        PlayerData playerData = SaveSystem.LoadPlayerData();
+
         if (isBikeMode)
         {
             CurrentBikeIndex--;
             if (CurrentBikeIndex < 0) CurrentBikeIndex = BikeController.Instance.GetAllBikes().Length - 1;
             DisplayBikePrefab(BikeController.Instance.GetAllBikes()[CurrentBikeIndex].BikePrefab);
+
+            if (playerData.UNLOCKED_BIKES.Contains(CurrentBikeIndex))
+            {
+                playerData.SELECTED_BIKE_ID = CurrentBikeIndex;
+            }
         }
         else
         {
             CurrentTrailIndex--;
             if (CurrentTrailIndex < 0) CurrentTrailIndex = TrailManager.Instance.GetAllTrails().Length - 1;
             DisplayTrailPrefab(TrailManager.Instance.GetAllTrails()[CurrentTrailIndex].TrailPrefab);
+
+            if (playerData.UNLOCKED_TRAILS.Contains(CurrentTrailIndex))
+            {
+                playerData.SELECTED_TRAIL_ID = CurrentTrailIndex;
+            }
         }
+
+        SaveSystem.SavePlayerData(playerData);
     }
 
 
@@ -304,7 +335,7 @@ public class ShopManager : MonoBehaviour
         TrailStatus.SetActive(false);
         BikeStatus.SetActive(true);
         var _playerData = SaveSystem.LoadPlayerData();
-        SelectBike(CurrentBikeIndex);
+        SelectBike(this.CurrentBikeIndex);
         SelectTrail(CurrentTrailIndex);
 
         if (prefab == null)
@@ -372,7 +403,7 @@ public class ShopManager : MonoBehaviour
 
         ScreenManager.Instance.PlayerMenuBikeRb = _currentBike.GetComponent<Rigidbody2D>();
 
-        StartCoroutine(ApplyImpulseAndFreezeRotation()); // Pops bike when switched
+        ApplyImpulseAndFreezeRotation(); // Pops bike when switched
 
 
         // Update the PlayerMenuBike reference in ScreenManager script
@@ -411,13 +442,12 @@ public class ShopManager : MonoBehaviour
             Destroy(playerParticles);
         }
 
-        int bikeId = CurrentBikeIndex;
-        bool isUnlocked = _playerData.UNLOCKED_BIKES.Contains(bikeId);
+        bool isUnlocked = _playerData.UNLOCKED_BIKES.Contains(CurrentBikeIndex);
        
         // Debug.Log("BikeID: " + bikeId + " Is Unlocked?:" + isUnlocked);
         // Debug.Log("Number of Bikes: " + BikeController.Instance.GetAllBikes().Length);
 
-        Bike bikeToBuy = BikeController.Instance.GetAllBikes().FirstOrDefault(t => t.ID == bikeId);
+        Bike bikeToBuy = BikeController.Instance.GetAllBikes().FirstOrDefault(t => t.ID == CurrentBikeIndex);
 
         // Debug.Log("BikeToBuy: " + bikeToBuy + " Info?:" + bikeToBuy.price);
 
@@ -441,20 +471,13 @@ public class ShopManager : MonoBehaviour
         return _currentBike;
     }
 
-    IEnumerator ApplyImpulseAndFreezeRotation()
+    private void ApplyImpulseAndFreezeRotation()
     {
         ScreenManager.Instance.PlayerMenuBikeRb.AddForce(new Vector2(0, 0.3f), ForceMode2D.Impulse);
-
         ScreenManager.Instance.PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        float impulseTime = 0.7f;
-        yield return new WaitForSeconds(impulseTime);
-
-        ScreenManager.Instance.PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.None;
     }
 
-
-    public void DisplayTrailPrefab(GameObject prefab)
+    public GameObject DisplayTrailPrefab(GameObject prefab)
     {
         BikeStatus.SetActive(false);
         TrailStatus.SetActive(true);
@@ -465,13 +488,13 @@ public class ShopManager : MonoBehaviour
         if (prefab == null) 
         {
             Debug.LogError("Prefab is null.");
-            return;
+            return null;
         }
 
         if (_currentBike == null) 
         {
             Debug.LogError("Current player bike is null.");
-            return;
+            return null;
         }
 
         // Corrected the name to "Trail"
@@ -486,8 +509,7 @@ public class ShopManager : MonoBehaviour
         }
 
         // Instantiate the new trail at the position of the "Trail" gameobject
-        int _trailId = CurrentTrailIndex;
-        Trail _trailToBuy = TrailManager.Instance.GetAllTrails().FirstOrDefault(t => t.ID == _trailId);
+        Trail _trailToBuy = TrailManager.Instance.GetAllTrails().FirstOrDefault(t => t.ID == CurrentTrailIndex);
 
         // Parent the new trail to the current bike
         GameObject _currentBikeTrail = Instantiate(prefab, position, Quaternion.identity, ScreenManager.Instance.PlayerMenuBike.transform);
@@ -495,7 +517,7 @@ public class ShopManager : MonoBehaviour
 
         if (_playerData.UNLOCKED_TRAILS != null)
         {
-            bool isUnlocked = _playerData.UNLOCKED_TRAILS.Contains(_trailId);
+            bool isUnlocked = _playerData.UNLOCKED_TRAILS.Contains(CurrentTrailIndex);
 
             if (isUnlocked && !isBikeMode)
             {
@@ -518,7 +540,7 @@ public class ShopManager : MonoBehaviour
         }
         else
             Debug.LogError("unlockedTrails is null");
+
+        return _currentBikeTrail;
     }
-
-
 }

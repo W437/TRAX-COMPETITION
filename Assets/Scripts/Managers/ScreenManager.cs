@@ -187,7 +187,7 @@ public class ScreenManager : MonoBehaviour
     [NonSerialized] public Rigidbody2D PlayerMenuBikeRb;
     public Rigidbody2D MenuPlatformRb;
     [NonSerialized] public ParticleSystem PlayerMenuBikeParticleSystem;
-    [NonSerialized] public TrailRenderer PlayerMenuBikeTrail;
+    [NonSerialized] public GameObject PlayerMenuBikeTrail;
     public GameObject MenuPlatformObject;
     private Vector2 bikePosition;
     public GameObject MenuBikeObjectParent;
@@ -253,8 +253,8 @@ public class ScreenManager : MonoBehaviour
         Debug.Log("Selected Bike ID: " + selectedBikeId);
         Debug.Log("Selected Trail ID: " + selectedTrailId);
         PlayerMenuBike = ShopManager.DisplayBikePrefab(selectedBike);
+        PlayerMenuBikeTrail = ShopManager.DisplayTrailPrefab(selectedTrail);
         PlayerMenuBikeRb = PlayerMenuBike.GetComponent<Rigidbody2D>();
-        ShopManager.DisplayTrailPrefab(selectedTrail);
 
         CameraController.MenuCamera.Follow = PlayerMenuBike.transform;
         CameraController.ShopCamera.Follow = PlayerMenuBike.transform;
@@ -350,7 +350,7 @@ public class ScreenManager : MonoBehaviour
         // Game HUD
         obj = Btn_HUD_PauseGame.transform.localPosition;
         Btn_HUD_PauseGame.transform.localPosition =
-            new Vector2(obj.x - 300f, obj.y);
+            new Vector2(obj.x - 450f, obj.y);
 
         obj = HUD_FaultsBar.transform.localPosition;
         HUD_FaultsBar.transform.localPosition =
@@ -594,7 +594,6 @@ public class ScreenManager : MonoBehaviour
             TweenPauseGame(false);
             GameManager.SavePlayTime();
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
-            BackgroundParalax.Instance.enabled = false;
             LevelManager.StartLevel( LevelManager.CurrentLevelID); });
 
         B_Paused_Menu.onClick.AddListener(delegate {
@@ -633,10 +632,9 @@ public class ScreenManager : MonoBehaviour
             if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
             return; 
             _lastButtonClickTime = Time.time;
-
+            TweenLevelFinishMenu(false);
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
             GameManager.SavePlayTime();
-            LoadLevelsScreen(true);
             StartCoroutine(SwitchScreen_LevelsFromGame());
         });
 
@@ -1066,10 +1064,11 @@ public class ScreenManager : MonoBehaviour
         }
         else
         {
-            LeanTween.moveX(Btn_Shop_RightBtn.GetComponent<RectTransform>(), 800f, 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
-            LeanTween.moveX(Btn_Shop_LeftBtn.GetComponent<RectTransform>(), -800f, 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
-            LeanTween.scale(Btn_Shop_BuyButton.GetComponent<RectTransform>(), new Vector3(0f, 0f, 0f), 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
-            LeanTween.moveX(ShopSelectionObject.GetComponent<RectTransform>(), 900f, 0.55f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveY(Btn_Shop_BackMenu.GetComponent<RectTransform>(), -400f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(Btn_Shop_RightBtn.GetComponent<RectTransform>(), 800f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(Btn_Shop_LeftBtn.GetComponent<RectTransform>(), -800f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.scale(Btn_Shop_BuyButton.GetComponent<RectTransform>(), new Vector3(0f, 0f, 0f), 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(ShopSelectionObject.GetComponent<RectTransform>(), 1100f, 0.55f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(TopOverlayHeader.GetComponent<RectTransform>(), 700f, 0.4f).setEase(LeanTweenType.easeOutExpo).
             setOnComplete(
                 delegate()
@@ -1077,7 +1076,6 @@ public class ScreenManager : MonoBehaviour
                     Panel_Shop.SetActive(false);
                 }
             );
-            LeanTween.moveY(Btn_Shop_BackMenu.GetComponent<RectTransform>(), -400f, 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
         }
     }
 
@@ -1092,7 +1090,7 @@ public class ScreenManager : MonoBehaviour
         }
         else
         {
-            LeanTween.moveX(LevelsBG.GetComponent<RectTransform>(), 850f, 0.45f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(LevelsBG.GetComponent<RectTransform>(), 1100f, 0.45f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveX(LevelsSection.GetComponent<RectTransform>(), -700f, 0.45f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_LevelsMenuBack.GetComponent<RectTransform>(), -350f, 0.45f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
             delegate ()
@@ -1115,9 +1113,9 @@ public class ScreenManager : MonoBehaviour
         }
         else
         {
-            LeanTween.moveX(Settings_Stats.GetComponent<RectTransform>(), 900f, 0.45f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(Settings_Main.GetComponent<RectTransform>(), -900f, 0.45f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(temp_PanelDev.GetComponent<RectTransform>(), 900, 0.45f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(Settings_Stats.GetComponent<RectTransform>(), 1100f, 0.45f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(Settings_Main.GetComponent<RectTransform>(), -1100f, 0.45f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(temp_PanelDev.GetComponent<RectTransform>(), 1100, 0.45f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_SettingsBackMenu.GetComponent<RectTransform>(), -400f, 0.5f).setEase(LeanTweenType.easeOutExpo).
             setOnComplete(
                 delegate()
@@ -1222,7 +1220,7 @@ public class ScreenManager : MonoBehaviour
         if (In)
         {
             Panel_Paused.SetActive(true);
-            LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -550f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -750f, 0.5f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.alpha(Overlay_Paused.GetComponent<RectTransform>(), 0.5f, 0.5f);
             LeanTween.moveX(B_Paused_Resume.GetComponent<RectTransform>(), 5f, 0.55f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveX(B_Paused_Restart.GetComponent<RectTransform>(), -5f, 0.75f).setEase(LeanTweenType.easeOutExpo);
@@ -1239,7 +1237,7 @@ public class ScreenManager : MonoBehaviour
             delegate ()
             {
                 Panel_Paused.SetActive(false);
-                LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -370f, 0.8f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
+                LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -470f, 0.8f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
             });
         }
     }
@@ -1256,7 +1254,7 @@ public class ScreenManager : MonoBehaviour
                 LeanTween.moveX(Btn_LevelFinish_Restart.GetComponent<RectTransform>(), 0f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
                 LeanTween.moveX(Btn_LevelFinish_NextLvl.GetComponent<RectTransform>(), 0f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
                 LeanTween.scale(Btn_LevelFinish_Leaderboard.GetComponent<RectTransform>(), new Vector3(1.45f, 1.45f, 1.45f), 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
-                LeanTween.moveY(Txt_LevelFinish_XPGained.GetComponent<RectTransform>(), -280f, 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(1.5f);
+                LeanTween.moveY(Txt_LevelFinish_XPGained.GetComponent<RectTransform>(), -280f, 0.35f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
                 LeanTween.value(Txt_LevelFinish_XPGained.gameObject, 0, PlayerData.CalculateXpForLevel(CurrentLevelStats), 2f).setEase(LeanTweenType.easeOutExpo).setDelay(1f).setOnUpdate((float value) =>
                 {
                     Txt_LevelFinish_XPGained.text = Mathf.RoundToInt(value).ToString() + " XP GAINED!";
@@ -1292,19 +1290,19 @@ public class ScreenManager : MonoBehaviour
         if (In)
         {
             Panel_GameHUD.SetActive(true);
-            LeanTween.moveX(HUD_TimerBar.GetComponent<RectTransform>(), 0, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
-            LeanTween.moveX(HUD_WheelieBar.GetComponent<RectTransform>(), -45.79999f, 0.85f).setEase(LeanTweenType.easeOutExpo).setDelay(1.2f);
-            LeanTween.moveX(HUD_FlipsBar.GetComponent<RectTransform>(), -67.5f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(1.3f);
-            LeanTween.moveX(HUD_FaultsBar.GetComponent<RectTransform>(), 100f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(1.4f);
-            LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -370f, 0.8f).setEase(LeanTweenType.easeOutExpo).setDelay(1.5f);
+            LeanTween.moveX(HUD_TimerBar.GetComponent<RectTransform>(), -40, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
+            LeanTween.moveX(HUD_WheelieBar.GetComponent<RectTransform>(), -92f, 0.85f).setEase(LeanTweenType.easeOutExpo).setDelay(1.2f);
+            LeanTween.moveX(HUD_FlipsBar.GetComponent<RectTransform>(), -145f, 0.95f).setEase(LeanTweenType.easeOutExpo).setDelay(1.3f);
+            LeanTween.moveX(HUD_FaultsBar.GetComponent<RectTransform>(), 142f, 0.9f).setEase(LeanTweenType.easeOutExpo).setDelay(1.4f);
+            LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -470f, 0.8f).setEase(LeanTweenType.easeOutExpo).setDelay(1.5f);
         }
         else
         {
-            LeanTween.moveX(HUD_TimerBar.GetComponent<RectTransform>(), -300f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(HUD_WheelieBar.GetComponent<RectTransform>(), -345.8f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(HUD_FlipsBar.GetComponent<RectTransform>(), -367.5f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(HUD_FaultsBar.GetComponent<RectTransform>(), 300f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -670f, 0.5f).setEase(LeanTweenType.easeOutExpo)
+            LeanTween.moveX(HUD_TimerBar.GetComponent<RectTransform>(), -400f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(HUD_WheelieBar.GetComponent<RectTransform>(), -400f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(HUD_FlipsBar.GetComponent<RectTransform>(), -400f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(HUD_FaultsBar.GetComponent<RectTransform>(), 400f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(Btn_HUD_PauseGame.GetComponent<RectTransform>(), -870f, 0.5f).setEase(LeanTweenType.easeOutExpo)
             .setOnComplete(
             delegate ()
             {
@@ -1319,11 +1317,11 @@ public class ScreenManager : MonoBehaviour
         {
             MENU_GameLogo.SetActive(true);
             LeanTween.moveY(MENU_GameLogo.GetComponent<RectTransform>(), -150f, 0.5f).setEase(LeanTweenType.easeInOutQuad);
-            LeanTween.scale(MENU_GameLogo, new Vector2(0.45f, 0.45f), 0.7f)
+            LeanTween.scale(MENU_GameLogo, new Vector2(0.41f, 0.41f), 0.7f)
             .setEaseOutBounce() 
             .setOnComplete(() =>
             {
-                LeanTween.scale(MENU_GameLogo, new Vector2(0.42f, 0.42f), 0.5f).setEase(LeanTweenType.easeInOutQuad)
+                LeanTween.scale(MENU_GameLogo, new Vector2(0.35f, 0.35f), 0.5f).setEase(LeanTweenType.easeInOutQuad)
                     .setDelay(0.3f);
             });
         }
@@ -1345,13 +1343,13 @@ public class ScreenManager : MonoBehaviour
             MenuPlatformObject.SetActive(true);
             CameraController.Instance.SwitchToMenuCamera();
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0.5f, 0.5f).setEaseInExpo();
-            LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), 57f, 0.5f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -110f, 0.55f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -244f, 0.55f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -110f, 0.55f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), 80f, 0.5f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -140f, 0.55f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -310f, 0.55f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -140f, 0.55f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveX(MENU_CoinsBar.GetComponent<RectTransform>(), -82f, 0.75f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveX(MENU_LvlsFinishedBar.GetComponent<RectTransform>(), -154f, 0.75f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -150f, 0.55f).setEase(LeanTweenType.easeInOutSine).setDelay(0.2f);
+            LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -130f, 0.55f).setEase(LeanTweenType.easeInOutSine).setDelay(0.2f);
         }
         else
         {
@@ -1359,10 +1357,10 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveX(MENU_CoinsBar.GetComponent<RectTransform>(), -550f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -450f, 0.35f).setEase(LeanTweenType.easeInOutExpo);
             LeanTween.moveX(MENU_LvlsFinishedBar.GetComponent<RectTransform>(), -550f, 0.35f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -1200f, 0.35f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -1200f, 0.35f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -1200f, 0.35f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), -1200f, 0.35f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
+            LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
                 delegate ()
                 {
                     Panel_MainMenu.SetActive(false);
@@ -1381,7 +1379,7 @@ public class ScreenManager : MonoBehaviour
         }
         else
         {
-            LeanTween.moveX(AboutPanel.GetComponent<RectTransform>(), 900, 0.45f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.moveX(AboutPanel.GetComponent<RectTransform>(), 1100, 0.45f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveY(Btn_About_Back.GetComponent<RectTransform>(), -450f, 0.45f).setEase(LeanTweenType.easeInOutSine)
             .setOnComplete(delegate()
             {
@@ -1521,13 +1519,15 @@ public class ScreenManager : MonoBehaviour
 
     private IEnumerator SwitchScreen_LevelsFromGame()
     {
+
         StartCoroutine(PlayTransition());
         yield return new WaitForSeconds(1f);
-        TweenLevelsSection(true);
+        LoadLevelsScreen(true);
     }
 
     private IEnumerator AnimateBikeIn(AnimationWheelieType wheelieType)
     {
+        PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.None;
         float _delay = 2.2f;
         float wheelieDuration = 0.8f + UnityEngine.Random.Range(-0.05f, 0.55f);
         float startRotation = 0; 
@@ -1590,7 +1590,7 @@ public class ScreenManager : MonoBehaviour
         BikeAnimationInCoroutine = null;
         BikeAnimationOutCoroutine = StartCoroutine(CameraController.AnimateScreenX(0.88f, 0.5f, 2));
         yield return new WaitForSeconds(1f);
-        PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.FreezeRotation; // constraint else z rotation is -2~
+        PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.FreezeRotation;
         PlayerMenuBikeRb.SetRotation(1.25f);
     }
 

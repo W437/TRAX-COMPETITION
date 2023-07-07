@@ -1086,7 +1086,7 @@ GameObject:
   - component: {fileID: 8065877447202471036}
   - component: {fileID: 8065877447202471037}
   m_Layer: 8
-  m_Name: Closed Sprite Shape
+  m_Name: Main Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
