@@ -32,10 +32,6 @@ public class ShopManager : MonoBehaviour
     private float _lastButtonClickTime = 0f;
     private float _buttonClickCooldown = 0.5f;
 
-    public int GetCurrentBikeIndex()
-    {
-        return CurrentBikeIndex;
-    }
 
 
     private void Awake()
@@ -142,13 +138,17 @@ public class ShopManager : MonoBehaviour
         ScreenManager.Instance.RefreshTextValuesFromPlayerData();
     }
 
-
     public enum BuyResult
     {
         Success,
         InsufficientFunds,
         InvalidID,
         Owned
+    }
+
+    public int GetCurrentBikeIndex()
+    {
+        return CurrentBikeIndex;
     }
 
     public BuyResult BuyBike(int bikeId)
@@ -247,7 +247,7 @@ public class ShopManager : MonoBehaviour
         SaveSystem.SavePlayerData(playerData);
     }
 
-    void SwitchToBikeMode()
+    private void SwitchToBikeMode()
     {
         isBikeMode = true;
         Btn_SwitchBike.GetComponent<Image>().color = new Color(0,0,0,0.8f);
@@ -255,7 +255,7 @@ public class ShopManager : MonoBehaviour
         DisplayBikePrefab(BikeController.Instance.GetAllBikes()[CurrentBikeIndex].BikePrefab);
     }
 
-    void SwitchToTrailMode()
+    private void SwitchToTrailMode()
     {
         Debug.Log("SwitchToTrailMode called");
         Debug.Log("TrailManager.Instance: " + (TrailManager.Instance == null ? "null" : "exists"));
@@ -269,7 +269,7 @@ public class ShopManager : MonoBehaviour
         DisplayTrailPrefab(TrailManager.Instance.GetAllTrails()[CurrentTrailIndex].TrailPrefab);
     }
 
-    void NextPrefab()
+    private void NextPrefab()
     {
         PlayerData playerData = SaveSystem.LoadPlayerData();
 
@@ -298,7 +298,7 @@ public class ShopManager : MonoBehaviour
         SaveSystem.SavePlayerData(playerData);
     }
 
-    void PreviousPrefab()
+    private void PreviousPrefab()
     {
         PlayerData playerData = SaveSystem.LoadPlayerData();
 
@@ -327,7 +327,6 @@ public class ShopManager : MonoBehaviour
 
         SaveSystem.SavePlayerData(playerData);
     }
-
 
     public GameObject DisplayBikePrefab(GameObject prefab)
     {

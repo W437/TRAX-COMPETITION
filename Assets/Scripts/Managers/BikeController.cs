@@ -252,7 +252,7 @@ public class BikeController : MonoBehaviour
                         // Reset acceleration variables
                         bikeMotor.maxMotorTorque = bikeInitialMaxTorque;
                         bikeMotor.motorSpeed = 0;
-                        bikeRearWheelJoint.motor = bikeMotor;
+                        bikeRearWheelJoint.useMotor = false;
                     }
 
                     if ((_touch.phase == TouchPhase.Moved || _touch.phase == TouchPhase.Stationary) && !isAccelerating)
@@ -278,7 +278,7 @@ public class BikeController : MonoBehaviour
                         // Reset acceleration variables
                         bikeMotor.maxMotorTorque = bikeInitialMaxTorque;
                         bikeMotor.motorSpeed = 0;
-                        bikeRearWheelJoint.motor = bikeMotor;
+                        bikeRearWheelJoint.useMotor = false;
                     }
                     else if (Input.GetMouseButton(0) && !isAccelerating)
                     {
@@ -295,7 +295,7 @@ public class BikeController : MonoBehaviour
                 // Reset acceleration variables when there is no input
                 bikeMotor.maxMotorTorque = bikeInitialMaxTorque;
                 bikeMotor.motorSpeed = 0;
-                bikeRearWheelJoint.motor = bikeMotor;
+                bikeRearWheelJoint.useMotor = false;
             }
 
             CheckGroundContact();
@@ -322,17 +322,9 @@ public class BikeController : MonoBehaviour
 
     public float GetTotalDistanceInKilometers()
     {
-        return totalDistance / 1000f;
+        return totalDistance / 2000f;
     }
 
-    public void StopSavingDistance()
-    {
-        if (saveDistanceCoroutine != null)
-        {
-            StopCoroutine(saveDistanceCoroutine);
-            saveDistanceCoroutine = null;
-        }
-    }
 
     public void LoadPlayerBike(int bikeId)
     {
@@ -480,10 +472,17 @@ public class BikeController : MonoBehaviour
         }
         if (isGrounded && !isSpeedBoosted)
         {
+            // Needs restructuring
+
             float elapsedTime = Time.time - accelerationStartTime;
-            float progress = elapsedTime / bikeAccelerationTime;
+            float progress = elapsedTime * 2;
+            //Debug.Log("Progress: " + progress);
 
             float easedProgress = ApplyEasing(progress);
+            //Debug.Log("easedProgress: " + easedProgress);
+
+            float lerpSpeed = Mathf.Lerp(0, bikeMotorSpeed, easedProgress);
+            //Debug.Log("lerp: " + lerpSpeed);
 
             bikeMotor.maxMotorTorque = Mathf.Lerp(bikeInitialMaxTorque, bikeMaxTorque, easedProgress);
             bikeMotor.motorSpeed = Mathf.Lerp(0, bikeMotorSpeed, easedProgress);
@@ -615,6 +614,7 @@ public class BikeController : MonoBehaviour
             if (internalFlipCount > 0)
             {
                 flipCount += internalFlipCount;
+                
                 Debug.Log("Final Flip Count: " + flipCount);
                 // SAVE DATA
                 var _data = SaveSystem.LoadPlayerData();
@@ -856,17 +856,6 @@ public class BikeController : MonoBehaviour
         return maxAirHeight - currentHeight;
     }
 
-    public IEnumerator SaveDistanceEveryFewSeconds(float delay)
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(delay);
-            var _data = SaveSystem.LoadPlayerData();
-            _data.TOTAL_DISTANCE += GetTotalDistanceInKilometers();
-            SaveSystem.SavePlayerData(_data);
-        }
-    }
-
     private IEnumerator FadeTrail(bool fadeIn, float duration)
     {
         float elapsedTime = 0f;
@@ -924,7 +913,6 @@ public class BikeController : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        // After the loop, ensure the bike's collider is re-enabled and the color is set back to its original state
         bikeBodyCol.enabled = true;
     }
 

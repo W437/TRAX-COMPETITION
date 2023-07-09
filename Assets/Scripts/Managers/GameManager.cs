@@ -65,6 +65,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+
         if (Input.GetKeyUp(KeyCode.R))
         {
             SceneManager.LoadScene(0);
@@ -100,11 +101,12 @@ public class GameManager : MonoBehaviour
         PlayerData.TOTAL_PLAYTIME += seconds;
     }
 
-    public void SavePlayTime()
+    public void SavePlaytimeAndDistance()
     {
         var _data = SaveSystem.LoadPlayerData();
         _data.TOTAL_PLAYTIME = CurrentPlayTime;
-        sessionStartTime = Time.time; // Reset session start time after saving
+        _data.TOTAL_DISTANCE += BikeController.Instance.GetTotalDistanceInKilometers();
+        //sessionStartTime = Time.time; // Reset session start time after saving
         SaveSystem.SavePlayerData(_data);
     }
 
@@ -183,17 +185,12 @@ public class GameManager : MonoBehaviour
 
         if (gameState == GameState.Paused)
         {
-            _bikeController.StopSavingDistance();
+
         }
         else if (gameState == GameState.Playing)
         {
             BackgroundParalax.Instance.ResetParallax();
             _bikeController.CAN_CONTROL = true;
-            if (BikeController.Instance.saveDistanceCoroutine == null)
-            {
-                _bikeController.saveDistanceCoroutine = _bikeController.SaveDistanceEveryFewSeconds(30.0f);
-                StartCoroutine(_bikeController.saveDistanceCoroutine);
-            }
         }
         else if (gameState == GameState.Menu)
         {
@@ -307,8 +304,8 @@ public class GameManager : MonoBehaviour
     void OnApplicationQuit()
     {
         var _data = SaveSystem.LoadPlayerData();
+        SavePlaytimeAndDistance();
         SaveSystem.SavePlayerData(_data);
-        SavePlayTime();
     }
 
 }

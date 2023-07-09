@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cinemachine;
 using UnityEngine;
+using UnityEngine.U2D;
 using static GameManager;
 
 public class BackgroundParalax : MonoBehaviour
@@ -21,7 +22,7 @@ public class BackgroundParalax : MonoBehaviour
     private Vector3 initialSunPosition;
     private Vector3 playerStartPosition;
     private Camera playerCamera;
-    private SpriteRenderer mainSprite;
+    private SpriteShapeRenderer mainSprite;
 
     private Vector2 lastPos = Vector2.zero;
     private Vector2 delta = Vector2.zero;
@@ -247,18 +248,22 @@ public class BackgroundParalax : MonoBehaviour
         var position = newObject.transform.position;
 
         float newY;
-/*        if (GameManager.Instance.gameState == GameState.Playing)
-        {
-            // The bounds.min.y gives the lowest point of the sprite on the Y-axis,
-            // so if we set our sprite to spawn at that Y position, it should always spawn underneath the ground.
-            newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? mainSprite.bounds.min.y : sprite.transform.position.y;
-        }*/
+        /*        if (GameManager.Instance.gameState == GameState.Playing)
+                {
+                    // The bounds.min.y gives the lowest point of the sprite on the Y-axis,
+                    // so if we set our sprite to spawn at that Y position, it should always spawn underneath the ground.
+                    newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? mainSprite.bounds.min.y : sprite.transform.position.y;
+                }
+                else
+                {
+                    // Check if the player's current Y position is within the acceptable range of +-10 units
+                    newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? initialPlayerY : sprite.transform.position.y;
 
-        // Check if the player's current Y position is within the acceptable range of +-10 units
-        newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 10 ? initialPlayerY : sprite.transform.position.y;
-        
+                }*/
 
-        newObject.transform.position = new Vector3(position.x, newY, position.z);
+        newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 250 ? initialPlayerY : sprite.transform.position.y;
+
+        newObject.transform.position = new Vector3(position.x, newY+1, position.z);
 
         newObject.SetActive(true);
 
@@ -270,12 +275,9 @@ public class BackgroundParalax : MonoBehaviour
 
 
 
-    public void SetMainSprite(SpriteRenderer newMainSprite)
+    public void SetMainSprite(SpriteShapeRenderer newMainSprite)
     {
-        if (GameManager.Instance.gameState == GameState.Playing)
-        {
-            mainSprite = newMainSprite;
-        }
+        mainSprite = newMainSprite;
     }
 
     protected virtual float getExtraOffset(int id)

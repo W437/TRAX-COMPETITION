@@ -18,6 +18,6 @@ MonoBehaviour:
   Trophy2Time: 200
   Trophy3Time: 150
   LeaderboardID: 0
-  MaxFault2Trophies: 5
-  MaxFaults1Trophy: 10
+  MaxFault2Trophies: 10
+  MaxFaults1Trophy: 15
   LevelCategory: 0

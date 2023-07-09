@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using System;
+using UnityEngine.U2D;
 
 public class LevelManager : MonoBehaviour
 {
@@ -108,8 +109,8 @@ public class LevelManager : MonoBehaviour
 
         // Here you can pass your mainSprite to where you need it, like the BackgroundParalax script.
         // If the BackgroundParalax script has a method to set the main sprite, it might look like this:
-        Debug.Log("Sprite: " + mainSprite);
-        BackgroundParalax.Instance.SetMainSprite(mainSprite.GetComponent<SpriteRenderer>());
+        BackgroundParalax.Instance.SetMainSprite(mainSprite.GetComponent<SpriteShapeRenderer>());
+
 
 
         Transform finishLine = CurrentLevelInstance.transform.Find("_Finish");
@@ -133,7 +134,6 @@ public class LevelManager : MonoBehaviour
         GameManager.Instance.ResetLevelStats();
         CameraController.Instance.SwitchToGameCamera();
         BackgroundParalax.Instance.ResetParallax();
-        BackgroundParalax.Instance.enabled = true;
 
     }
 

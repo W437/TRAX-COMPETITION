@@ -361,8 +361,8 @@ WheelJoint2D:
   m_Anchor: {x: -7.0800056, y: -3.1499999}
   m_ConnectedAnchor: {x: 0.0000004172325, y: 0.0000005364418}
   m_Suspension:
-    m_DampingRatio: 0.7
-    m_Frequency: 6.05
+    m_DampingRatio: 0.65
+    m_Frequency: 6.8
     m_Angle: 90
   m_UseMotor: 0
   m_Motor:
@@ -385,8 +385,8 @@ WheelJoint2D:
   m_Anchor: {x: 7.0699954, y: -2.7699986}
   m_ConnectedAnchor: {x: 0, y: 0.0000005364418}
   m_Suspension:
-    m_DampingRatio: 0.7
-    m_Frequency: 5.48
+    m_DampingRatio: 0.75
+    m_Frequency: 7.2
     m_Angle: 90
   m_UseMotor: 0
   m_Motor:
@@ -405,8 +405,8 @@ CapsuleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.3, y: 0.91}
-  m_Size: {x: 12.77, y: 3.6}
+  m_Offset: {x: -0.6062626, y: 1.0073667}
+  m_Size: {x: 11.68638, y: 2.3812735}
   m_Direction: 1
 --- !u!114 &7845807050704558648
 MonoBehaviour:
@@ -525,11 +525,11 @@ MonoBehaviour:
   bikeWheelJoint: {fileID: 7845807050704558631}
   rb_Bike: {fileID: 7845807050704558629}
   motorSpeed: -9500
-  downwardForce: 50
-  accelerationTime: 1
+  downwardForce: 500
+  accelerationTime: 0
   groundCheckDistance: 0.3
   initialMaxTorque: 0
-  maxTorque: 2
+  maxTorque: 1.25
   maxAirRotationSpeed: 500
   flipTorque: 0.25
   originalFrontWheelColor: {r: 1, g: 1, b: 1, a: 0}
