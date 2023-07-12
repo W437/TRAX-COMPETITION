@@ -424,7 +424,7 @@ public class ShopManager : MonoBehaviour
         CameraController.Instance.SettingsCamera.Follow = _currentBike.transform;
         CameraController.Instance.ShopCamera.Follow = _currentBike.transform;
 
-        Debug.Log("Current bike: " + _currentBike);
+        //Debug.Log("Current bike: " + _currentBike);
 
         // Exclude unnecessary components from the instantiated bike (for Menu Only)
         BikeComponents bikeComponents = _currentBike.GetComponent<BikeComponents>();

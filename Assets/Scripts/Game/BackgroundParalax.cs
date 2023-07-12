@@ -263,7 +263,7 @@ public class BackgroundParalax : MonoBehaviour
 
         newY = Mathf.Abs(playerCam.position.y - initialPlayerY) <= 250 ? initialPlayerY : sprite.transform.position.y;
 
-        newObject.transform.position = new Vector3(position.x, newY+1, position.z);
+        newObject.transform.position = new Vector3(position.x, newY, position.z);
 
         newObject.SetActive(true);
 

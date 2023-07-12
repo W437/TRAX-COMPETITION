@@ -10,38 +10,6 @@ using System.Linq;
 public class LeaderboardManager : MonoBehaviour
 {
     private static LeaderboardManager _instance;
-    [SerializeField] private GameObject LB_EntryBar;
-    [SerializeField] private Transform LB_EntryParent;
-    [SerializeField] private Button LB_RefreshBtn;
-    [SerializeField] public GameObject PlayerNameInputWindow;
-    [SerializeField] private TMPro.TextMeshProUGUI PlayerNameInput;
-    [SerializeField] private int MaxPlayerNameLength = 16;
-    [SerializeField] private Color32[] LBTop5Colors;
-    private static string PlayerDisplayName = "Wael";
-    private List<Sprite> flagSprites;
-    public GameObject loadingAnimation;
-
-    // Leaderboard names
-    public static string LB_STATS = "STATS";
-    public static string LB_Level1_Points = "LEVEL1_POINTS";
-
-    void Awake()
-    {
-        _instance = this;
-        PlayFabLogin(SystemInfo.deviceUniqueIdentifier);
-        DontDestroyOnLoad(gameObject);
-    }
-
-
-    private void Start()
-    {
-        Debug.Log("DisplayName: " + PlayerDisplayName);
-       /* LB_RefreshBtn.onClick.AddListener(OnRefreshBtnClick);*/
-        LoadFlags();
-
-    }
-
-
     public static LeaderboardManager Instance
     {
         get
@@ -52,12 +20,51 @@ public class LeaderboardManager : MonoBehaviour
         }
     }
 
-    private void PlayFabLogin(string id)
-    {
+    private ScreenManager ScreenManager;
+    [SerializeField] private GameObject LB_EntryBar;
+    [SerializeField] private Transform LB_EntryParent;
 
+    [SerializeField] private Button LB_RefreshBtn;
+
+    [SerializeField] private int MaxPlayerNameLength = 16;
+
+    [SerializeField] private Color32[] LBTop5Colors;
+
+
+    private List<Sprite> flagSprites;
+    public GameObject loadingAnimation;
+
+    // TRAX SYS
+
+    public bool IsLoggedIn { get; private set; } = false;
+
+    public LoginType currentLoginType;
+    public string PlayerDisplayName;
+
+    void Awake()
+    {
+        _instance = this;
+        PlayFabLogin();
+        DontDestroyOnLoad(gameObject);
+    }
+
+
+    private void Start()
+    {
+        ScreenManager = ScreenManager.Instance;
+        Debug.Log("DisplayName: " + PlayerDisplayName);
+       /* LB_RefreshBtn.onClick.AddListener(OnRefreshBtnClick);*/
+        LoadFlags();
+
+    }
+
+
+    // Modified PlayFab login function
+    private void PlayFabLogin()
+    {
         var request = new LoginWithCustomIDRequest
         {
-            CustomId = id,
+            CustomId = currentLoginType == LoginType.DeviceID ? SystemInfo.deviceUniqueIdentifier : PlayerDisplayName,
             CreateAccount = true,
             InfoRequestParameters = new GetPlayerCombinedInfoRequestParams
             {
@@ -68,37 +75,12 @@ public class LeaderboardManager : MonoBehaviour
         PlayFabClientAPI.LoginWithCustomID(request, OnLoginSuccess, OnLoginFailure);
     }
 
-    void GetPlayerProfile(string playFabId, Action<string> callback)
-    {
-        PlayFabClientAPI.GetPlayerProfile(new GetPlayerProfileRequest()
-        {
-            PlayFabId = playFabId,
-            ProfileConstraints = new PlayerProfileViewConstraints()
-            {
-                ShowLocations = true
-            }
-        },
-        result => {
-            var countryCode = result.PlayerProfile.Locations[result.PlayerProfile.Locations.Count - 1].CountryCode.ToString();
-            callback(countryCode);
-        },
-        error => Debug.LogError(error.GenerateErrorReport()));
-    }
-
-    public void ResetPlayFabLoginID()
-    {
-        string newId = "";
-        for (int i = 0; i < 10; i++)
-            newId += (char)UnityEngine.Random.Range(97, 122);
-        Debug.Log(newId);
-        PlayFabLogin(newId);
-    }
-
 
     private void OnLoginSuccess(LoginResult result)
     {
         Debug.Log("Login successful!");
-        string name = null;
+        IsLoggedIn = true;
+        string name;
         if (result.InfoResultPayload.PlayerProfile != null)
         {
             name = PlayerDisplayName;
@@ -111,172 +93,128 @@ public class LeaderboardManager : MonoBehaviour
             PlayerNameInputWindow.SetActive(true);*/
     }
 
-
     private void OnLoginFailure(PlayFabError error)
     {
+        IsLoggedIn = false;
         Debug.LogError("Login failed: " + error.GenerateErrorReport());
     }
 
-
-    void OnError(PlayFabError error)
+    private void OnError(PlayFabError error)
     {
         Debug.Log("Error while logging/creating account.");
         Debug.Log(error.GenerateErrorReport());
     }
 
-
-    public void SendLeaderboardStats(string time, string lb_name)
-    {
-        int score = TimeStringToMilliseconds(time);
-        var request = new UpdatePlayerStatisticsRequest
-        {
-            Statistics = new List<StatisticUpdate> {
-                new StatisticUpdate{
-                    StatisticName = lb_name,
-                    Value = score
-                }
-            }
-        };
-        PlayFabClientAPI.UpdatePlayerStatistics(request, OnLeaderboardUpdate, OnError);
-    }
-
-    public void SendLeaderboardPoints(int points, string lb_name)
+    public void SendAllStats(string level_key, float time, int faults, int flips, float wheelie)
     {
         var request = new UpdatePlayerStatisticsRequest
         {
-            Statistics = new List<StatisticUpdate> {
-                new StatisticUpdate{
-                    StatisticName = lb_name,
-                    Value = points
-                }
+            Statistics = new List<StatisticUpdate>
+        {
+            new StatisticUpdate
+            {
+                StatisticName = $"Time_{level_key}",
+                Value = Convert.ToInt32(time)
+            },
+            new StatisticUpdate
+            {
+                StatisticName = $"Faults_{level_key}",
+                Value = faults
+            },
+            new StatisticUpdate
+            {
+                StatisticName = $"Flips_{level_key}",
+                Value = flips
+            },
+            new StatisticUpdate
+            {
+                StatisticName = $"Wheelie_{level_key}",
+                Value = Convert.ToInt32(wheelie)
             }
+        }
         };
+
         PlayFabClientAPI.UpdatePlayerStatistics(request, OnLeaderboardUpdate, OnError);
     }
 
-    // 255, 159, 0, 111
-    // 200, 125
-    // 145. 90
-    // 75, 47
-    // 32, 20
+    public void GetPlayerStatsData(string level_key, string playerID, Action<string, float, int, int, int> callback)
+    {
+        int requestsRemaining = 4;  // Number of statistics to retrieve
+        float time = 0;
+        int faults = 0, flips = 0, wheelie = 0;
 
-    void OnLeaderboardUpdate(UpdatePlayerStatisticsResult result)
+        Action<int> processResult = result =>
+        {
+            requestsRemaining--;
+            if (requestsRemaining <= 0)
+                callback(playerID, time, faults, flips, wheelie);
+        };
+
+        GetPlayerLeaderboardData(playerID, $"Time_{level_key}", result => { time = result; processResult(result); });
+        GetPlayerLeaderboardData(playerID, $"Faults_{level_key}", result => { faults = result; processResult(result); });
+        GetPlayerLeaderboardData(playerID, $"Flips_{level_key}", result => { flips = result; processResult(result); });
+        GetPlayerLeaderboardData(playerID, $"Wheelie_{level_key}", result => { wheelie = result; processResult(result); });
+    }
+
+    public void GetAllPlayerStats(string level_key, Action<List<(string playerID, string playerName, float time, int faults, int flips, int wheelie)>> callback)
+    {
+        GetLeaderboardData($"Faults_{level_key}", result =>
+        {
+            List<(string playerID, string playerName, float time, int faults, int flips, int wheelie)> playerStats = new List<(string playerID, string playerName, float time, int faults, int flips, int wheelie)>();
+            int remainingPlayerStats = result.Count;
+
+            foreach (var player in result)
+            {
+                GetPlayerStatsData(level_key, player.PlayFabId, (playerID, time, faults, flips, wheelie) =>
+                {
+                    playerStats.Add((playerID, player.DisplayName, time, faults, flips, wheelie));
+
+                    remainingPlayerStats--;
+                    if (remainingPlayerStats <= 0)
+                    {
+                        callback(playerStats);
+                    }
+                });
+            }
+        });
+    }
+
+
+
+    private void OnLeaderboardUpdate(UpdatePlayerStatisticsResult result)
     {
         Debug.Log("Sucessfull leaderboard sent.");
     }
 
-
-/*    void OnRefreshBtnClick()
+    public void UpdateLeaderboardUI(string level_key)
     {
-        if (ScreenManager.Instance._LastPressTime + GameManager.Instance._PressDelay + 2 > Time.unscaledTime)
-            return;
-        else
-            UpdateLeaderboardUI();
-        GameManager.Instance._LastPressTime = Time.unscaledTime;
-    }*/
-
-    public void UpdateLeaderboardUI()
-    {
+        Debug.Log("LB Key: " + level_key);
         ResetLeaderboardEntries();
-        var request = new GetLeaderboardRequest
+        int rank = 1;
+        GetAllPlayerStats(level_key, result =>
         {
-            StatisticName = "Stats",
-            StartPosition = 0,
-            MaxResultsCount = 100
-        };
+            result = result.OrderBy(r => r.faults).ThenBy(r => r.time).ToList();
 
-/*        var request2 = new GetLeaderboardRequest
-        {
-            StatisticName = "LEVEL1_POINTS",
-            StartPosition = 0,
-            MaxResultsCount = 100
-        };*/
-
-/*        loadingAnimation.SetActive(true);*/
-
-        PlayFabClientAPI.GetLeaderboard(request, result =>
-        {
-            // Ascending to Descending order (because PlayFab doesn't provide order setting)
-            result.Leaderboard.Reverse();
-
-            int rank = 1;
-            // Loop through the leaderboard data and add it to the UI
-            foreach (var item in result.Leaderboard)
+            foreach (var playerStats in result)
             {
                 var lbEntryBarObject = Instantiate(LB_EntryBar, LB_EntryParent);
 
-                string playerName = TruncateString(item.DisplayName);
-                int playerScore = (int)item.StatValue;
+                LBEntry LBEntry = lbEntryBarObject.GetComponent<LBEntry>();
 
-                var entryHighlight = lbEntryBarObject.GetComponent<Image>();
-/*                // Top 5 entries color grading
-                switch (rank)
-                {
-                    case 1:
-                        entryHighlight.color = LBTop5Colors[rank - 1];
-                        break;
-                    case 2:
-                        entryHighlight.color = LBTop5Colors[rank - 1];
-                        break;
-                    case 3:
-                        entryHighlight.color = LBTop5Colors[rank - 1];
-                        break;
-                    case 4:
-                        entryHighlight.color = LBTop5Colors[rank - 1];
-                        break;
-                    case 5:
-                        entryHighlight.color = LBTop5Colors[rank - 1];
-                        break;
-                    default:
-                        break;
-                }*/
+                string playerName = playerStats.playerName;
+                string playerTime = FormatScore(playerStats.time);
+                int playerFaults = playerStats.faults;
+                int playerFlips = playerStats.flips;
+                int playerWheelie = playerStats.wheelie;
 
-                // highlight current player entry
-                if (item.DisplayName == PlayerDisplayName)
-                {
-                    Debug.Log("inside display: " + PlayerDisplayName);
-                    entryHighlight.color = new Color32(180, 180, 180, 130);
-                }
-
-                // Convert the score to the desired format 
-                string scoreString = FormatScore(playerScore);
-
-                // iterate over prefab text separately
-                int childIndex = 0;
-               /* foreach (TMPro.TextMeshProUGUI child in childTexts)
-                {
-                    int points = 0;
-                    switch (childIndex)
-                    {
-                        // Rank & name
-                        case 0:
-                            child.text = "asd";
-                            break;
-
-                        // Time & POINTS
-                        case 1:
-                            child.text = "asd";
-
-                            break;
-
-                        case 2:
-                            child.text = "asd";
-
-                            break;
-
-                        default:
-                            break;
-                    }
-                    childIndex++;
-                }
-                rank++;*/
+                LBEntry.Txt_PlayerName.text = rank + ". " + playerName;
+                LBEntry.Txt_Time.text = playerTime;
+                LBEntry.Txt_Faults.text = playerFaults + "";
+                LBEntry.Txt_Flips.text = playerFlips + "";
+                LBEntry.Txt_Wheelie.text = playerWheelie + "";
+                rank++;
             }
-            /*loadingAnimation.SetActive(false);*/
-        }, error =>
-        {
-            Debug.LogError("Failed to retrieve leaderboard: " + error.GenerateErrorReport());
         });
-
     }
 
 
@@ -307,8 +245,23 @@ public class LeaderboardManager : MonoBehaviour
         });
     }
 
+    public void GetLeaderboardData(string statisticName, Action<List<PlayerLeaderboardEntry>> callback)
+    {
+        var request = new GetLeaderboardRequest
+        {
+            StatisticName = statisticName,
+            StartPosition = 0,
+            MaxResultsCount = 100
+        };
 
-
+        PlayFabClientAPI.GetLeaderboard(request, result =>
+        {
+            callback(result.Leaderboard);
+        }, error =>
+        {
+            Debug.LogError("Failed to retrieve leaderboard: " + error.GenerateErrorReport());
+        });
+    }
 
     public void ResetLeaderboardEntries()
     {
@@ -319,69 +272,31 @@ public class LeaderboardManager : MonoBehaviour
         }
     }
 
-
-    public void OnPlayerSubmitName()
+    public void UpdateDisplayName(string newName)
     {
         var request = new UpdateUserTitleDisplayNameRequest
         {
-            DisplayName = PlayerNameInput.text,
+            DisplayName = newName
         };
+
         PlayFabClientAPI.UpdateUserTitleDisplayName(request, OnDisplayNameUpdate, OnError);
     }
 
-
-    void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
+    private void OnDisplayNameUpdate(UpdateUserTitleDisplayNameResult result)
     {
         PlayerDisplayName = result.DisplayName;
         PlayerPrefs.SetString("PLAYER_PLAYFAB_NAME", PlayerDisplayName);
         Debug.Log("changed display: " + PlayerDisplayName);
-        PlayerNameInputWindow.SetActive(false);
     }
 
-
-    private string FormatScore(int score)
+    private string FormatScore(float score)
     {
         TimeSpan time = TimeSpan.FromMilliseconds(score);
-        return string.Format("{0:D2}:{1:D2}:{2:D3}", time.Minutes, time.Seconds, time.Milliseconds);
+        int twoDigitMilliseconds = (int)Math.Round(time.Milliseconds / 10.0);
+        return string.Format("{0}:{1:D2}:{2:D2}", time.Minutes, time.Seconds, twoDigitMilliseconds);
     }
 
-
-    private string GetFlagIconUrl(string countryCode)
-    {
-        return "https://flagicons.lipis.dev/flags/4x3/" + countryCode.ToLower() + "/.svg";
-    }
-
-
-    public int TimeStringToMilliseconds(string timeString)
-    {
-        string[] parts = timeString.Split(':');
-
-        int minutes = int.Parse(parts[0]);
-        int seconds = int.Parse(parts[1]);
-        int milliseconds = int.Parse(parts[2]);
-
-        int totalMilliseconds = (minutes * 60 * 1000) + (seconds * 1000) + milliseconds;
-
-        return totalMilliseconds;
-    }
-
-
-    public string MillisecondsToTimeString(int milliseconds)
-    {
-        TimeSpan time = TimeSpan.FromMilliseconds(milliseconds);
-        return string.Format("{0:D2}:{1:D2}:{2:D2}", time.Minutes, time.Seconds, time.Milliseconds / 10);
-    }
-
-    private string TruncateString(string str)
-    {
-        if (str == null) { str = "null"; }
-        if (str.Length > MaxPlayerNameLength)
-            return str.Substring(0, MaxPlayerNameLength - 2) + "..";
-        else
-            return str;
-    }
-
-    void LoadFlags()
+    private void LoadFlags()
     {
         flagSprites = new List<Sprite>();
 
@@ -392,10 +307,15 @@ public class LeaderboardManager : MonoBehaviour
         flagSprites.AddRange(sprites);
     }
 
-    //  PLAYFAB: INT TIME IN SECONDS
-    //  Convert player time string to milliseconds (int)
-    //  Push to LB
-    // When getting from LB to display to UI, convert ms to String format mm:ss:ms
-
-
+    public void SwitchLoginType(LoginType newLoginType, string newPlayerName = "")
+    {
+        currentLoginType = newLoginType;
+        PlayerDisplayName = newPlayerName;
+        PlayFabLogin();
+    }
+    public enum LoginType
+    {
+        DeviceID,
+        PlayerName
+    }
 }

@@ -20,7 +20,7 @@ public class LevelEnd : MonoBehaviour
     {
         if (other.CompareTag("Player") && !collided)
         {
-            Debug.Log("Finish Collision");
+            //Debug.Log("Finish Collision");
             collided = true;
             FinishLineParticles.Play();
             ScreenManager.OnLevelFinish();

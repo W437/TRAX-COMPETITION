@@ -7,11 +7,13 @@ using static GameManager;
 using Lofelt.NiceVibrations;
 using UnityEngine.UIElements;
 using UnityEngine.UI;
+using Unity.Burst.CompilerServices;
 
 public class BikeController : MonoBehaviour
 {
     public static BikeController Instance;
     private TrailManager TrailManager;
+    private GameManager GameManager;
 
     public bool CAN_CONTROL = false; // debugging
 
@@ -138,9 +140,12 @@ public class BikeController : MonoBehaviour
 
     void Start()
     {
+        GameManager = GameManager.Instance;
+        TrailManager = TrailManager.Instance;
+
         if(bikeRb != null)
         {
-            previousXPosition = GameManager.Instance.InGAME_PlayerBike.transform.position.x;
+            previousXPosition = GameManager.InGAME_PlayerBike.transform.position.x;
             lastZRotation = bikeRb.transform.eulerAngles.z;
             /*            saveDistanceCoroutine = SaveDistanceEveryFewSeconds(30.0f);
                         StartCoroutine(saveDistanceCoroutine);*/
@@ -150,11 +155,16 @@ public class BikeController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isAccelerating && GameManager.Instance.gameState == GameState.Playing)
+        if (isAccelerating && GameManager.gameState == GameState.Playing)
             HandleBike();
         else if (bikeRearWheelJoint != null)
             bikeRearWheelJoint.useMotor = false;    
     }
+
+
+    // Height from ground check
+    float maxDistance = 100f;
+    RaycastHit2D bikeAltitude;
 
     void Update()
     {
@@ -163,9 +173,22 @@ public class BikeController : MonoBehaviour
         _acceleration = (currentSpeed - _previousSpeed) / Time.deltaTime;
         _previousSpeed = currentSpeed;
 
-        var _gameState = GameManager.Instance.gameState;
+        var _gameState = GameManager.gameState;
         if(_gameState == GameState.Playing)
         {
+            bikeAltitude = Physics2D.Raycast(bikeRb.position, Vector2.down, maxDistance, GameManager.GroundLayer);
+            Debug.DrawRay(bikeRb.position, Vector2.down * maxDistance, Color.red);
+
+            if (bikeAltitude.collider != null)
+            {
+                // If the ray hit a collider, calculate the distance
+                float distance = Vector2.Distance(bikeRb.position, bikeAltitude.point);
+
+                // Display the distance
+                Debug.Log("Distance: " + distance);
+                Debug.DrawRay(bikeRb.position, Vector2.down * maxDistance, Color.green);
+            }
+
             maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
             bool _isGrounded = IsGrounded();
 
@@ -174,9 +197,9 @@ public class BikeController : MonoBehaviour
             frameCounter++;
             if (frameCounter >= frameThreshold)
             {
-                float distanceThisFrame = Mathf.Abs(GameManager.Instance.InGAME_PlayerBike.transform.position.x - previousXPosition);
+                float distanceThisFrame = Mathf.Abs(GameManager.InGAME_PlayerBike.transform.position.x - previousXPosition);
                 totalDistance += distanceThisFrame;
-                previousXPosition = GameManager.Instance.InGAME_PlayerBike.transform.position.x;
+                previousXPosition = GameManager.InGAME_PlayerBike.transform.position.x;
                 frameCounter = 0;
             }
 
@@ -336,8 +359,8 @@ public class BikeController : MonoBehaviour
         }
 
         // Destroy existing bike
-        if (GameManager.Instance.InGAME_PlayerBike != null)
-            Destroy(GameManager.Instance.InGAME_PlayerBike);
+        if (GameManager.InGAME_PlayerBike != null)
+            Destroy(GameManager.InGAME_PlayerBike);
 
         // Find the bike with the matching bikeId
         Bike _matchingBikeData = BikeList.FirstOrDefault(b => b.ID == bikeId);
@@ -348,11 +371,11 @@ public class BikeController : MonoBehaviour
         }
         
         // Instantiate the player bike
-        GameManager.Instance.InGAME_PlayerBike = Instantiate(_matchingBikeData.BikePrefab, GameManager.Instance.playerObjectParent.transform);
-        Debug.Log("Bike Instance: " + GameManager.Instance.InGAME_PlayerBike.ToString());
+        GameManager.InGAME_PlayerBike = Instantiate(_matchingBikeData.BikePrefab, GameManager.playerObjectParent.transform);
+        Debug.Log("Bike Instance: " + GameManager.InGAME_PlayerBike.ToString());
         // Assign
-        CurrentBikeParticles = GameManager.Instance.InGAME_PlayerBike.GetComponent<BikeParticles>();
-        CurrentBikeComponents = GameManager.Instance.InGAME_PlayerBike.GetComponent<BikeComponents>();
+        CurrentBikeParticles = GameManager.InGAME_PlayerBike.GetComponent<BikeParticles>();
+        CurrentBikeComponents = GameManager.InGAME_PlayerBike.GetComponent<BikeComponents>();
 
         if (CurrentBikeComponents == null)
         {
@@ -389,29 +412,29 @@ public class BikeController : MonoBehaviour
             Debug.Log("All bike components linked.");
         }
 
-        if (GameManager.Instance.firstLaunch)
+        if (GameManager.firstLaunch)
         {
-            GameManager.Instance.InGAME_PlayerBike.SetActive(false);
-            Debug.Log("First launch: " + GameManager.Instance.firstLaunch);
-            GameManager.Instance.firstLaunch = false;
+            GameManager.InGAME_PlayerBike.SetActive(false);
+            Debug.Log("First launch: " + GameManager.firstLaunch);
+            GameManager.firstLaunch = false;
         }
 
         else
         {
-            GameManager.Instance.InGAME_PlayerBike.SetActive(true);
+            GameManager.InGAME_PlayerBike.SetActive(true);
         }
 
         // Load the trail as a child of the bike
         int _selectedTrailId = _playerData.SELECTED_TRAIL_ID;
-        GameObject selectedTrail = TrailManager.Instance.GetTrailById(_selectedTrailId).TrailPrefab;
+        GameObject selectedTrail = TrailManager.GetTrailById(_selectedTrailId).TrailPrefab;
 
         if (selectedTrail != null)
         {
             // Instantiate the trail as a child of the bike
-            currentTrailInstance = Instantiate(selectedTrail, GameManager.Instance.InGAME_PlayerBike.transform);
+            currentTrailInstance = Instantiate(selectedTrail, GameManager.InGAME_PlayerBike.transform);
 
             // Find the Bike Trail empty GameObject in the bike prefab
-            Transform bikeTrailTransform = GameManager.Instance.InGAME_PlayerBike.transform.Find("Bike Trail");
+            Transform bikeTrailTransform = GameManager.InGAME_PlayerBike.transform.Find("Bike Trail");
             if (bikeTrailTransform != null)
             {
                 // Set the position of the trail to the position of the BikeTrail object
@@ -426,11 +449,11 @@ public class BikeController : MonoBehaviour
 
         }
 
-        Debug.Log("Bike Loaded: " + GameManager.Instance.InGAME_PlayerBike.ToString());
+        Debug.Log("Bike Loaded: " + GameManager.InGAME_PlayerBike.ToString());
 
         // Set the game camera to follow the current bike instance
         CinemachineVirtualCamera virtualCamera = CameraController.Instance.GameCamera;
-        virtualCamera.Follow = GameManager.Instance.InGAME_PlayerBike.transform;
+        virtualCamera.Follow = GameManager.InGAME_PlayerBike.transform;
     }
 
     public void LoadPlayerTrail(int trailId)
@@ -443,13 +466,13 @@ public class BikeController : MonoBehaviour
         }
 
         // Destroy existing trail (if any)
-        if (GameManager.Instance.InGAME_PlayerTrail != null)
+        if (GameManager.InGAME_PlayerTrail != null)
         {
-            Destroy(GameManager.Instance.InGAME_PlayerTrail);
+            Destroy(GameManager.InGAME_PlayerTrail);
         }
 
         // Find the TrailData with the matching trailId in the TrailDataList
-        Trail matchingTrailData = GameManager.Instance.TrailList.FirstOrDefault(t => t.ID == trailId);
+        Trail matchingTrailData = GameManager.TrailList.FirstOrDefault(t => t.ID == trailId);
         if (matchingTrailData == null)
         {
             Debug.Log("Trail not found in TrailDataList!");
@@ -457,8 +480,8 @@ public class BikeController : MonoBehaviour
         }
 
         // Instantiate ---> Player Trail
-        GameManager.Instance.InGAME_PlayerTrail = Instantiate(matchingTrailData.TrailPrefab, GameManager.Instance.InGAME_PlayerBike.transform);
-        Debug.Log("Trail Instance: " + GameManager.Instance.InGAME_PlayerTrail.ToString());
+        GameManager.InGAME_PlayerTrail = Instantiate(matchingTrailData.TrailPrefab, GameManager.InGAME_PlayerBike.transform);
+        Debug.Log("Trail Instance: " + GameManager.InGAME_PlayerTrail.ToString());
     }
 
     [SerializeField] public EasingFunction currentEasingFunction = EasingFunction.Linear;
@@ -505,7 +528,7 @@ public class BikeController : MonoBehaviour
 
     void ChangeEasingFunction(int index)
     {
-        if (GameManager.Instance.InGAME_PlayerBike != null)
+        if (GameManager.InGAME_PlayerBike != null)
         {
             // The index should match the order of options in your Dropdown and the order of your EasingFunction enum
             currentEasingFunction = (EasingFunction)index;
@@ -592,7 +615,7 @@ public class BikeController : MonoBehaviour
 
     private void CheckGroundContact()
     {
-        if (Physics2D.IsTouchingLayers(bikeBodyCol, GameManager.Instance.GroundLayer))
+        if (Physics2D.IsTouchingLayers(bikeBodyCol, GameManager.GroundLayer))
         {
             if (Time.time - lastAirTime > flipDelay)
             {
@@ -716,12 +739,12 @@ public class BikeController : MonoBehaviour
                 _data.TOTAL_WHEELIE += wheeliePoints;
                 SaveSystem.SavePlayerData(_data);
 
-                GameManager.Instance.UpdateWheeliePoints(wheeliePoints);
+                GameManager.UpdateWheeliePoints(wheeliePoints);
                 wheelieStartTime = 0; // reset
             }
 
-            RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.Instance.GroundLayer);
-            RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.Instance.GroundLayer);
+            RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.GroundLayer);
+            RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.GroundLayer);
         }
     }
 
@@ -777,12 +800,12 @@ public class BikeController : MonoBehaviour
         //RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
         //RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, groundCheckDistance, groundLayer);
         //return hitBack.collider != null || hitFront.collider != null;
-        return bikeGroundCheckCol.IsTouchingLayers(GameManager.Instance.GroundLayer);
+        return bikeGroundCheckCol.IsTouchingLayers(GameManager.GroundLayer);
     }
 
     public bool IsRearWheelGrounded()
     {
-        RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.Instance.GroundLayer);
+        RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.GroundLayer);
         if(hitBack != false){
             return hitBack.collider != null;
         }
@@ -791,7 +814,7 @@ public class BikeController : MonoBehaviour
 
     public bool IsFrontWheelGrounded()
     {
-        RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.Instance.GroundLayer);
+        RaycastHit2D hitFront = Physics2D.Raycast(frontWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.GroundLayer);
         return hitFront.collider != null;
     }
 
@@ -799,7 +822,7 @@ public class BikeController : MonoBehaviour
     {
         HapticPatterns.PlayConstant(0.70f, 0.55f, 0.1f); 
         faults++;
-        GameManager.Instance.UpdateGameFaultCountText();
+        GameManager.UpdateGameFaultCountText();
 
         // SAVE DATA
         var _data = SaveSystem.LoadPlayerData();
@@ -814,8 +837,8 @@ public class BikeController : MonoBehaviour
         if (currentFlickerCoroutine != null)
             StopCoroutine(currentFlickerCoroutine);
 
-        var _playerBike = GameManager.Instance.InGAME_PlayerBike.gameObject.transform;
-        RaycastHit2D groundHit = Physics2D.Raycast(_playerBike.position, -Vector2.up, Mathf.Infinity, GameManager.Instance.GroundLayer);
+        var _playerBike = GameManager.InGAME_PlayerBike.gameObject.transform;
+        RaycastHit2D groundHit = Physics2D.Raycast(_playerBike.position, -Vector2.up, Mathf.Infinity, GameManager.GroundLayer);
 
         if (groundHit.collider != null)
         {
@@ -983,7 +1006,7 @@ public class BikeController : MonoBehaviour
 
     public BikeComponents GetCurrentBikeComponents()
     {
-        if (GameManager.Instance.InGAME_PlayerBike != null)
+        if (GameManager.InGAME_PlayerBike != null)
             return CurrentBikeComponents;
         else 
             Debug.LogWarning("No bike components were found.");

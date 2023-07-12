@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class LevelEntry : MonoBehaviour 
 {
+    private LeaderboardManager LeaderboardManager;
+    private ScreenManager ScreenManager;
     public int Level;
     public Button Btn_Leaderboard;
     public Level.Category Category;
@@ -14,18 +16,24 @@ public class LevelEntry : MonoBehaviour
 
     private void Start()
     {
+        LeaderboardManager = LeaderboardManager.Instance;
+        ScreenManager = ScreenManager.Instance;
         Btn_Leaderboard.onClick.AddListener(OnLeaderboardButtonClick);
         Btn_Play.onClick.AddListener(OnPlayButtonClick);
     }
 
-    public void SetLevel(int level)
+    public void SetLevel(int level, Level.Category category)
     {
         this.Level = level;
+        this.Category = category;
     }
 
     private void OnLeaderboardButtonClick()
     {
-        // Show leaderboard for this level
+        string levelKey = Category.ToString() + "_" + Level;
+        LeaderboardManager.UpdateLeaderboardUI(levelKey);
+        ScreenManager.TweenLevelsSection(false);
+        ScreenManager.TweenLeaderboard(true);
     }
 
     private void OnPlayButtonClick()

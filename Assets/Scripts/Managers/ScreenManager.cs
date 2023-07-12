@@ -28,7 +28,7 @@ public class ScreenManager : MonoBehaviour
     #region Variables
 
     private float _lastButtonClickTime = 0f;
-    private float _buttonClickCooldown = 0.75f;
+    private float _buttonClickCooldown = 0.45f;
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////// LEVEL SELECTION MENU
@@ -40,7 +40,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject LevelsSection;
     public Transform LevelsView;
     public Button B_LevelsMenuBack;
-    private List<GameObject> instantiatedLevels = new List<GameObject>();
+    private List<GameObject> instantiatedLevels = new();
 
 
     private LevelStats CurrentLevelStats;
@@ -78,6 +78,9 @@ public class ScreenManager : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////////////////
 
     [Header("Main Menu Elements")]
+    public GameObject Online_Status, Offline_Status, PlayFabStatusParent;
+    public GameObject LBMainPanel;
+    public Button Btn_LB_Back;
     public Button Btn_Menu_MainLeaderboard;
     public Button Btn_Menu_Start;
     public Button Btn_Menu_Settings;
@@ -206,7 +209,7 @@ public class ScreenManager : MonoBehaviour
 
     void Start()
     {
-        // Init Managers    private PlayerData PlayerData;
+        // Init Managers
         BikeController = BikeController.Instance;
         TrailManager = TrailManager.Instance;
         ShopManager = ShopManager.Instance;
@@ -215,8 +218,10 @@ public class ScreenManager : MonoBehaviour
         AudioManager = AudioManager.Instance;
         GameManager = GameManager.Instance;
         BackgroundParalax = BackgroundParalax.Instance;
+        LeaderboardManager = LeaderboardManager.Instance;
         PlayerData = SaveSystem.LoadPlayerData();
-        Debug.Log("Loaded Bike ID : " + PlayerData.SELECTED_BIKE_ID);
+        //Debug.Log("Loaded Bike ID: " + PlayerData.SELECTED_BIKE_ID);
+
 
         /////////////////////////////////////////////////////////////////////////////////////
         /////// INITIATE MENU PLAYER BIKE & TRAIL
@@ -314,7 +319,7 @@ public class ScreenManager : MonoBehaviour
         /////// INITIAL UI POSITIONS
         /////////////////////////////////////////////////////////////////////////////////////
 
-        #region UI Initial Position
+        #region UI Initial Positions
         // Main Menu
         var obj = Btn_Menu_Start.transform.localPosition;
         Btn_Menu_Start.transform.localPosition =
@@ -355,6 +360,14 @@ public class ScreenManager : MonoBehaviour
         obj = AboutPanel.transform.localPosition;
         AboutPanel.transform.localPosition =
             new Vector2(obj.x+900, obj.y);
+
+        obj = PlayFabStatusParent.transform.localPosition;
+        PlayFabStatusParent.transform.localPosition =
+            new Vector2(obj.x + 400, obj.y);
+
+        obj = LBMainPanel.transform.localPosition;
+        LBMainPanel.transform.localPosition =
+            new Vector2(obj.x + 1200, obj.y);
 
         // Game HUD
         obj = Btn_HUD_PauseGame.transform.localPosition;
@@ -405,7 +418,7 @@ public class ScreenManager : MonoBehaviour
 
         obj = LevelsSection.transform.localPosition;
         LevelsSection.transform.localPosition =
-            new Vector2(-700f, obj.y); 
+            new Vector2(-800f, obj.y); 
 
 
         // Shop Section
@@ -569,7 +582,7 @@ public class ScreenManager : MonoBehaviour
                 TweenGameLogo(false);
                 TweenSettingsMenu(true);
                 GameManager.SavePlaytimeAndDistance();
-                CameraController.Instance.SwitchToSettingsCamera(); 
+                CameraController.SwitchToSettingsCamera(); 
         });
 
         // Set Data
@@ -674,10 +687,10 @@ public class ScreenManager : MonoBehaviour
             return; 
             _lastButtonClickTime = Time.time;
 
-            ScreenManager.Instance.PlayerMenuBike.SetActive(true);
-            ScreenManager.Instance.MenuPlatformObject.SetActive(true);
+            PlayerMenuBike.SetActive(true);
+            MenuPlatformObject.SetActive(true);
 
-            ScreenManager.Instance.PlayerMenuBikeRb.isKinematic = false;
+            PlayerMenuBikeRb.isKinematic = false;
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
             TweenLevelsSection(false);
             TweenGameLogo(true);
@@ -697,8 +710,8 @@ public class ScreenManager : MonoBehaviour
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
 
             var _playerData = SaveSystem.LoadPlayerData();
-            var _bikeList = BikeController.Instance.GetAllBikes();
-            var _trailList = TrailManager.Instance.GetAllTrails();
+            var _bikeList = BikeController.GetAllBikes();
+            var _trailList = TrailManager.GetAllTrails();
             ShopManager.SelectBike(ShopManager.CurrentBikeIndex);
             ShopManager.SelectTrail(ShopManager.CurrentTrailIndex);
             PlayerMenuBike = ShopManager.DisplayBikePrefab(_bikeList[_playerData.SELECTED_BIKE_ID].BikePrefab);
@@ -766,11 +779,10 @@ public class ScreenManager : MonoBehaviour
             Bike[] allBikes = BikeController.GetAllBikes();
             Trail[] allTrails = TrailManager.GetAllTrails();
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
-            Debug.Log("before bikes: " + _playerData.UNLOCKED_BIKES.Length + " c: " + _playerData.UNLOCKED_BIKES[0]);
+
             _playerData.UNLOCKED_BIKES = new int[allBikes.Length];
             _playerData.UNLOCKED_TRAILS = new int[allTrails.Length];
-            Debug.Log("unlocked bikes: " + _playerData.UNLOCKED_BIKES);
-            Debug.Log("bikes: " + allBikes.Length);
+
             for (int i = 0; i < allBikes.Length; i++)
                 _playerData.UNLOCKED_BIKES[i] = allBikes[i].ID;
             for (int i = 0; i < allTrails.Length; i++)
@@ -778,7 +790,6 @@ public class ScreenManager : MonoBehaviour
 
             SaveSystem.SavePlayerData(_playerData);
             RefreshTextValuesFromPlayerData(); 
-            Debug.Log("after bikes: " + _playerData.UNLOCKED_BIKES.Length); 
         });
 
         btn_AddXP.onClick.AddListener(delegate 
@@ -794,15 +805,20 @@ public class ScreenManager : MonoBehaviour
 
         btn_ShuffleSoundtrack.onClick.AddListener(delegate 
         {
-            var _audioManager = AudioManager.Instance;
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
-            _audioManager.PlayNextTrack(); 
+            AudioManager.PlayNextTrack(); 
+        });
+
+        Btn_LB_Back.onClick.AddListener(delegate
+        {
+            TweenLeaderboard(false);
+            TweenLevelsSection(true);
         });
     }
 
     void FixedUpdate()
     {
-        if (GameManager.Instance.gameState == GameState.Menu)
+        if (GameManager.gameState == GameState.Menu)
         {
             if (!hasAnimatedIn)
             {
@@ -818,6 +834,20 @@ public class ScreenManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        // PLAYFAB
+        if (LeaderboardManager.IsLoggedIn)
+        {
+            Online_Status.SetActive(true);
+            Offline_Status.SetActive(false);
+        }
+        else
+        {
+            Online_Status.SetActive(false);
+            Offline_Status.SetActive(true);
+        }
+    }
 
     public void StatsLevelProgressRefresh()
     {
@@ -1037,35 +1067,30 @@ public class ScreenManager : MonoBehaviour
 
     private void GoToMainMenu()
     {
-        var _gameManager = GameManager.Instance;
         TweenMainMenu(true);
         BackgroundParalax.ResetParallax();
-        _gameManager.SetGameState(GameState.Menu);
+        GameManager.SetGameState(GameState.Menu);
+        PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
 
     private void GoToShop()
     {
-        var _cameraController =  CameraController.Instance;
-        _cameraController.SwitchToShopCamera();
+        CameraController.SwitchToShopCamera();
         TweenMainMenu(false);
         TweenShopMenu(true);
     }
 
     public void PauseGame()
     {
-        var _bikeCtrl = BikeController.Instance;
-        var _gameManager = GameManager.Instance;
-        _bikeCtrl.PauseBike();
-        _gameManager.SetGameState(GameState.Paused);
+        BikeController.PauseBike();
+        GameManager.SetGameState(GameState.Paused);
         TweenPauseGame(true);
     }
 
     public void ResumeGame()
     {
-        var _gameManager = GameManager.Instance;
-        var _bikeCtrl = BikeController.Instance;
-        _gameManager.SetGameState(GameState.Playing);
-        _bikeCtrl.ResumeBike();
+        GameManager.SetGameState(GameState.Playing);
+        BikeController.ResumeBike();
         TweenPauseGame(false);
     }
 
@@ -1110,7 +1135,7 @@ public class ScreenManager : MonoBehaviour
         else
         {
             LeanTween.moveX(LevelsBG.GetComponent<RectTransform>(), 1100f, 0.45f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(LevelsSection.GetComponent<RectTransform>(), -700f, 0.45f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(LevelsSection.GetComponent<RectTransform>(), -800f, 0.45f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_LevelsMenuBack.GetComponent<RectTransform>(), -350f, 0.45f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
             delegate ()
             {
@@ -1164,14 +1189,14 @@ public class ScreenManager : MonoBehaviour
         instantiatedLevels.Clear();
 
         int lvlID = 0;
-        foreach (var item in LevelManager.Instance.Levels)
+        foreach (var item in LevelManager.Levels)
         {
             GameObject levelUnitInstance = Instantiate(levelUnitPrefab, LevelsView);
             TMPro.TextMeshProUGUI[] childTexts = levelUnitInstance.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
 
             LevelEntry levelEntry = levelUnitInstance.GetComponent<LevelEntry>();
 
-            levelEntry.SetLevel(item.LevelID);
+            levelEntry.SetLevel(item.LevelID, item.LevelCategory);
 
             levelEntry.Txt_LevelName.text = "Level " + (item.LevelID + 1);
 
@@ -1189,7 +1214,7 @@ public class ScreenManager : MonoBehaviour
             switch (_trophyCount)
             {
                 case 3:
-                    Debug.Log("3 trophies");
+                    //Debug.Log("3 trophies");
                     levelEntry.Trophy1.SetActive(true);
                     levelEntry.Trophy2.SetActive(true);
                     levelEntry.Trophy3.SetActive(true);
@@ -1357,7 +1382,7 @@ public class ScreenManager : MonoBehaviour
         {
             Panel_MainMenu.SetActive(true);
             MenuPlatformObject.SetActive(true);
-            CameraController.Instance.SwitchToMenuCamera();
+            CameraController.SwitchToMenuCamera();
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0.5f, 0.5f).setEaseInExpo();
             LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), 80f, 0.5f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -140f, 0.55f).setEase(LeanTweenType.easeOutExpo);
@@ -1366,6 +1391,7 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveX(MENU_CoinsBar.GetComponent<RectTransform>(), -82f, 0.75f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveX(MENU_LvlsFinishedBar.GetComponent<RectTransform>(), -154f, 0.75f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -130f, 0.55f).setEase(LeanTweenType.easeInOutSine).setDelay(0.2f);
+            LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 0, 0.55f).setEase(LeanTweenType.easeInOutSine);
         }
         else
         {
@@ -1376,10 +1402,30 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 400f, 0.35f).setEase(LeanTweenType.easeInOutSine);
             LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
                 delegate ()
                 {
                     Panel_MainMenu.SetActive(false);
+                });
+        }
+    }
+
+    public void TweenLeaderboard(bool In)
+    {
+        if (In)
+        {
+            Panel_Leaderboard.SetActive(true);
+            LeanTween.moveX(LBMainPanel.GetComponent<RectTransform>(), 0, 0.55f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_LB_Back.GetComponent<RectTransform>(), -85, 0.55f).setEase(LeanTweenType.easeOutExpo);
+        }
+        else
+        {
+            LeanTween.moveX(LBMainPanel.GetComponent<RectTransform>(), 1200, 0.55f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveY(Btn_LB_Back.GetComponent<RectTransform>(), -450, 0.55f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
+                delegate ()
+                {
+                    Panel_Leaderboard.SetActive(false);
                 });
         }
     }
@@ -1413,12 +1459,12 @@ public class ScreenManager : MonoBehaviour
         
         HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         var _playerData = SaveSystem.LoadPlayerData();
-        var _currentLevelID = LevelManager.Instance.CurrentLevelID;
-        var _levels = LevelManager.Instance.Levels;
+        var _currentLevelID = LevelManager.CurrentLevelID;
+        var _levels = LevelManager.Levels;
         var _LevelTime = GameManager.LevelTimer;
-        var _LevelFaults = BikeController.Instance.faults;
-        var _LevelFlips = BikeController.Instance.flipCount;
-        var _LevelWheelie = BikeController.Instance.wheeliePoints;
+        var _LevelFaults = BikeController.faults;
+        var _LevelFlips = BikeController.flipCount;
+        var _LevelWheelie = BikeController.wheeliePoints;
         var _trophyCount = _levels[_currentLevelID].CalculateTrophies(_LevelTime, _LevelFaults);
 
         _playerData.UpdateLevel();
@@ -1432,6 +1478,10 @@ public class ScreenManager : MonoBehaviour
             Trophies = _trophyCount
             // ADD OTHER STATS
         };
+
+        int timeInMS = GameManager.ConvertSecondsToMilliseconds(_LevelTime);
+        string leaderboardId = _levels[_currentLevelID].LevelCategory + "_" + _levels[_currentLevelID].LevelID;
+        LeaderboardManager.SendAllStats(leaderboardId, timeInMS, _LevelFaults, _LevelFlips, _LevelWheelie);
 
         // SAVE DATA
 
@@ -1471,25 +1521,25 @@ public class ScreenManager : MonoBehaviour
         switch (_trophyCount)
         {
             case 3:
-                Debug.Log("3 trophies");
+                //Debug.Log("3 trophies");
                 TrophyAnimation(Trophy1, 0.55f, 2f);
                 TrophyAnimation(Trophy2, 0.375f, 2.25f);
                 TrophyAnimation(Trophy3, 0.375f, 2.5f);
                 break;
             case 2:
-                Debug.Log("2 trophies");
+                //Debug.Log("2 trophies");
                 TrophyAnimation(Trophy1, 0.55f, 2f);
                 TrophyAnimation(Trophy2, 0.375f, 2.25f);
                 break;
             case 1:
-                Debug.Log("1 trophy");
+                //Debug.Log("1 trophy");
                 TrophyAnimation(Trophy1, 0.55f, 2f);
                 break;
             case 0:
-                Debug.Log("0 trophies");
+                //Debug.Log("0 trophies");
                 break;
             default:
-                Debug.LogError("Invalid trophy count");
+                //Debug.LogError("Invalid trophy count");
                 break;
         }
 
@@ -1619,10 +1669,10 @@ public class ScreenManager : MonoBehaviour
 
     public IEnumerator PlayEndTransition()
     {
-        ScreenManager.Instance.startTransition.SetActive(false); 
-        ScreenManager.Instance.endTransition.SetActive(true);
-        yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
-        ScreenManager.Instance.endTransition.SetActive(false);  
+        startTransition.SetActive(false); 
+        endTransition.SetActive(true);
+        yield return new WaitForSeconds(GetEndTransitionDuration());
+        endTransition.SetActive(false);  
     }
 
     private IEnumerator GoToMenuFromFinishMenu()
@@ -1631,15 +1681,16 @@ public class ScreenManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         PlayerMenuBike.SetActive(true);
         MenuPlatformObject.SetActive(true);
+        PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.None;
         PlayerMenuBikeRb.transform.localPosition = new Vector2(0, 0.5f);
         MenuPlatformRb.transform.localPosition = new Vector2(-4, 0);
         PlayerMenuBikeRb.isKinematic = false;
+        BackgroundParalax.ResetParallax();
         GoToMainMenu();
     }
 
     private IEnumerator GoToMenuFromGame()
     {
-        var _gameManager = GameManager.Instance;
         StartCoroutine(PlayTransition());
         // Show Menu Platform & Bike
         PlayerMenuBike.SetActive(true);
@@ -1651,17 +1702,17 @@ public class ScreenManager : MonoBehaviour
         TweenPauseGame(false);
         TweenGameHUD(false);
         GoToMainMenu();
-        _gameManager.ResetLevelStats();
+        GameManager.ResetLevelStats();
         RefreshTextValuesFromPlayerData();
     }
 
     public IEnumerator PlayTransition()
     {
-        Debug.Log("PlayTransition started");
+        //ebug.Log("PlayTransition started");
         StartCoroutine(PlayStartTransition());
         yield return new WaitForSeconds(startTransitionDuration-0.5f);
         StartCoroutine(PlayEndTransition());
-        yield return new WaitForSeconds(ScreenManager.Instance.GetEndTransitionDuration());
+        yield return new WaitForSeconds(GetEndTransitionDuration());
     }
 
     public enum AnimationWheelieType

@@ -12,6 +12,12 @@ using static Cinemachine.DocumentationSortingAttribute;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
+    private BikeController BikeController;
+    private ScreenManager ScreenManager;
+    private BackgroundParalax BackgroundParalax;
+    private LevelManager LevelManager;
+    private CameraController CameraController;
+
     public Bike[] BikeList;
     public Trail[] TrailList;
 
@@ -56,6 +62,12 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        BikeController = BikeController.Instance;
+        ScreenManager = ScreenManager.Instance;
+        BackgroundParalax = BackgroundParalax.Instance;
+        LevelManager = LevelManager.Instance;
+        CameraController = CameraController.Instance;
+
         PlayerData = SaveSystem.LoadPlayerData();
         SetGameState(GameState.Menu);
         
@@ -105,7 +117,7 @@ public class GameManager : MonoBehaviour
     {
         var _data = SaveSystem.LoadPlayerData();
         _data.TOTAL_PLAYTIME = CurrentPlayTime;
-        _data.TOTAL_DISTANCE += BikeController.Instance.GetTotalDistanceInKilometers();
+        _data.TOTAL_DISTANCE += BikeController.GetTotalDistanceInKilometers();
         //sessionStartTime = Time.time; // Reset session start time after saving
         SaveSystem.SavePlayerData(_data);
     }
@@ -118,10 +130,10 @@ public class GameManager : MonoBehaviour
         flipCountText.text = "0";
         faultCountText.text = "0";
         totalWheelieTime = 0;
-        BikeController.Instance.wheeliePoints = 0;
-        BikeController.Instance.faults = 0;
-        BikeController.Instance.flipCount = 0;
-        BikeController.Instance.totalWheelieTime = 0;
+        BikeController.wheeliePoints = 0;
+        BikeController.faults = 0;
+        BikeController.flipCount = 0;
+        BikeController.totalWheelieTime = 0;
     }
 
     void UpdateGameTimerText()
@@ -134,13 +146,13 @@ public class GameManager : MonoBehaviour
 
     void UpdateGameFlipCountText()
     {
-        int _flipCount = BikeController.Instance.flipCount;
+        int _flipCount = BikeController.flipCount;
         flipCountText.text = "" + _flipCount;
     }
 
     public void UpdateGameFaultCountText()
     {
-        int _faultCount = BikeController.Instance.GetFaultCount();
+        int _faultCount = BikeController.GetFaultCount();
         faultCountText.text = "" + _faultCount;
     }
 
@@ -180,7 +192,7 @@ public class GameManager : MonoBehaviour
 
     public void SetGameState(GameState newState)
     {
-        var _bikeController = BikeController.Instance;
+        var _bikeController = BikeController;
         gameState = newState;
 
         if (gameState == GameState.Paused)
@@ -189,18 +201,18 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Playing)
         {
-            BackgroundParalax.Instance.ResetParallax();
+            BackgroundParalax.ResetParallax();
             _bikeController.CAN_CONTROL = true;
         }
         else if (gameState == GameState.Menu)
         {
-            BackgroundParalax.Instance.ResetParallax();
-            if (ScreenManager.Instance != null)
-                ScreenManager.Instance.RefreshTextValuesFromPlayerData();
+            BackgroundParalax.ResetParallax();
+            if (ScreenManager != null)
+                ScreenManager.RefreshTextValuesFromPlayerData();
             // Delete the previous level instance if it exists
-            if (LevelManager.Instance.CurrentLevelInstance != null)
+            if (LevelManager.CurrentLevelInstance != null)
             {
-                Destroy(LevelManager.Instance.CurrentLevelInstance);
+                Destroy(LevelManager.CurrentLevelInstance);
             }
 
             if (InGAME_PlayerBike != null && InGAME_PlayerBike.activeSelf)
@@ -208,26 +220,26 @@ public class GameManager : MonoBehaviour
                 InGAME_PlayerBike.SetActive(false);
             }
 
-            CameraController.Instance.SwitchToMenuCamera();
-            ScreenManager.Instance.TweenMainMenu(true);
+            CameraController.SwitchToMenuCamera();
+            ScreenManager.TweenMainMenu(true);
 
-            if(!ScreenManager.Instance.MENU_GameLogo.activeSelf)
-                ScreenManager.Instance.TweenGameLogo(true);
+            if(!ScreenManager.MENU_GameLogo.activeSelf)
+                ScreenManager.TweenGameLogo(true);
         }
         else if (gameState == GameState.Starting)
         {
-            BackgroundParalax.Instance.ResetParallax();
+            BackgroundParalax.ResetParallax();
 
             if (!InGAME_PlayerBike.activeSelf)
             {
                 InGAME_PlayerBike.SetActive(true);
             }
 
-            ScreenManager.Instance.ResetTrophiesDefaultScale();
-            ScreenManager.Instance.PlayerMenuBikeRb.isKinematic = true;
-            ScreenManager.Instance.MenuPlatformObject.SetActive(false);
-            ScreenManager.Instance.PlayerMenuBike.SetActive(false);
-            CameraController.Instance.SwitchToGameCamera();
+            ScreenManager.ResetTrophiesDefaultScale();
+            ScreenManager.PlayerMenuBikeRb.isKinematic = true;
+            ScreenManager.MenuPlatformObject.SetActive(false);
+            ScreenManager.PlayerMenuBike.SetActive(false);
+            CameraController.SwitchToGameCamera();
 
             // Call the Countdown
             StartCoroutine(CountdownRoutine());
@@ -282,7 +294,7 @@ public class GameManager : MonoBehaviour
         });
 
         // Start game
-        BikeController.Instance.ResumeBike();
+        BikeController.ResumeBike();
         SetGameState(GameState.Playing);
     }
 
@@ -291,13 +303,11 @@ public class GameManager : MonoBehaviour
     {
         if (!hasFocus && gameState == GameState.Playing)
         {
-            ScreenManager.Instance.PauseGame();
-
+            ScreenManager.PauseGame();
         }
         else
         {
             // Game regained focus
-            // Add your code here for when the game is back in focus (e.g., resume the game)
         }
     }
 
@@ -307,5 +317,17 @@ public class GameManager : MonoBehaviour
         SavePlaytimeAndDistance();
         SaveSystem.SavePlayerData(_data);
     }
+
+
+    public int ConvertSecondsToMilliseconds(float seconds)
+    {
+        return Mathf.RoundToInt(seconds * 1000);
+    }
+
+    public float ConvertMillisecondsToSeconds(int milliseconds)
+    {
+        return milliseconds / 1000f;
+    }
+
 
 }

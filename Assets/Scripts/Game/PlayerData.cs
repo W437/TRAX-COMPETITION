@@ -95,7 +95,7 @@ public class PlayerData
 
         var _data = SaveSystem.LoadPlayerData();
         _data.PLAYER_LEVEL = PLAYER_LEVEL;
-        Debug.Log("Player Level: " + PLAYER_LEVEL);
+        //Debug.Log("Player Level: " + PLAYER_LEVEL);
         SaveSystem.SavePlayerData(_data);
     }
 
