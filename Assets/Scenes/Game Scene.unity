@@ -1312,7 +1312,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &102005865
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6472,6 +6472,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2094503407}
+  - {fileID: 1018025180}
   m_Father: {fileID: 2114761407}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -8365,7 +8366,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.1385217, y: -4.1260014, z: 0}
+  m_LocalPosition: {x: -2.7682724, y: -4.1260014, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10690,8 +10691,8 @@ RectTransform:
   - {fileID: 1418137076}
   - {fileID: 1831701441}
   - {fileID: 1688082808}
-  - {fileID: 1227539639}
   - {fileID: 2114761407}
+  - {fileID: 1227539639}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12792,6 +12793,9 @@ MonoBehaviour:
   FlipFeedbackText: {fileID: 0}
   Online_Status: {fileID: 102005864}
   Offline_Status: {fileID: 948482090}
+  PlayFabStatusParent: {fileID: 2069927264}
+  LBMainPanel: {fileID: 441249725}
+  Btn_LB_Back: {fileID: 1891175560}
   Btn_Menu_MainLeaderboard: {fileID: 132770379}
   Btn_Menu_Start: {fileID: 1743119100}
   Btn_Menu_Settings: {fileID: 1277799315}
@@ -15567,12 +15571,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1124677853}
-  m_Father: {fileID: 2114761407}
-  m_RootOrder: 2
+  m_Father: {fileID: 441249726}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0072381822, y: -65.60972}
+  m_AnchoredPosition: {x: -0.0061850664, y: -65.60983}
   m_SizeDelta: {x: 960.32, y: 1203.9785}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1018025181
@@ -22739,7 +22743,7 @@ RectTransform:
   - {fileID: 264792301}
   - {fileID: 624790799}
   m_Father: {fileID: 711042689}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -33155,7 +33159,7 @@ MonoBehaviour:
   m_YDamping: 12.27
   m_ZDamping: 1
   m_TargetMovementOnly: 1
-  m_ScreenX: 0.2583644
+  m_ScreenX: 0.5
   m_ScreenY: 0.76
   m_CameraDistance: 10
   m_DeadZoneWidth: 0
@@ -37898,7 +37902,7 @@ GameObject:
   - component: {fileID: 1891175561}
   - component: {fileID: 1891175560}
   m_Layer: 5
-  m_Name: Back Button
+  m_Name: LB Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37921,7 +37925,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: -80}
+  m_AnchoredPosition: {x: 0, y: -85}
   m_SizeDelta: {x: 320, y: 320}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1891175560
@@ -40335,7 +40339,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 0.000061035156, y: 350}
+  m_AnchoredPosition: {x: 0, y: 350}
   m_SizeDelta: {x: 234.53223, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!1 &2070267332
@@ -41621,9 +41625,8 @@ RectTransform:
   m_Children:
   - {fileID: 1891175559}
   - {fileID: 441249726}
-  - {fileID: 1018025180}
   m_Father: {fileID: 711042689}
-  m_RootOrder: 10
+  m_RootOrder: 9
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
