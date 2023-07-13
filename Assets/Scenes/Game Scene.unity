@@ -1061,7 +1061,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 60.941887, y: 183}
+  m_AnchoredPosition: {x: 60.941887, y: 292.54376}
   m_SizeDelta: {x: 468.2663, y: 90.6871}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &61535614
@@ -2207,7 +2207,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 952107916}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -5865,7 +5865,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.75, y: -13.543701}
+  m_AnchoredPosition: {x: -0.75, y: 96}
   m_SizeDelta: {x: 591.65, y: 91.3624}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &292936631
@@ -5888,12 +5888,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '<b>+100 hours</b> of development time
+  m_text: '<b>+120 hours</b> of development time
 
-    over ~30 days
+    over ~40 days
 
-    <size=27><#ffff80>The
-    game is under construction, with bugs and uncomplete & non-optimized code & systems.'
+    <size=27><#ffff80>*the
+    game is still in the making'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3944eaaf70beffa4097d8c293604125e, type: 2}
   m_sharedMaterial: {fileID: 7159369417392969216, guid: 3944eaaf70beffa4097d8c293604125e, type: 2}
@@ -6883,11 +6883,11 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1139295176}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7.000016, y: 917.99963}
+  m_AnchoredPosition: {x: 7.000016, y: 1114.9996}
   m_SizeDelta: {x: 1751, y: 659}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &384972756
@@ -9471,7 +9471,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.1555214, y: -4.1157846, z: 0}
+  m_LocalPosition: {x: -6.1544623, y: -4.1157846, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10856,7 +10856,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &653062463
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14933,7 +14933,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 61535613}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
@@ -16204,7 +16204,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 60.941887, y: 89.40021}
+  m_AnchoredPosition: {x: 60.941887, y: 198.94397}
   m_SizeDelta: {x: 468.2663, y: 90.6871}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &952107917
@@ -22828,12 +22828,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1139295176}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7, y: 454.45618}
-  m_SizeDelta: {x: 607.15, y: 452.2245}
+  m_AnchoredPosition: {x: -0.74998, y: 652}
+  m_SizeDelta: {x: 591.65, y: 476.77}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1118249319
 MonoBehaviour:
@@ -22855,9 +22855,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Features:\n- Currency System\n- Shop System\n- Level System (XP)\n- Level
-    Stats & Records\n- Player Stats\n- Haptic Feedback\n- Smooth Screen Transitions\n-
-    UI Tweens\n- Online Leaderboards \n(not implemented yet)\n- & more!\n"
+  m_text: "Features:\n- Shop System\n- Player Level, XP & Stats\n- Online Leaderboards
+    (PlayFab)\n- Smooth Transitions & UI/UX\n\nTRAX channels the spirit of classic
+    bike trials and time-racing games. Striving for perfection in every run, the
+    ultimate goal is to dominate the leaderboard and earn the bragging rights that
+    come with it. \nIt's a thrilling race against time, designed to test your skill,
+    precision, and persistence.\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3944eaaf70beffa4097d8c293604125e, type: 2}
   m_sharedMaterial: {fileID: 7159369417392969216, guid: 3944eaaf70beffa4097d8c293604125e, type: 2}
@@ -22920,7 +22923,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 30, y: 0, z: 0, w: 0}
+  m_margin: {x: 30, y: 0, z: 0.00012212773, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -23131,8 +23134,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2072824679}
-  - {fileID: 1118249318}
   - {fileID: 384972755}
+  - {fileID: 1118249318}
   - {fileID: 61535613}
   - {fileID: 952107916}
   - {fileID: 292936630}
@@ -23143,8 +23146,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 58}
-  m_SizeDelta: {x: 590.15, y: 2170.801}
+  m_AnchoredPosition: {x: 0, y: 0.000002861}
+  m_SizeDelta: {x: 590.15, y: 2452.4324}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &1140119371
 GameObject:
@@ -23339,7 +23342,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 2168.0571}
+  m_SizeDelta: {x: 0, y: 2388.9585}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1143556191
 GameObject:
@@ -24651,8 +24654,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7, y: -663.9386}
-  m_SizeDelta: {x: 539.537, y: 921.2385}
+  m_AnchoredPosition: {x: -0.000016212, y: -605.1564}
+  m_SizeDelta: {x: 590.15, y: 1022.8}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1221683575
 MonoBehaviour:
@@ -24678,9 +24681,9 @@ MonoBehaviour:
     free</b>\nRoyaltyFreePlanet on Youtube\n\n<color=#ff8000><b>[Backgrounds]</b></color>\n\nBackground
     Sprites & Paralax Script \nUnity Asset Store\n\n<color=#ff9000><b>[Haptic Feedback]</b></color>\n\nFEEL
     Framework - Unity Asset Store\n\n<color=#fff999><b>[UI & Bikes Design]</b></color>\n\nCustom
-    designed by Wael E.\n\n<color=#ff6000><b>[Chat GPT-4 as Mentor & Accelerator]</b></color>\n\nSimple
-    explanations about achieving specific game mechanics, troubleshooting & problem
-    solving, improving systems & code"
+    designed by Wael E.\n\n<color=#ff6000><b>[Chat GPT-4 as Mentor & Accelerator]</b></color>\n\nActed
+    as accelerator for overall development.\n\n- Optimisation\n- System Development\n-
+    Efficiency\n- Problem Solving\n- Bug Detection"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 3944eaaf70beffa4097d8c293604125e, type: 2}
   m_sharedMaterial: {fileID: 7159369417392969216, guid: 3944eaaf70beffa4097d8c293604125e, type: 2}
@@ -37339,7 +37342,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.75, y: -195}
+  m_AnchoredPosition: {x: -0.75, y: -85.4563}
   m_SizeDelta: {x: 525.8947, y: 91.3624}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1629186531
@@ -39182,7 +39185,7 @@ RectTransform:
   m_Father: {fileID: 1449931341}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.50019777}
+  m_AnchorMin: {x: 0, y: 0.54641324}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
@@ -42510,8 +42513,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1746515282}
   m_HandleRect: {fileID: 1746515281}
   m_Direction: 2
-  m_Value: 1.0000002
-  m_Size: 0.49980226
+  m_Value: 1
+  m_Size: 0.45358676
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -43240,7 +43243,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2038606024
 RectTransform:
   m_ObjectHideFlags: 0
@@ -44227,7 +44230,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 7.0000143, y: 781}
+  m_AnchoredPosition: {x: 7.0000143, y: 978}
   m_SizeDelta: {x: 607.15, y: 100.3508}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2072824680
