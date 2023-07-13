@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static GameManager;
+using static Level;
 using static PlayerData;
 
 public class ScreenManager : MonoBehaviour
@@ -30,6 +31,13 @@ public class ScreenManager : MonoBehaviour
     private float _lastButtonClickTime = 0f;
     private float _buttonClickCooldown = 0.45f;
 
+
+    [Header("Player Profile")]
+    public GameObject UsernamePanel;
+    public TMP_InputField Input_PlayerUsername;
+    public Image OverlayUsernamePanel;
+    public Button Btn_ConfirmName;
+
     /////////////////////////////////////////////////////////////////////////////////////
     /////// LEVEL SELECTION MENU
     /////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +49,7 @@ public class ScreenManager : MonoBehaviour
     public Transform LevelsView;
     public Button B_LevelsMenuBack;
     private List<GameObject> instantiatedLevels = new();
+    public TextMeshProUGUI Txt_LB_LevelName;
 
 
     private LevelStats CurrentLevelStats;
@@ -59,6 +68,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject Panel_About;
     public GameObject Panel_Settings;
     public GameObject Panel_Leaderboard;
+    public GameObject Panel_PlayerProfile;
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////// GAME HUD UI
@@ -78,6 +88,8 @@ public class ScreenManager : MonoBehaviour
     /////////////////////////////////////////////////////////////////////////////////////
 
     [Header("Main Menu Elements")]
+    public Button Btn_ReconnectPlayfab;
+    public TextMeshProUGUI Txt_PlayerName;
     public GameObject Online_Status, Offline_Status, PlayFabStatusParent;
     public GameObject LBMainPanel;
     public Button Btn_LB_Back;
@@ -96,7 +108,6 @@ public class ScreenManager : MonoBehaviour
     public TextMeshProUGUI Txt_Menu_LvlsFinished;
     public GameObject AboutPanel;
     public Button Btn_About_Back;
-
     public float menuBikeSpeed = 0f;
     public float menuBikeMaxSpeed = 9.5f;
     public float accelerationTimer;
@@ -124,6 +135,16 @@ public class ScreenManager : MonoBehaviour
     // Dev tools
     public Button btn_ResetCoins, btn_AddCoins, btn_ResetSavedata, btn_UnlockAll, btn_AddXP, btn_ShuffleSoundtrack;
     public Button B_SettingsBackMenu;
+    public Toggle Toggle_GameSettings;
+    public Toggle Toggle_OnlineSettings;
+
+    public GameObject Section_OnlineSettings, Section_GameSettings;
+
+    // Online Settings
+    public TMP_InputField Input_NewUsername;
+    public TextMeshProUGUI Txt_UsernamePlaceholder;
+    public Button Btn_NewUsernameSave;
+    public Button Btn_SyncOfflineData;
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////// SHOP SCREEN MENU
@@ -199,8 +220,6 @@ public class ScreenManager : MonoBehaviour
     public GameObject MenuBikeObjectParent;
 
     #endregion
-
-    
     
     void Awake()
     {
@@ -320,6 +339,10 @@ public class ScreenManager : MonoBehaviour
         /////////////////////////////////////////////////////////////////////////////////////
 
         #region UI Initial Positions
+
+        // Welcome Panel
+        UsernamePanel.transform.localRotation = Quaternion.Euler(-90, 0, 0);
+
         // Main Menu
         var obj = Btn_Menu_Start.transform.localPosition;
         Btn_Menu_Start.transform.localPosition =
@@ -464,6 +487,9 @@ public class ScreenManager : MonoBehaviour
         B_SettingsBackMenu.transform.localPosition =
             new Vector2(obj.x, obj.y-400); 
 
+        Toggle_GameSettings.isOn = true;
+        Toggle_GameSettings.Select();
+
 
         // Game Finish Section
         obj = FinishStatsPanel.transform.localPosition;
@@ -524,6 +550,7 @@ public class ScreenManager : MonoBehaviour
             GameManager.SavePlaytimeAndDistance();
         });
 
+        Btn_ConfirmName.onClick.AddListener(LeaderboardManager.OnConfirmButtonPressed);
 
         Btn_Menu_Shop.onClick.AddListener(delegate 
         { 
@@ -569,20 +596,23 @@ public class ScreenManager : MonoBehaviour
         });
 
 
-        Btn_Finish_Leaderboard.onClick.AddListener(delegate {  HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);  });
-        Btn_Menu_Settings.onClick.AddListener(delegate {
-                if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
-                return; 
-                _lastButtonClickTime = Time.time;
+
+
+
+        Btn_Menu_Settings.onClick.AddListener(delegate 
+        {
+            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
+            return; 
+            _lastButtonClickTime = Time.time;
 
                 
-                RefreshTextValuesFromPlayerData();
-                 HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
-                TweenMainMenu(false);
-                TweenGameLogo(false);
-                TweenSettingsMenu(true);
-                GameManager.SavePlaytimeAndDistance();
-                CameraController.SwitchToSettingsCamera(); 
+            RefreshTextValuesFromPlayerData();
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            TweenMainMenu(false);
+            TweenGameLogo(false);
+            TweenSettingsMenu(true);
+            GameManager.SavePlaytimeAndDistance();
+            CameraController.SwitchToSettingsCamera(); 
         });
 
         // Set Data
@@ -637,14 +667,21 @@ public class ScreenManager : MonoBehaviour
         });
 
         // Level End
-        Btn_Finish_Leaderboard.onClick.AddListener( delegate
+        Btn_Finish_Leaderboard.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
-            _lastButtonClickTime = Time.time;
-
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
-        } );
+
+            string category = LevelManager.GetCurrentLevelData().LevelCategory.ToString();
+            int id = LevelManager.GetCurrentLevelData().LevelID;
+            string levelKey = category + "_" + id;
+
+            Txt_LB_LevelName.text = "Global Toptimes for: " + category + " - " + (id + 1);
+
+            LeaderboardManager.UpdateLeaderboardUI(levelKey);
+            TweenLevelFinishMenu(false);
+            TweenLeaderboard(true);
+
+        });
 
         Btn_Finish_Restart.onClick.AddListener(delegate
         {
@@ -811,9 +848,70 @@ public class ScreenManager : MonoBehaviour
 
         Btn_LB_Back.onClick.AddListener(delegate
         {
-            TweenLeaderboard(false);
-            TweenLevelsSection(true);
+            if(GameManager.gameState == GameState.Menu)
+            {
+                TweenLevelsSection(true);
+                TweenLeaderboard(false);
+            }
+            else
+            {
+                TweenLevelFinishMenu(true);
+                TweenLeaderboard(false);
+            }
         });
+
+        Btn_ReconnectPlayfab.onClick.AddListener(delegate
+        {
+            LeaderboardManager.Instance.PlayFabLogin();
+        });
+
+        Btn_NewUsernameSave.onClick.AddListener(delegate
+        {
+            string name = Input_NewUsername.text;
+            if (!string.IsNullOrEmpty(name) && name.Length >= 3 && name.Length <= 14)
+            {
+                LeaderboardManager.Instance.UpdateDisplayName(name);
+                Txt_UsernamePlaceholder.text = name;
+                Txt_PlayerName.text = name;
+                LeaderboardManager.PlayFabLogin();
+            }
+            else
+            {
+                Debug.Log("Invalid new name.");
+            }
+        });
+
+        Toggle_GameSettings.onValueChanged.AddListener((isOn) =>
+        {
+            if (isOn)
+            {
+                if (Toggle_OnlineSettings.isOn)
+                {
+                    Toggle_OnlineSettings.isOn = false;
+                }
+                Section_GameSettings.SetActive(true);
+                Section_OnlineSettings.SetActive(false);
+            }
+        });
+
+        Toggle_OnlineSettings.onValueChanged.AddListener((isOn) =>
+        {
+            if (isOn)
+            {
+                if (Toggle_GameSettings.isOn)
+                {
+                    Toggle_GameSettings.isOn = false;
+                }
+                Section_GameSettings.SetActive(false);
+                Section_OnlineSettings.SetActive(true);
+            }
+        });
+
+        Btn_SyncOfflineData.onClick.AddListener(delegate
+        {
+            LeaderboardManager.Instance.UpdateLeaderboardFromOfflinePlay();
+        });
+
     }
 
     void FixedUpdate()
@@ -1148,6 +1246,7 @@ public class ScreenManager : MonoBehaviour
     {
         if (In)
         {
+            Txt_UsernamePlaceholder.text = LeaderboardManager.Instance.PlayerDisplayName;
             Settings_Slider_LevelProgress.value = 0;
             Panel_Settings.SetActive(true);
             LeanTween.moveX(Settings_Stats.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(delegate() {StatsLevelProgressRefresh();});
@@ -1396,13 +1495,13 @@ public class ScreenManager : MonoBehaviour
         else
         {
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0f, 0.5f);
+            LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 400f, 0.15f).setEase(LeanTweenType.easeInOutSine);
             LeanTween.moveX(MENU_CoinsBar.GetComponent<RectTransform>(), -550f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -450f, 0.35f).setEase(LeanTweenType.easeInOutExpo);
             LeanTween.moveX(MENU_LvlsFinishedBar.GetComponent<RectTransform>(), -550f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
-            LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 400f, 0.35f).setEase(LeanTweenType.easeInOutSine);
             LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
                 delegate ()
                 {
@@ -1428,6 +1527,40 @@ public class ScreenManager : MonoBehaviour
                     Panel_Leaderboard.SetActive(false);
                 });
         }
+    }
+
+    public void TweenWelcomePanel(bool In)
+    {
+        if (In)
+        {
+            Panel_PlayerProfile.SetActive(true);
+            LeanTween.alpha(OverlayUsernamePanel.GetComponent<RectTransform>(), 0.75f, 2f).setEaseInExpo().setDelay(0.1f)
+                .setOnComplete(delegate ()
+                {
+                    LeanTween.rotateX(UsernamePanel, 0, 1.5f).setEase(LeanTweenType.easeOutExpo);
+                });
+        }
+        else
+        {
+            LeanTween.rotateX(UsernamePanel, 90, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f)
+                .setOnComplete(delegate ()
+                {
+                    StartCoroutine(PlayTransition());
+                    StartCoroutine(DelayedAlphaTransition());
+                });
+        }
+    }
+
+    IEnumerator DelayedAlphaTransition()
+    {
+        yield return new WaitForSeconds(0.1f); // Wait for 1.5 seconds
+
+        LeanTween.alpha(OverlayUsernamePanel.GetComponent<RectTransform>(), 0f, 0.5f).setEaseInExpo()
+            .setOnComplete(delegate ()
+            {
+                Panel_PlayerProfile.SetActive(false);
+                GameManager.SetGameState(GameState.Menu);
+            });
     }
 
     public void TweenAboutSection(bool In)
@@ -1479,9 +1612,7 @@ public class ScreenManager : MonoBehaviour
             // ADD OTHER STATS
         };
 
-        int timeInMS = GameManager.ConvertSecondsToMilliseconds(_LevelTime);
-        string leaderboardId = _levels[_currentLevelID].LevelCategory + "_" + _levels[_currentLevelID].LevelID;
-        LeaderboardManager.SendAllStats(leaderboardId, timeInMS, _LevelFaults, _LevelFlips, _LevelWheelie);
+
 
         // SAVE DATA
 
@@ -1708,7 +1839,7 @@ public class ScreenManager : MonoBehaviour
 
     public IEnumerator PlayTransition()
     {
-        //ebug.Log("PlayTransition started");
+        Debug.Log("PlayTransition started");
         StartCoroutine(PlayStartTransition());
         yield return new WaitForSeconds(startTransitionDuration-0.5f);
         StartCoroutine(PlayEndTransition());

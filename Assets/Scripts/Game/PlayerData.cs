@@ -7,6 +7,7 @@ using static Level;
 [Serializable]
 public class PlayerData
 {
+    public String PLAYER_NAME;
     public int COINS;
     public int[] UNLOCKED_BIKES;
     public int SELECTED_BIKE_ID;
@@ -160,7 +161,7 @@ public class PlayerData
         return currentLevelXP / nextLevelXP; 
     }
 
-    // Add or update LevelStats for a specific category and level id (not needed now since all levels have unique ids)
+    // Add or update LevelStats for a specific category and level id
     public Result AddLevelStats(Level.Category category, int levelId, LevelStats newStats)
     {
         var _levelList = LevelManager.Instance.Levels;
@@ -176,17 +177,18 @@ public class PlayerData
             newStats.Trophies = Math.Max(newTrophies, existingStats.Trophies);
 
 
-            // For time-based levels (Easy, Medium, Hard), prioritizing on faults
             if ((category == Level.Category.Easy || category == Level.Category.Medium || category == Level.Category.Hard))
             {
                 if (newStats.Faults < existingStats.Faults)
                 {
                     levelStatsDictionary[key] = newStats;
+                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewTimeRecord;
                 }
                 else if (newStats.Faults == existingStats.Faults && newStats.Time < existingStats.Time)
                 {
                     levelStatsDictionary[key] = newStats;
+                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewTimeRecord;
                 }
             }
@@ -196,23 +198,27 @@ public class PlayerData
                 if (newStats.Flips > existingStats.Flips)
                 {
                     levelStatsDictionary[key] = newStats;
+                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewFlipsRecord;
                 }
                 else if (newStats.Flips == existingStats.Flips && newStats.Faults < existingStats.Faults)
                 {
                     levelStatsDictionary[key] = newStats;
+                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewFlipsRecord;
                 }
 
                 if (newStats.Wheelie > existingStats.Wheelie)
                 {
                     levelStatsDictionary[key] = newStats;
+                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewWheelieRecord;
                 }
                 else if (newStats.Wheelie == existingStats.Wheelie && newStats.Faults < existingStats.Faults)
                 {
-                    levelStatsDictionary[key] = newStats; return Result.NewWheelieRecord;
-
+                    levelStatsDictionary[key] = newStats;
+                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
+                    return Result.NewWheelieRecord;
                 }
             }
         }

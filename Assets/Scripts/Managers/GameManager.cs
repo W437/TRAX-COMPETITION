@@ -58,6 +58,8 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         Application.targetFrameRate = 60;
+
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
@@ -69,7 +71,16 @@ public class GameManager : MonoBehaviour
         CameraController = CameraController.Instance;
 
         PlayerData = SaveSystem.LoadPlayerData();
-        SetGameState(GameState.Menu);
+
+        if(!string.IsNullOrEmpty(PlayerData.PLAYER_NAME)) 
+        {
+            SetGameState(GameState.Menu);
+            LeaderboardManager.Instance.PlayFabLogin();
+        }
+        else
+        {
+            SetGameState(GameState.Welcome);
+        }
         
         sessionStartTime = Time.time;
         _initialCountdownTextPosition = countdownText.transform.position;
@@ -187,7 +198,8 @@ public class GameManager : MonoBehaviour
         Playing,
         Paused,
         Finished,
-        Starting
+        Starting,
+        Welcome
     }
 
     public void SetGameState(GameState newState)
@@ -195,7 +207,12 @@ public class GameManager : MonoBehaviour
         var _bikeController = BikeController;
         gameState = newState;
 
-        if (gameState == GameState.Paused)
+        if (gameState == GameState.Welcome)
+        {
+            ScreenManager.TweenWelcomePanel(true);
+
+        }
+        else if (gameState == GameState.Paused)
         {
 
         }
@@ -206,6 +223,8 @@ public class GameManager : MonoBehaviour
         }
         else if (gameState == GameState.Menu)
         {
+            ScreenManager.Txt_PlayerName.text = LeaderboardManager.Instance.PlayerDisplayName;
+
             BackgroundParalax.ResetParallax();
             if (ScreenManager != null)
                 ScreenManager.RefreshTextValuesFromPlayerData();

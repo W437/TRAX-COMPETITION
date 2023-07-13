@@ -1,8 +1,10 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class LevelEntry : MonoBehaviour 
 {
+    public static LevelEntry Instance;
     private LeaderboardManager LeaderboardManager;
     private ScreenManager ScreenManager;
     public int Level;
@@ -14,6 +16,11 @@ public class LevelEntry : MonoBehaviour
     public TMPro.TextMeshProUGUI Txt_Timer;
     public GameObject Trophy1, Trophy2, Trophy3;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     private void Start()
     {
         LeaderboardManager = LeaderboardManager.Instance;
@@ -24,13 +31,14 @@ public class LevelEntry : MonoBehaviour
 
     public void SetLevel(int level, Level.Category category)
     {
-        this.Level = level;
-        this.Category = category;
+        Level = level;
+        Category = category;
     }
 
     private void OnLeaderboardButtonClick()
     {
         string levelKey = Category.ToString() + "_" + Level;
+        ScreenManager.Txt_LB_LevelName.text = "Global Toptimes for: " + Category.ToString() + " - " + (Level+1);
         LeaderboardManager.UpdateLeaderboardUI(levelKey);
         ScreenManager.TweenLevelsSection(false);
         ScreenManager.TweenLeaderboard(true);
