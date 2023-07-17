@@ -1,4 +1,3 @@
-using System.Collections;
 using Lofelt.NiceVibrations;
 using UnityEngine;
 
@@ -9,15 +8,15 @@ public class BikeParticles : MonoBehaviour
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private BikeComponents bikeComponents;
 
- 
+
     private float speedThreshold = 0.2f;
     private float minEmissionRate = 35f;
     private float maxEmissionRate = 100f;
 
-    public float MinParticleSpeed; 
+    public float MinParticleSpeed;
     public float MaxParticleSpeed;
 
-    public float MinParticleSize; 
+    public float MinParticleSize;
     public float MaxParticleSize;
 
     private float maxBikeSpeed;
@@ -92,7 +91,7 @@ public class BikeParticles : MonoBehaviour
         // Set the particle size and ratio over time
         var _landingParticles = BikeController.Instance.CurrentBikeComponents.LandingParticles;
         var main = _landingParticles.main;
-        main.startSize = landingForce * 0.05f; 
+        main.startSize = landingForce * 0.05f;
         main.startLifetime = landingForce * 0.05f;
 
         // Set the emission rate based on the landing force
@@ -104,7 +103,7 @@ public class BikeParticles : MonoBehaviour
         _landingParticles.Play();
     }
 
-    
+
     void OnCollisionEnter2D(Collision2D collision)
     {
         // check if the collided object is on the ground layer

@@ -1,7 +1,7 @@
 #if !DISABLE_PLAYFABENTITY_API
+using PlayFab.SharedModels;
 using System;
 using System.Collections.Generic;
-using PlayFab.SharedModels;
 
 namespace PlayFab.DataModels
 {
@@ -14,7 +14,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -52,7 +52,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -107,7 +107,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -132,7 +132,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// Collection of metadata for the entity's files
         /// </summary>
-        public Dictionary<string,GetFileMetadata> Metadata;
+        public Dictionary<string, GetFileMetadata> Metadata;
         /// <summary>
         /// The current version of the profile, can be used for concurrency control during updates.
         /// </summary>
@@ -175,7 +175,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -192,7 +192,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// Collection of metadata for the entity's files
         /// </summary>
-        public Dictionary<string,GetFileMetadata> Metadata;
+        public Dictionary<string, GetFileMetadata> Metadata;
         /// <summary>
         /// The current version of the profile, can be used for concurrency control during updates.
         /// </summary>
@@ -208,7 +208,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -230,7 +230,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// Requested objects that the calling entity has access to
         /// </summary>
-        public Dictionary<string,ObjectResult> Objects;
+        public Dictionary<string, ObjectResult> Objects;
         /// <summary>
         /// The current version of the profile, can be used for concurrency control during updates.
         /// </summary>
@@ -260,7 +260,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -371,7 +371,7 @@ namespace PlayFab.DataModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>

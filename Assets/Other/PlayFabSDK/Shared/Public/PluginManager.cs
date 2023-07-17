@@ -1,6 +1,6 @@
+using PlayFab.Internal;
 using System;
 using System.Collections.Concurrent;
-using PlayFab.Internal;
 
 namespace PlayFab
 {

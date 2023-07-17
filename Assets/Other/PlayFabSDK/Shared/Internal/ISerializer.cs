@@ -1,6 +1,6 @@
+using PlayFab.Internal;
 using System;
 using System.Globalization;
-using PlayFab.Internal;
 
 namespace PlayFab.Json
 {

@@ -1,13 +1,10 @@
 using Cinemachine;
+using Lofelt.NiceVibrations;
 using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
 using static GameManager;
-using Lofelt.NiceVibrations;
-using UnityEngine.UIElements;
-using UnityEngine.UI;
-using Unity.Burst.CompilerServices;
 
 public class BikeController : MonoBehaviour
 {
@@ -28,7 +25,7 @@ public class BikeController : MonoBehaviour
     private float previousXPosition;
     private float totalDistance;
     private int frameCounter = 0;
-    private int frameThreshold = 10; // count every 10 frames for efficiency.
+    private readonly int frameThreshold = 10; // count every 10 frames for efficiency.
     public IEnumerator saveDistanceCoroutine;
 
     [SerializeField] private Bike[] BikeList;
@@ -37,7 +34,7 @@ public class BikeController : MonoBehaviour
 
     private TrailRenderer trailRenderer;
     private Rigidbody2D bikeRb;
-    private WheelJoint2D rearWheel,frontWheel;
+    private WheelJoint2D rearWheel, frontWheel;
     private Rigidbody2D rearWheelRb, frontWheelRb;
     private CircleCollider2D rearWheelCol;
     private Transform backWheelTransform, frontWheelTransform;
@@ -63,7 +60,6 @@ public class BikeController : MonoBehaviour
     [SerializeField] private float maxAirRotationSpeed;
     [SerializeField] private float bikeGroundCheckDistance;
     [SerializeField] private float initialMotorSpeed;
-    [Header("----end-----")]
 
     private float accelerationStartTime;
 
@@ -125,7 +121,7 @@ public class BikeController : MonoBehaviour
     private bool isSpeedBoosted = false;
     private float speedBoostEndTime = 0f;
     private float normalMotorSpeed;
-    private bool isBoosting = false; 
+    private bool isBoosting = false;
     private float boostMotorSpeed; // The target motor speed during the boost
 
 
@@ -143,7 +139,7 @@ public class BikeController : MonoBehaviour
         GameManager = GameManager.Instance;
         TrailManager = TrailManager.Instance;
 
-        if(bikeRb != null)
+        if (bikeRb != null)
         {
             previousXPosition = GameManager.InGAME_PlayerBike.transform.position.x;
             lastZRotation = bikeRb.transform.eulerAngles.z;
@@ -158,12 +154,12 @@ public class BikeController : MonoBehaviour
         if (isAccelerating && GameManager.gameState == GameState.Playing)
             HandleBike();
         else if (bikeRearWheelJoint != null)
-            bikeRearWheelJoint.useMotor = false;    
+            bikeRearWheelJoint.useMotor = false;
     }
 
 
     // Height from ground check
-    float maxDistance = 100f;
+    readonly float maxDistance = 100f;
     RaycastHit2D bikeAltitude;
 
     void Update()
@@ -174,7 +170,7 @@ public class BikeController : MonoBehaviour
         _previousSpeed = currentSpeed;
 
         var _gameState = GameManager.gameState;
-        if(_gameState == GameState.Playing)
+        if (_gameState == GameState.Playing)
         {
             bikeAltitude = Physics2D.Raycast(bikeRb.position, Vector2.down, maxDistance, GameManager.GroundLayer);
             Debug.DrawRay(bikeRb.position, Vector2.down * maxDistance, Color.red);
@@ -287,7 +283,7 @@ public class BikeController : MonoBehaviour
                 }
                 else
                 {
-                    if (Input.GetMouseButtonDown(0) && !isAccelerating) 
+                    if (Input.GetMouseButtonDown(0) && !isAccelerating)
                     {
                         accelerationStartTime = Time.time;
                         bikeRearWheelJoint.useMotor = true;
@@ -369,7 +365,7 @@ public class BikeController : MonoBehaviour
             Debug.Log("Bike not found in Bike list!");
             return;
         }
-        
+
         // Instantiate the player bike
         GameManager.InGAME_PlayerBike = Instantiate(_matchingBikeData.BikePrefab, GameManager.playerObjectParent.transform);
         Debug.Log("Bike Instance: " + GameManager.InGAME_PlayerBike.ToString());
@@ -611,7 +607,7 @@ public class BikeController : MonoBehaviour
         bikeMotor.motorSpeed = prevMotorSpeed;
     }
 
- 
+
 
     private void CheckGroundContact()
     {
@@ -637,7 +633,7 @@ public class BikeController : MonoBehaviour
             if (internalFlipCount > 0)
             {
                 flipCount += internalFlipCount;
-                
+
                 Debug.Log("Final Flip Count: " + flipCount);
                 // SAVE DATA
                 var _data = SaveSystem.LoadPlayerData();
@@ -667,7 +663,7 @@ public class BikeController : MonoBehaviour
             // Only count a flip if the bike has been upside down and completed a full rotation
             if (hasBeenUpsideDown && Mathf.Abs(rotationCounter) >= 360f)
             {
-                
+
                 rotationCounter = 0;
                 internalFlipCount++;
                 HapticPatterns.PlayPreset(HapticPatterns.PresetType.SoftImpact);
@@ -681,7 +677,7 @@ public class BikeController : MonoBehaviour
             }
         }
 
-        
+
         bool hasJumped = !IsGrounded();
 
         if (!isWheelie && !hasJumped && IsRearWheelGrounded() && IsFrontWheelGrounded())
@@ -715,7 +711,7 @@ public class BikeController : MonoBehaviour
             wheelieStartTime = 0;
         }
     }
-    
+
     private void EndWheelie()
     {
         if (isWheelie)
@@ -790,7 +786,7 @@ public class BikeController : MonoBehaviour
 
     public float GetBikeSpeed()
     {
-        if(bikeRb)
+        if (bikeRb)
             return bikeRb.velocity.magnitude;
         else return 0;
     }
@@ -806,7 +802,8 @@ public class BikeController : MonoBehaviour
     public bool IsRearWheelGrounded()
     {
         RaycastHit2D hitBack = Physics2D.Raycast(backWheelTransform.position, -Vector2.up, bikeGroundCheckDistance, GameManager.GroundLayer);
-        if(hitBack != false){
+        if (hitBack != false)
+        {
             return hitBack.collider != null;
         }
         return false;
@@ -820,7 +817,7 @@ public class BikeController : MonoBehaviour
 
     private void FaultFlip()
     {
-        HapticPatterns.PlayConstant(0.70f, 0.55f, 0.1f); 
+        HapticPatterns.PlayConstant(0.70f, 0.55f, 0.1f);
         faults++;
         GameManager.UpdateGameFaultCountText();
 
@@ -951,7 +948,7 @@ public class BikeController : MonoBehaviour
             float currentMotorSpeed = Mathf.Lerp(bikeMotorSpeed, boostMotorSpeed, progress);
 
             // Calculate the direction of the boost
-            Vector2 boostDirection = transform.right; 
+            Vector2 boostDirection = transform.right;
 
             // Apply the boost force to the bike's rigidbody at the boost position
             bikeRb.AddForceAtPosition(boostDirection * amount * bikeRb.mass, boostPosition, ForceMode2D.Force);
@@ -1008,8 +1005,8 @@ public class BikeController : MonoBehaviour
     {
         if (GameManager.InGAME_PlayerBike != null)
             return CurrentBikeComponents;
-        else 
+        else
             Debug.LogWarning("No bike components were found.");
-            return null; 
+        return null;
     }
 }

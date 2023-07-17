@@ -64,7 +64,7 @@ namespace PlayFab.PfEditor
                         OnDataClicked();
                     if (GUILayout.Button("TOOLS", toolsButtonStyle, GUILayout.MaxWidth(45)))
                         OnToolsClicked();
-                    if(GUILayout.Button("PACKAGES", packagesButtonStyle, GUILayout.MaxWidth(72)))
+                    if (GUILayout.Button("PACKAGES", packagesButtonStyle, GUILayout.MaxWidth(72)))
                         OnPackagesClicked();
                 }
 

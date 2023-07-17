@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using static Level;
 
 [Serializable]
 public class PlayerData
@@ -35,11 +33,12 @@ public class PlayerData
     public int PLAYER_LEVEL;
 
     // XP SYSTEM
-    // XP is calculated by stat weights
-    public float[] LEVEL_UP_DIFFICULTIES = new float[10] {1.1f, 1.2f, 1.3f, 1.5f, 1.7f, 2.1f, 2.6f, 2.9f, 3.5f, 4.9f}; // multiplier for each set of 10 levels
+
+    public float[] LEVEL_UP_DIFFICULTIES = new float[10] { 1.1f, 1.2f, 1.3f, 1.5f, 1.7f, 2.1f, 2.6f, 2.9f, 3.5f, 4.9f }; // multiplier for each set of 10 levels
 
     const int MAX_XP = 777777;
 
+    // XP is calculated by stat weights (not anymore)
     const float PLAYTIME_WEIGHT = 0.3f;
     const float FAULTS_WEIGHT = 0.1f;
     const float FLIPS_WEIGHT = 0.5f;
@@ -49,18 +48,18 @@ public class PlayerData
     const float MAX_XP_SCORE = 5777;
 
     // Calculating XP per LVL
-    const int BASE_XP = 1000; // per lvl complete
+    const int BASE_XP = 2500; // per lvl complete
     const int TIME_BONUS_XP = 7;  // awarded per second under time limit (time attack mode)
-    const int FLIP_BONUS_XP = 40; // awarded per flip
-    const int WHEELIE_BONUS_XP = 35; // awarded per wheelie point
+    const int FLIP_BONUS_XP = 50; // awarded per flip
+    const int WHEELIE_BONUS_XP = 50; // awarded per wheelie point
     const int FAULT_PENALTY_XP = 17; // deducted per fault
 
 
     // Settings
     public bool SETTINGS_isMuted = false;
     public bool SETTINGS_isHapticEnabled = true;
-    public float SETTINGS_mainVolume = 0.85f;
-    public float SETTINGS_sfxVolume = 0.55f;
+    public float SETTINGS_mainVolume = 0.45f;
+    public float SETTINGS_sfxVolume = 0.45f;
 
     public void AddXP(int amount)
     {
@@ -74,12 +73,12 @@ public class PlayerData
         int levelGroup;
         float currentGroupDifficulty;
         int baseXP = TOTAL_XP - 1500;
-        
-        if (baseXP >= 0) 
+
+        if (baseXP >= 0)
         {
             levelGroup = baseXP / (MAX_XP / 10);
             currentGroupDifficulty = LEVEL_UP_DIFFICULTIES[levelGroup];
-        
+
             if (levelGroup == 0)
             {
                 PLAYER_LEVEL = (int)((baseXP / (MAX_XP * 0.1 * currentGroupDifficulty)) * 10);
@@ -103,11 +102,11 @@ public class PlayerData
 
     public int XPForLevel(int level)
     {
-        if (level == 1) 
+        if (level == 1)
         {
             return 1500;
         }
-        else 
+        else
         {
             int levelGroup = (level - 1) / 10;
             float currentGroupDifficulty = LEVEL_UP_DIFFICULTIES[levelGroup];
@@ -157,8 +156,8 @@ public class PlayerData
         var _playerData = SaveSystem.LoadPlayerData();
         float currentLevelXP = _playerData.TOTAL_XP - XPForLevel(_playerData.PLAYER_LEVEL);
         float nextLevelXP = XPForLevel(_playerData.PLAYER_LEVEL + 1) - XPForLevel(_playerData.PLAYER_LEVEL);
-        
-        return currentLevelXP / nextLevelXP; 
+
+        return currentLevelXP / nextLevelXP;
     }
 
     // Add or update LevelStats for a specific category and level id
@@ -182,13 +181,13 @@ public class PlayerData
                 if (newStats.Faults < existingStats.Faults)
                 {
                     levelStatsDictionary[key] = newStats;
-                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
+
                     return Result.NewTimeRecord;
                 }
                 else if (newStats.Faults == existingStats.Faults && newStats.Time < existingStats.Time)
                 {
                     levelStatsDictionary[key] = newStats;
-                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
+
                     return Result.NewTimeRecord;
                 }
             }
@@ -198,26 +197,24 @@ public class PlayerData
                 if (newStats.Flips > existingStats.Flips)
                 {
                     levelStatsDictionary[key] = newStats;
-                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
+
                     return Result.NewFlipsRecord;
                 }
                 else if (newStats.Flips == existingStats.Flips && newStats.Faults < existingStats.Faults)
                 {
                     levelStatsDictionary[key] = newStats;
-                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
+
                     return Result.NewFlipsRecord;
                 }
 
                 if (newStats.Wheelie > existingStats.Wheelie)
                 {
                     levelStatsDictionary[key] = newStats;
-                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewWheelieRecord;
                 }
                 else if (newStats.Wheelie == existingStats.Wheelie && newStats.Faults < existingStats.Faults)
                 {
                     levelStatsDictionary[key] = newStats;
-                    LeaderboardManager.Instance.SendAllStats(key, newStats.Time, newStats.Faults, newStats.Flips, newStats.Wheelie);
                     return Result.NewWheelieRecord;
                 }
             }

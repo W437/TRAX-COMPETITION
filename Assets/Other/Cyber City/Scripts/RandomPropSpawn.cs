@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +16,7 @@ public class RandomPropSpawn : MonoBehaviour
         var position = transform.position;
 
         if ((lastPositions.TryGetValue(layer, out var lastPos) &&
-             (lastPos - (Vector2) position).magnitude > minSpawnDistance) || !lastPositions.ContainsKey(layer))
+             (lastPos - (Vector2)position).magnitude > minSpawnDistance) || !lastPositions.ContainsKey(layer))
         {
             float random = Random.Range(0.0f, 1.0f);
 

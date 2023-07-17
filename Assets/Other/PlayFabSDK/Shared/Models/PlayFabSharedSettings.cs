@@ -1,5 +1,5 @@
-using UnityEngine;
 using PlayFab;
+using UnityEngine;
 
 #if UNITY_5_3_OR_NEWER
 [CreateAssetMenu(fileName = "PlayFabSharedSettings", menuName = "PlayFab/CreateSharedSettings", order = 1)]

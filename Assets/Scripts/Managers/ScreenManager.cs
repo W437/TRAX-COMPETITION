@@ -1,14 +1,12 @@
+using Lofelt.NiceVibrations;
+using MoreMountains.Feedbacks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Lofelt.NiceVibrations;
-using MoreMountains.Feedbacks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static GameManager;
-using static Level;
 using static PlayerData;
 
 public class ScreenManager : MonoBehaviour
@@ -128,8 +126,8 @@ public class ScreenManager : MonoBehaviour
     public TextMeshProUGUI Txt_PlayerLevel, Txt_PlayerXP;
     public Toggle Settings_Toggle_Mute, Settings_Toggle_Haptic;
     public TextMeshProUGUI Txt_ToggleMuteStatus;
-    public Sprite MuteSprite, UnmuteSprite;
-    public Image ToggleMuteImage, ToggleMuteBG, ToggleHapticBG;
+    public Sprite MuteSprite, UnmuteSprite, HapticOffSprite, HapticOnSprite;
+    public Image ToggleMuteImage, ToggleHapticImage, ToggleMuteBG, ToggleHapticBG;
     public Slider Settings_Slider_MainVol, Settings_Slider_SFXVol, Settings_Slider_LevelProgress;
 
     // Dev tools
@@ -154,8 +152,7 @@ public class ScreenManager : MonoBehaviour
     public Button Btn_Shop_BackMenu;
     public Button Btn_Shop_RightBtn;
     public Button Btn_Shop_LeftBtn;
-    public Button Btn_Shop_Trails;
-    public Button Btn_Shop_Bikes;
+
     public Button Btn_Shop_BuyButton;
     public GameObject ShopSelectionObject;
     public GameObject TopMenuHeader;
@@ -204,7 +201,7 @@ public class ScreenManager : MonoBehaviour
     public Animator startTransitionAnimator;
     public Animator endTransitionAnimator;
     const float startTransitionDuration = 1f;
-    const float endTransitionDuration = 1f;   
+    const float endTransitionDuration = 1f;
 
     /////////////////////////////////////////////////////////////////////////////////////
     /////// MENU BIKE STUFF
@@ -220,7 +217,7 @@ public class ScreenManager : MonoBehaviour
     public GameObject MenuBikeObjectParent;
 
     #endregion
-    
+
     void Awake()
     {
         Instance = this;
@@ -276,7 +273,7 @@ public class ScreenManager : MonoBehaviour
                 return;
             }
         #endregion*/
-        
+
         Debug.Log("Selected Bike ID: " + selectedBikeId);
         Debug.Log("Selected Trail ID: " + selectedTrailId);
         PlayerMenuBike = ShopManager.DisplayBikePrefab(selectedBike);
@@ -291,41 +288,56 @@ public class ScreenManager : MonoBehaviour
         /////// INITIATE SETTINGS DATA
         /////////////////////////////////////////////////////////////////////////////////////
 
-        Settings_Toggle_Mute.isOn = PlayerData.SETTINGS_isMuted;
-        Settings_Toggle_Haptic.isOn = PlayerData.SETTINGS_isHapticEnabled;
+        Debug.Log("Ismuted?: " + PlayerData.SETTINGS_isMuted);
 
-        Settings_Toggle_Mute.onValueChanged.AddListener(OnMuteToggleClick);
-
-        if(PlayerData.SETTINGS_isMuted)
+        if (PlayerData.SETTINGS_isMuted)
         {
+            Settings_Toggle_Mute.isOn = true;
             AudioManager.MainAudioSource.volume = 0;
             AudioManager.SFXAudioSource.volume = 0;
-            ToggleMuteBG.color = new Color(0,0,0,0.5f);
+            Settings_Slider_MainVol.value = 0f;
+            Settings_Slider_SFXVol.value = 0;
+            Color currentColor = ToggleMuteBG.color;
+            ToggleMuteBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.85f);
             Txt_ToggleMuteStatus.text = "Unmute";
+            Settings_Slider_MainVol.interactable = false;
+            Settings_Slider_SFXVol.interactable = false;
         }
 
         else
         {
-            AudioManager.MainAudioSource.volume = PlayerData.SETTINGS_mainVolume;
-            AudioManager.SFXAudioSource.volume = PlayerData.SETTINGS_sfxVolume;
-            ToggleMuteBG.color = new Color(0,0,0,0.2f);
+            Settings_Toggle_Mute.isOn = false;
+            AudioManager.MainAudioSource.volume = 0.45f;
+            AudioManager.SFXAudioSource.volume = 0.45f;
+            Settings_Slider_MainVol.value = 0.45f;
+            Settings_Slider_SFXVol.value = 0.45f;
+            Color currentColor = ToggleMuteBG.color;
+            ToggleMuteBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.35f);
             Txt_ToggleMuteStatus.text = "Mute";
+            Settings_Slider_MainVol.interactable = true;
+            Settings_Slider_SFXVol.interactable = true;
         }
+
         UpdateMuteToggleImage();
 
 
-        if(!Settings_Toggle_Haptic.isOn)
+        if (PlayerData.SETTINGS_isHapticEnabled)
         {
-            PlayerData.SETTINGS_isHapticEnabled = false;
+            Settings_Toggle_Haptic.isOn = true;
             HapticController.hapticsEnabled = PlayerData.SETTINGS_isHapticEnabled;
-            ToggleHapticBG.color = new Color(0,0,0,0.2f);
+            Color currentColor = ToggleHapticBG.color;
+            ToggleHapticBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.85f);
         }
         else
         {
-            PlayerData.SETTINGS_isHapticEnabled = true;
+            Settings_Toggle_Haptic.isOn = false;
             HapticController.hapticsEnabled = PlayerData.SETTINGS_isHapticEnabled;
-            ToggleHapticBG.color = new Color(0, 0, 0, 0.5f);
+            Color currentColor = ToggleHapticBG.color;
+            ToggleHapticBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.30f);
         }
+
+        UpdateHapticToggleImage();
+
 
         Settings_Slider_MainVol.value = PlayerData.SETTINGS_isMuted ? 0 : PlayerData.SETTINGS_mainVolume;
         Settings_Slider_SFXVol.value = PlayerData.SETTINGS_isMuted ? 0 : PlayerData.SETTINGS_sfxVolume;
@@ -358,7 +370,7 @@ public class ScreenManager : MonoBehaviour
 
         obj = Btn_Menu_About.transform.localPosition;
         Btn_Menu_About.transform.localPosition =
-            new Vector2(obj.x, obj.y-400);
+            new Vector2(obj.x, obj.y - 400);
 
         obj = Btn_Menu_Shop.transform.localPosition;
         Btn_Menu_Shop.transform.localPosition =
@@ -374,15 +386,15 @@ public class ScreenManager : MonoBehaviour
 
         obj = MENU_GameLogo.transform.localPosition;
         MENU_GameLogo.transform.localPosition =
-            new Vector2(obj.x, obj.y+450);
+            new Vector2(obj.x, obj.y + 450);
 
         obj = Btn_About_Back.transform.localPosition;
         Btn_About_Back.transform.localPosition =
-            new Vector2(obj.x, obj.y-500);
+            new Vector2(obj.x, obj.y - 500);
 
         obj = AboutPanel.transform.localPosition;
         AboutPanel.transform.localPosition =
-            new Vector2(obj.x+900, obj.y);
+            new Vector2(obj.x + 900, obj.y);
 
         obj = PlayFabStatusParent.transform.localPosition;
         PlayFabStatusParent.transform.localPosition =
@@ -441,51 +453,51 @@ public class ScreenManager : MonoBehaviour
 
         obj = LevelsSection.transform.localPosition;
         LevelsSection.transform.localPosition =
-            new Vector2(-800f, obj.y); 
+            new Vector2(-800f, obj.y);
 
 
         // Shop Section
         obj = Btn_Shop_BackMenu.transform.localPosition;
         Btn_Shop_BackMenu.transform.localPosition =
-            new Vector2(0, obj.y-400f); 
+            new Vector2(0, obj.y - 400f);
 
         obj = Btn_Shop_RightBtn.transform.localPosition;
         Btn_Shop_RightBtn.transform.localPosition =
-            new Vector2(obj.x+400, obj.y); 
+            new Vector2(obj.x + 400, obj.y);
 
         obj = Btn_Shop_LeftBtn.transform.localPosition;
         Btn_Shop_LeftBtn.transform.localPosition =
-            new Vector2(obj.x-400, obj.y); 
+            new Vector2(obj.x - 400, obj.y);
 
         obj = Btn_Shop_BuyButton.transform.localScale;
         Btn_Shop_BuyButton.transform.localScale =
-            new Vector2(0, 0); 
-            
+            new Vector2(0, 0);
+
         obj = TopOverlayHeader.transform.localPosition;
         TopOverlayHeader.transform.localPosition =
-            new Vector2(0, obj.y+500f); 
+            new Vector2(0, obj.y + 500f);
 
         obj = ShopSelectionObject.transform.localPosition;
         ShopSelectionObject.transform.localPosition =
-            new Vector2(obj.x-850, obj.y); 
+            new Vector2(obj.x - 850, obj.y);
 
 
         // Settings Section
         obj = Settings_Stats.transform.localPosition;
         Settings_Stats.transform.localPosition =
-            new Vector2(obj.x+900, obj.y); 
+            new Vector2(obj.x + 900, obj.y);
 
         obj = Settings_Main.transform.localPosition;
         Settings_Main.transform.localPosition =
-            new Vector2(obj.x-900, obj.y); 
+            new Vector2(obj.x - 900, obj.y);
 
         obj = temp_PanelDev.transform.localPosition;
         temp_PanelDev.transform.localPosition =
-            new Vector2(obj.x+900, obj.y); 
+            new Vector2(obj.x + 900, obj.y);
 
         obj = B_SettingsBackMenu.transform.localPosition;
         B_SettingsBackMenu.transform.localPosition =
-            new Vector2(obj.x, obj.y-400); 
+            new Vector2(obj.x, obj.y - 400);
 
         Toggle_GameSettings.isOn = true;
         Toggle_GameSettings.Select();
@@ -494,40 +506,40 @@ public class ScreenManager : MonoBehaviour
         // Game Finish Section
         obj = FinishStatsPanel.transform.localPosition;
         FinishStatsPanel.transform.localPosition =
-            new Vector2(obj.x, obj.y+1500); 
+            new Vector2(obj.x, obj.y + 1500);
 
         obj = Btn_Finish_Leaderboard.transform.localScale;
         Btn_Finish_Leaderboard.transform.localScale =
-            new Vector3(0,0,0); 
+            new Vector3(0, 0, 0);
 
         obj = Btn_Finish_Restart.transform.localPosition;
         Btn_Finish_Restart.transform.localPosition =
-            new Vector2(obj.x-400, obj.y); 
+            new Vector2(obj.x - 400, obj.y);
 
         obj = Btn_Finish_NextLvl.transform.localPosition;
         Btn_Finish_NextLvl.transform.localPosition =
-            new Vector2(obj.x+400, obj.y); 
+            new Vector2(obj.x + 400, obj.y);
 
         obj = Btn_LevelFinish_Back.transform.localPosition;
         Btn_LevelFinish_Back.transform.localPosition =
-            new Vector2(obj.x, obj.y-350); 
+            new Vector2(obj.x, obj.y - 350);
 
         obj = Txt_LevelFinish_XPGained.transform.localPosition;
         Txt_LevelFinish_XPGained.transform.localPosition =
-            new Vector2(obj.x, obj.y+450); 
+            new Vector2(obj.x, obj.y + 450);
 
         // Trophies
         obj = Trophy1.transform.localScale;
         Trophy1.transform.localScale =
-            new Vector3(0,0,0); 
+            new Vector3(0, 0, 0);
 
         obj = Trophy2.transform.localScale;
         Trophy2.transform.localScale =
-            new Vector3(0,0,0); 
+            new Vector3(0, 0, 0);
 
         obj = Trophy3.transform.localScale;
         Trophy3.transform.localScale =
-            new Vector3(0,0,0); 
+            new Vector3(0, 0, 0);
 
 
         #endregion
@@ -539,9 +551,11 @@ public class ScreenManager : MonoBehaviour
 
         ///// Main Menu
         //////////////////////
-        Btn_Menu_Start.onClick.AddListener(delegate {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        ///
+        Btn_Menu_Start.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
@@ -552,29 +566,30 @@ public class ScreenManager : MonoBehaviour
 
         Btn_ConfirmName.onClick.AddListener(LeaderboardManager.OnConfirmButtonPressed);
 
-        Btn_Menu_Shop.onClick.AddListener(delegate 
-        { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        Btn_Menu_Shop.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
-            GoToShop(); 
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            GoToShop();
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         });
 
 
-        Btn_Menu_About.onClick.AddListener(delegate 
-        { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        Btn_Menu_About.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             TweenAboutSection(true);
-            TweenMainMenu(false); 
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            TweenMainMenu(false);
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         });
 
-        Btn_Menu_MainLeaderboard.onClick.AddListener(delegate {
+        Btn_Menu_MainLeaderboard.onClick.AddListener(delegate
+        {
             if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
                 return;
             _lastButtonClickTime = Time.time;
@@ -584,35 +599,31 @@ public class ScreenManager : MonoBehaviour
             //LeaderboardManager.UpdateLeaderboardUI();
         });
 
-        Btn_About_Back.onClick.AddListener(delegate 
-        { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        Btn_About_Back.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             TweenAboutSection(false);
-            TweenMainMenu(true); 
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            TweenMainMenu(true);
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         });
 
 
-
-
-
-        Btn_Menu_Settings.onClick.AddListener(delegate 
+        Btn_Menu_Settings.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown + 1)
+                return;
             _lastButtonClickTime = Time.time;
 
-                
             RefreshTextValuesFromPlayerData();
-                HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
             TweenMainMenu(false);
             TweenGameLogo(false);
             TweenSettingsMenu(true);
             GameManager.SavePlaytimeAndDistance();
-            CameraController.SwitchToSettingsCamera(); 
+            CameraController.SwitchToSettingsCamera();
         });
 
         // Set Data
@@ -620,28 +631,30 @@ public class ScreenManager : MonoBehaviour
         Txt_Menu_LvlsFinished.text = PlayerData.TOTAL_LEVELS_FINISHED + "/" + LevelManager.Levels.Length;
 
         // Paused Screen
-        Btn_HUD_PauseGame.onClick.AddListener(delegate {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        Btn_HUD_PauseGame.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             PauseGame();
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.Warning);
         });
 
-        B_Paused_Resume.onClick.AddListener( delegate 
+        B_Paused_Resume.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             ResumeGame();
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
-        } );
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
+        });
 
-        B_Paused_Restart.onClick.AddListener(delegate { 
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        B_Paused_Restart.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
             GameManager.SavePlaytimeAndDistance();
             TweenPauseGame(false);
@@ -650,19 +663,20 @@ public class ScreenManager : MonoBehaviour
 
             SaveSystem.SavePlayerData(_data);
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
-            LevelManager.StartLevel( LevelManager.CurrentLevelID); 
+            LevelManager.StartLevel(LevelManager.CurrentLevelID);
         });
 
-        B_Paused_Menu.onClick.AddListener(delegate {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+        B_Paused_Menu.onClick.AddListener(delegate
+        {
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             StartCoroutine(GoToMenuFromGame());
             GameManager.SavePlaytimeAndDistance();
             var _data = SaveSystem.LoadPlayerData();
             SaveSystem.SavePlayerData(_data);
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
 
         });
 
@@ -685,20 +699,20 @@ public class ScreenManager : MonoBehaviour
 
         Btn_Finish_Restart.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
 
             TweenLevelFinishMenu(false);
-            LevelManager.StartLevel( LevelManager.CurrentLevelID);
+            LevelManager.StartLevel(LevelManager.CurrentLevelID);
         });
 
-        Btn_Finish_NextLvl.onClick.AddListener(delegate 
+        Btn_Finish_NextLvl.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
             TweenLevelFinishMenu(false);
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
@@ -707,44 +721,44 @@ public class ScreenManager : MonoBehaviour
 
         Btn_LevelFinish_Back.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);  
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
 
             TweenLevelFinishMenu(false);
             StartCoroutine(GoToMenuFromFinishMenu());
         });
 
         // Levels Section
-        B_LevelsMenuBack.onClick.AddListener(delegate 
+        B_LevelsMenuBack.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             PlayerMenuBike.SetActive(true);
             MenuPlatformObject.SetActive(true);
 
             PlayerMenuBikeRb.isKinematic = false;
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
             TweenLevelsSection(false);
             TweenGameLogo(true);
-            GoToMainMenu(); 
+            GoToMainMenu();
         });
 
         // Shop Section
-        Btn_Shop_BackMenu.onClick.AddListener(delegate 
+        Btn_Shop_BackMenu.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown + 1)
+                return;
             _lastButtonClickTime = Time.time;
 
             RefreshTextValuesFromPlayerData();
             TweenShopMenu(false);
             TweenMainMenu(true);
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
 
             var _playerData = SaveSystem.LoadPlayerData();
             var _bikeList = BikeController.GetAllBikes();
@@ -754,33 +768,33 @@ public class ScreenManager : MonoBehaviour
             PlayerMenuBike = ShopManager.DisplayBikePrefab(_bikeList[_playerData.SELECTED_BIKE_ID].BikePrefab);
             PlayerMenuBikeRb = PlayerMenuBike.GetComponent<Rigidbody2D>();
             ShopManager.DisplayTrailPrefab(_trailList[_playerData.SELECTED_TRAIL_ID].TrailPrefab);
-            CameraController.SwitchToMenuCamera(); 
+            CameraController.SwitchToMenuCamera();
         });
 
         // Settings
-        B_SettingsBackMenu.onClick.AddListener(delegate 
+        B_SettingsBackMenu.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown+1)
-            return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown + 1)
+                return;
             _lastButtonClickTime = Time.time;
 
             TweenGameLogo(true);
             TweenSettingsMenu(false);
             TweenMainMenu(true);
-            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact); 
+            HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
             var _playerData = SaveSystem.LoadPlayerData();
             _playerData.UpdateLevel();
-            CameraController.SwitchToMenuCamera(); 
+            CameraController.SwitchToMenuCamera();
         });
-            
-        Settings_Toggle_Mute.onValueChanged.AddListener(OnMuteToggleClick);
-        Settings_Toggle_Haptic.onValueChanged.AddListener(OnHapticToggleClick);
+
+        Settings_Toggle_Mute.onValueChanged.AddListener(delegate { OnMuteToggleClick(); });
+        Settings_Toggle_Haptic.onValueChanged.AddListener(delegate { OnHapticToggleClick(); });
 
         Settings_Slider_MainVol.onValueChanged.AddListener(delegate { OnSliderMainVolumeValueChanged(Settings_Slider_MainVol.value); });
         Settings_Slider_SFXVol.onValueChanged.AddListener(delegate { OnSliderSFXVolumeValueChanged(Settings_Slider_SFXVol.value); });
 
         // Dev tools buttons
-        btn_AddCoins.onClick.AddListener(delegate 
+        btn_AddCoins.onClick.AddListener(delegate
         {
             var _data = SaveSystem.LoadPlayerData();
             Debug.Log("Coins before save: " + _data.COINS);
@@ -792,25 +806,25 @@ public class ScreenManager : MonoBehaviour
             RefreshTextValuesFromPlayerData();
         });
 
-        btn_ResetCoins.onClick.AddListener(delegate 
+        btn_ResetCoins.onClick.AddListener(delegate
         {
             var _data = SaveSystem.LoadPlayerData();
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
             _data.UpdateLevel();
             Debug.Log("TotalPlayTime: " + _data.TOTAL_PLAYTIME + " current: " + GameManager.CurrentPlayTime);
-  
+
             SaveSystem.SavePlayerData(_data);
-            RefreshTextValuesFromPlayerData(); 
+            RefreshTextValuesFromPlayerData();
         });
 
-        btn_ResetSavedata.onClick.AddListener(delegate 
+        btn_ResetSavedata.onClick.AddListener(delegate
         {
             SaveSystem.ResetSaveFile();
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
-            RefreshTextValuesFromPlayerData(); 
+            RefreshTextValuesFromPlayerData();
         });
 
-        btn_UnlockAll.onClick.AddListener(delegate 
+        btn_UnlockAll.onClick.AddListener(delegate
         {
             var _playerData = SaveSystem.LoadPlayerData();
             Bike[] allBikes = BikeController.GetAllBikes();
@@ -826,10 +840,10 @@ public class ScreenManager : MonoBehaviour
                 _playerData.UNLOCKED_TRAILS[i] = allTrails[i].ID;
 
             SaveSystem.SavePlayerData(_playerData);
-            RefreshTextValuesFromPlayerData(); 
+            RefreshTextValuesFromPlayerData();
         });
 
-        btn_AddXP.onClick.AddListener(delegate 
+        btn_AddXP.onClick.AddListener(delegate
         {
             var _playerData = SaveSystem.LoadPlayerData();
             int addedXP = 5167;
@@ -840,15 +854,15 @@ public class ScreenManager : MonoBehaviour
             SaveSystem.SavePlayerData(_playerData);
         });
 
-        btn_ShuffleSoundtrack.onClick.AddListener(delegate 
+        btn_ShuffleSoundtrack.onClick.AddListener(delegate
         {
             HapticPatterns.PlayEmphasis(0.6f, 1.0f);
-            AudioManager.PlayNextTrack(); 
+            AudioManager.PlayNextTrack();
         });
 
         Btn_LB_Back.onClick.AddListener(delegate
         {
-            if(GameManager.gameState == GameState.Menu)
+            if (GameManager.gameState == GameState.Menu)
             {
                 TweenLevelsSection(true);
                 TweenLeaderboard(false);
@@ -950,9 +964,9 @@ public class ScreenManager : MonoBehaviour
     public void StatsLevelProgressRefresh()
     {
         var _data = SaveSystem.LoadPlayerData();
-        Settings_Slider_LevelProgress.maxValue = 1; 
+        Settings_Slider_LevelProgress.maxValue = 1;
         Settings_Slider_LevelProgress.value = 0;
-        LeanTween.value(gameObject, 0, _data.GetCurrentXPProgress(), 1f).setEaseInOutSine().setOnUpdate((float value) => 
+        LeanTween.value(gameObject, 0, _data.GetCurrentXPProgress(), 1f).setEaseInOutSine().setOnUpdate((float value) =>
         {
             Settings_Slider_LevelProgress.value = value;
         }).setOnComplete(() =>
@@ -979,15 +993,17 @@ public class ScreenManager : MonoBehaviour
         SaveSystem.SavePlayerData(_playerData);
     }
 
-    private void OnMuteToggleClick(bool isOn)
+    private void OnMuteToggleClick()
     {
-        if(Time.time - _lastButtonClickTime < _buttonClickCooldown-1f)
+        if (Time.time - _lastButtonClickTime < _buttonClickCooldown - 1f)
             return;
         _lastButtonClickTime = Time.time;
 
+        HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact);
         PlayerData = SaveSystem.LoadPlayerData();
-         HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact); 
-        if (isOn) 
+        bool isOn = !PlayerData.SETTINGS_isMuted;
+
+        if (isOn)
         {
             AudioManager.MainAudioSource.volume = 0;
             AudioManager.SFXAudioSource.volume = 0;
@@ -996,47 +1012,61 @@ public class ScreenManager : MonoBehaviour
             Settings_Slider_MainVol.value = 0f;
             Settings_Slider_SFXVol.value = 0f;
             PlayerData.SETTINGS_isMuted = true;
-            SaveSystem.SavePlayerData(PlayerData);
-            ToggleMuteBG.color = new Color(0,0,0,0.5f);
+
+            Settings_Slider_MainVol.interactable = false;
+            Settings_Slider_SFXVol.interactable = false;
+
+            Color currentColor = ToggleMuteBG.color;
+            ToggleMuteBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.85f);
             Txt_ToggleMuteStatus.text = "Unmute";
         }
         else
         {
-            AudioManager.MainAudioSource.volume = 0.85f;
-            AudioManager.SFXAudioSource.volume = 0.95f;
-            Settings_Slider_MainVol.value = 0.85f;
-            Settings_Slider_SFXVol.value = 0.95f;
+            AudioManager.MainAudioSource.volume = 0.45f;
+            AudioManager.SFXAudioSource.volume = 0.45f;
+            Settings_Slider_MainVol.value = 0.45f;
+            Settings_Slider_SFXVol.value = 0.45f;
             PlayerData.SETTINGS_isMuted = false;
-            SaveSystem.SavePlayerData(PlayerData);
-            ToggleMuteBG.color = new Color(0,0,0,0.2f);
+
+            Settings_Slider_MainVol.interactable = true;
+            Settings_Slider_SFXVol.interactable = true;
+
+            Color currentColor = ToggleMuteBG.color;
+            ToggleMuteBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.35f);
             Txt_ToggleMuteStatus.text = "Mute";
         }
-
+        SaveSystem.SavePlayerData(PlayerData);
         UpdateMuteToggleImage();
     }
 
-    private void OnHapticToggleClick(bool isOn)
+    private void OnHapticToggleClick()
     {
-        if(Time.time - _lastButtonClickTime < _buttonClickCooldown-1f)
-            return; 
+        if (Time.time - _lastButtonClickTime < _buttonClickCooldown - 1f)
+            return;
         _lastButtonClickTime = Time.time;
 
-        HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact); 
+
+        HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact);
         PlayerData = SaveSystem.LoadPlayerData();
-        if (!isOn)
+        bool isOn = PlayerData.SETTINGS_isHapticEnabled;
+
+        if (isOn)
         {
-            PlayerData.SETTINGS_isHapticEnabled = true;
-            HapticController.hapticsEnabled = PlayerData.SETTINGS_isHapticEnabled;
-            ToggleHapticBG.color = new Color(0,0,0,0.5f);
+            PlayerData.SETTINGS_isHapticEnabled = false;
+            HapticController.hapticsEnabled = false;
+            Color currentColor = ToggleHapticBG.color;
+            ToggleHapticBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.30f);
         }
         else
         {
-            //BikeHapticManager.Instance.HAPTIC_ON = true; // separate haptic for bike
-            PlayerData.SETTINGS_isHapticEnabled = false;
-            HapticController.hapticsEnabled = PlayerData.SETTINGS_isHapticEnabled;
-            ToggleHapticBG.color = new Color(0,0,0,0.2f);
+            PlayerData.SETTINGS_isHapticEnabled = true;
+            HapticController.hapticsEnabled = true;
+            Color currentColor = ToggleHapticBG.color;
+            ToggleHapticBG.color = new Color(currentColor.r, currentColor.g, currentColor.b, 0.85f);
         }
         SaveSystem.SavePlayerData(PlayerData);
+        UpdateHapticToggleImage();
+        Debug.Log("Haptic: " + isOn + " Save: " + PlayerData.SETTINGS_isHapticEnabled);
     }
 
     private void OnSliderSFXVolumeValueChanged(float value)
@@ -1044,7 +1074,7 @@ public class ScreenManager : MonoBehaviour
         var _playerData = SaveSystem.LoadPlayerData();
         AudioManager.SFXAudioSource.volume = value;
         _playerData.SETTINGS_sfxVolume = value;
-        HapticPatterns.PlayConstant(value, 0.1f, 0.05f); 
+        HapticPatterns.PlayConstant(value, 0.1f, 0.05f);
         SaveSystem.SavePlayerData(_playerData);
     }
 
@@ -1054,13 +1084,8 @@ public class ScreenManager : MonoBehaviour
         AudioManager.MainAudioSource.volume = value;
         _playerData.SETTINGS_mainVolume = value;
 
-        if(_playerData.SETTINGS_isMuted)
-        {
-            OnMuteToggleClick(true);
-        }
-
         // haptic feedback
-        float amplitude = Mathf.Clamp(value, 0, 1); 
+        float amplitude = Mathf.Clamp(value, 0, 1);
         HapticPatterns.PlayConstant(value, 0.1f, 0.05f);  // Short duration to mimic a brief 'buzz' feeling
 
         SaveSystem.SavePlayerData(_playerData);
@@ -1071,7 +1096,16 @@ public class ScreenManager : MonoBehaviour
         Image toggleImage = ToggleMuteImage;
         if (toggleImage != null)
         {
-            toggleImage.sprite = Settings_Toggle_Mute.isOn ? UnmuteSprite : MuteSprite;
+            toggleImage.sprite = Settings_Toggle_Mute.isOn ? MuteSprite : UnmuteSprite;
+        }
+    }
+
+    private void UpdateHapticToggleImage()
+    {
+        Image toggleImage = ToggleHapticImage;
+        if (toggleImage != null)
+        {
+            toggleImage.sprite = Settings_Toggle_Haptic.isOn ? HapticOnSprite : HapticOffSprite;
         }
     }
 
@@ -1090,9 +1124,9 @@ public class ScreenManager : MonoBehaviour
 
         // Shop
         ShopManager.T_Coins.text = PlayerData.COINS + "";
-        ShopManager.T_UnlockedBikes.text = _unlockedBikes 
+        ShopManager.T_UnlockedBikes.text = _unlockedBikes
         + "/" + BikeController.GetAllBikes().Length + "";
-        ShopManager.T_UnlockedTrails.text = _unlockedTrails 
+        ShopManager.T_UnlockedTrails.text = _unlockedTrails
         + "/" + TrailManager.GetAllTrails().Length + "";
 
         // Settings (Stats)
@@ -1126,13 +1160,13 @@ public class ScreenManager : MonoBehaviour
         accelerationTimer += Time.fixedDeltaTime;
         // Calculate the current speed based on the elapsed time
         menuBikeSpeed = Mathf.Lerp(0, menuBikeMaxSpeed, accelerationTimer / accelerationTime);
-        
+
         Vector2 force = new Vector2(menuBikeSpeed - PlayerMenuBikeRb.velocity.x, 0);
         PlayerMenuBikeRb.AddForce(force, ForceMode2D.Force);
 
 
         // Maintain positive bike rotation after coroutines.
-        if((BikeAnimationInCoroutine == null && BikeAnimationOutCoroutine == null))
+        if ((BikeAnimationInCoroutine == null && BikeAnimationOutCoroutine == null))
         {
             float rotationAngle = menuBikeSpeed * 1.25f; // Adjust the factor as needed
             PlayerMenuBikeRb.MoveRotation(rotationAngle);
@@ -1213,7 +1247,7 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveX(ShopSelectionObject.GetComponent<RectTransform>(), 1100f, 0.55f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(TopOverlayHeader.GetComponent<RectTransform>(), 700f, 0.4f).setEase(LeanTweenType.easeOutExpo).
             setOnComplete(
-                delegate()
+                delegate ()
                 {
                     Panel_Shop.SetActive(false);
                 }
@@ -1249,7 +1283,7 @@ public class ScreenManager : MonoBehaviour
             Txt_UsernamePlaceholder.text = LeaderboardManager.Instance.PlayerDisplayName;
             Settings_Slider_LevelProgress.value = 0;
             Panel_Settings.SetActive(true);
-            LeanTween.moveX(Settings_Stats.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(delegate() {StatsLevelProgressRefresh();});
+            LeanTween.moveX(Settings_Stats.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f).setOnComplete(delegate () { StatsLevelProgressRefresh(); });
             LeanTween.moveX(Settings_Main.GetComponent<RectTransform>(), -0, 0.50f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveX(temp_PanelDev.GetComponent<RectTransform>(), 0, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveY(B_SettingsBackMenu.GetComponent<RectTransform>(), -85f, 0.55f).setEase(LeanTweenType.easeOutExpo).setDelay(0.2f);
@@ -1261,7 +1295,7 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveX(temp_PanelDev.GetComponent<RectTransform>(), 1100, 0.45f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(B_SettingsBackMenu.GetComponent<RectTransform>(), -400f, 0.5f).setEase(LeanTweenType.easeOutExpo).
             setOnComplete(
-                delegate()
+                delegate ()
                 {
                     Panel_Settings.SetActive(false);
                 }
@@ -1306,10 +1340,10 @@ public class ScreenManager : MonoBehaviour
 
             int _trophyCount = 0;
 
-            if(levelStats != null)
+            if (levelStats != null)
                 _trophyCount = LevelManager.Levels[item.LevelID].CalculateTrophies(levelStats.Time, levelStats.Faults);
 
-            
+
             switch (_trophyCount)
             {
                 case 3:
@@ -1323,7 +1357,7 @@ public class ScreenManager : MonoBehaviour
                     levelEntry.Trophy2.SetActive(true);
                     break;
                 case 1:
-                    levelEntry.Trophy1.SetActive(true);     
+                    levelEntry.Trophy1.SetActive(true);
                     break;
                 case 0:
 
@@ -1332,7 +1366,7 @@ public class ScreenManager : MonoBehaviour
                     break;
             }
 
-            if(levelStats != null)
+            if (levelStats != null)
             {
                 var timeSpan = TimeSpan.FromSeconds(levelStats.Time);
                 levelEntry.Txt_Timer.text = string.Format("{0:D2}:{1:D2}:{2:D2}",
@@ -1384,11 +1418,11 @@ public class ScreenManager : MonoBehaviour
 
     public void TweenLevelFinishMenu(bool In)
     {
-        if (In) 
+        if (In)
         {
             Panel_GameOver.SetActive(true);
             LeanTween.alpha(LevelFinishOverlay.GetComponent<RectTransform>(), 0.5f, 0.5f).setDelay(0.5f)
-            .setOnComplete(delegate()
+            .setOnComplete(delegate ()
             {
                 LeanTween.moveY(FinishStatsPanel.GetComponent<RectTransform>(), 90, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
                 LeanTween.moveX(Btn_Finish_Restart.GetComponent<RectTransform>(), 0f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
@@ -1403,14 +1437,14 @@ public class ScreenManager : MonoBehaviour
                     // Play haptic feedback
                     HapticPatterns.PlayConstant(hapticStrength, 0.1f, 0.05f); // Juice
                 });
-                LeanTween.moveY(Btn_LevelFinish_Back.GetComponent<RectTransform>(), -85f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f); 
+                LeanTween.moveY(Btn_LevelFinish_Back.GetComponent<RectTransform>(), -85f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(1f);
             });
         }
         else
         {
             LeanTween.alpha(LevelFinishOverlay.GetComponent<RectTransform>(), 0f, 0.3f)
             .setOnComplete(
-            delegate()
+            delegate ()
             {
                 LeanTween.moveY(FinishStatsPanel.GetComponent<RectTransform>(), +1500, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
                 LeanTween.moveX(Btn_Finish_Restart.GetComponent<RectTransform>(), -400f, 0.55f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
@@ -1418,7 +1452,7 @@ public class ScreenManager : MonoBehaviour
                 LeanTween.moveY(Btn_LevelFinish_Back.GetComponent<RectTransform>(), -400f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
                 LeanTween.scale(Btn_Finish_Leaderboard.GetComponent<RectTransform>(), new Vector3(0f, 0f, 0.65f), 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
                 LeanTween.moveY(Txt_LevelFinish_XPGained.GetComponent<RectTransform>(), 400f, 0.75f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f)
-                    .setOnComplete(delegate()
+                    .setOnComplete(delegate ()
                     { Panel_GameOver.SetActive(false); });
             });
 
@@ -1453,15 +1487,15 @@ public class ScreenManager : MonoBehaviour
 
     public void TweenGameLogo(bool In)
     {
-        if(In)
+        if (In)
         {
             MENU_GameLogo.SetActive(true);
             LeanTween.moveY(MENU_GameLogo.GetComponent<RectTransform>(), -150f, 0.5f).setEase(LeanTweenType.easeInOutQuad);
-            LeanTween.scale(MENU_GameLogo, new Vector2(0.41f, 0.41f), 0.7f)
-            .setEaseOutBounce() 
+            LeanTween.scale(MENU_GameLogo, new Vector2(0.45f, 0.45f), 0.7f)
+            .setEaseOutBounce()
             .setOnComplete(() =>
             {
-                LeanTween.scale(MENU_GameLogo, new Vector2(0.35f, 0.35f), 0.5f).setEase(LeanTweenType.easeInOutQuad)
+                LeanTween.scale(MENU_GameLogo, new Vector2(0.47f, 0.47f), 0.5f).setEase(LeanTweenType.easeInOutQuad)
                     .setDelay(0.3f);
             });
         }
@@ -1576,7 +1610,7 @@ public class ScreenManager : MonoBehaviour
         {
             LeanTween.moveX(AboutPanel.GetComponent<RectTransform>(), 1100, 0.45f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
             LeanTween.moveY(Btn_About_Back.GetComponent<RectTransform>(), -450f, 0.45f).setEase(LeanTweenType.easeInOutSine)
-            .setOnComplete(delegate()
+            .setOnComplete(delegate ()
             {
                 Panel_About.SetActive(false);
                 TweenGameLogo(true);
@@ -1585,11 +1619,11 @@ public class ScreenManager : MonoBehaviour
     }
 
     public void OnLevelFinish()
-    {   
+    {
         GameManager.SetGameState(GameState.Finished);
         // TODO: Stop player in a nicer way. Smooth out velocity to 0.
         BikeController.bikeRearWheelJoint.useMotor = false;
-        
+
         HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         var _playerData = SaveSystem.LoadPlayerData();
         var _currentLevelID = LevelManager.CurrentLevelID;
@@ -1613,6 +1647,8 @@ public class ScreenManager : MonoBehaviour
         };
 
 
+        int timeInMS = GameManager.ConvertSecondsToMilliseconds(_LevelTime);
+        string leaderboardId = _levels[_currentLevelID].LevelCategory + "_" + _levels[_currentLevelID].LevelID;
 
         // SAVE DATA
 
@@ -1623,18 +1659,22 @@ public class ScreenManager : MonoBehaviour
             case Result.NoRecord:
 
                 Debug.Log("No existing record");
+                LeaderboardManager.SendAllStats(leaderboardId, timeInMS, _LevelFaults, _LevelFlips, _LevelWheelie);
                 break;
             case Result.NewTimeRecord:
 
                 Debug.Log("New time record");
+                LeaderboardManager.SendAllStats(leaderboardId, timeInMS, _LevelFaults, _LevelFlips, _LevelWheelie);
                 break;
             case Result.NewWheelieRecord:
 
                 Debug.Log("New wheelie record");
+                LeaderboardManager.SendAllStats(leaderboardId, timeInMS, _LevelFaults, _LevelFlips, _LevelWheelie);
                 break;
             case Result.NewFlipsRecord:
 
                 Debug.Log("New flips record");
+                LeaderboardManager.SendAllStats(leaderboardId, timeInMS, _LevelFaults, _LevelFlips, _LevelWheelie);
                 break;
         }
 
@@ -1700,12 +1740,12 @@ public class ScreenManager : MonoBehaviour
     {
         trophy.transform.localScale = Vector3.zero;
         LeanTween.scale(trophy, Vector3.one * targetScale, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(delay)
-        .setOnComplete(delegate()
+        .setOnComplete(delegate ()
         {
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.RigidImpact);
         }
         );
-        
+
     }
 
     public void ResetTrophiesDefaultScale()
@@ -1728,13 +1768,13 @@ public class ScreenManager : MonoBehaviour
         PlayerMenuBikeRb.constraints = RigidbodyConstraints2D.None;
         float _delay = 2.2f;
         float wheelieDuration = 0.8f + UnityEngine.Random.Range(-0.05f, 0.55f);
-        float startRotation = 0; 
-        float endRotation = 55; 
+        float startRotation = 0;
+        float endRotation = 55;
         float elapsedTime = 0;
         float maintainRotationTime = 5 + UnityEngine.Random.Range(-0.5f, 1.5f);
 
 
-        BikeAnimationInCoroutine = StartCoroutine(CameraController.AnimateScreenX(-0.15f, 0.88f, wheelieDuration+maintainRotationTime));
+        BikeAnimationInCoroutine = StartCoroutine(CameraController.AnimateScreenX(-0.15f, 0.88f, wheelieDuration + maintainRotationTime));
 
         yield return new WaitForSeconds(_delay);
 
@@ -1766,10 +1806,10 @@ public class ScreenManager : MonoBehaviour
                     break;
                 case AnimationWheelieType.Sine:
                     // Natural wheelie effect
-                    rotation = endRotation + Mathf.Sin(elapsedTime * 2 * Mathf.PI) * 5 + UnityEngine.Random.Range(-1.5f, 1.8f); 
+                    rotation = endRotation + Mathf.Sin(elapsedTime * 2 * Mathf.PI) * 5 + UnityEngine.Random.Range(-1.5f, 1.8f);
                     break;
                 case AnimationWheelieType.Cosine:
-                    rotation = endRotation + Mathf.Cos(elapsedTime * 2 * Mathf.PI) * 5 + UnityEngine.Random.Range(-1.6f, 1.7f); 
+                    rotation = endRotation + Mathf.Cos(elapsedTime * 2 * Mathf.PI) * 5 + UnityEngine.Random.Range(-1.6f, 1.7f);
                     break;
                 default:
                     rotation = endRotation;
@@ -1782,9 +1822,9 @@ public class ScreenManager : MonoBehaviour
             yield return null;
         }
 
-        if(BikeAnimationInCoroutine != null)
+        if (BikeAnimationInCoroutine != null)
             StopCoroutine(BikeAnimationInCoroutine);
-        
+
         BikeAnimationInCoroutine = null;
         BikeAnimationOutCoroutine = StartCoroutine(CameraController.AnimateScreenX(0.88f, 0.5f, 2));
         yield return new WaitForSeconds(1f);
@@ -1800,10 +1840,10 @@ public class ScreenManager : MonoBehaviour
 
     public IEnumerator PlayEndTransition()
     {
-        startTransition.SetActive(false); 
+        startTransition.SetActive(false);
         endTransition.SetActive(true);
         yield return new WaitForSeconds(GetEndTransitionDuration());
-        endTransition.SetActive(false);  
+        endTransition.SetActive(false);
     }
 
     private IEnumerator GoToMenuFromFinishMenu()
@@ -1829,7 +1869,7 @@ public class ScreenManager : MonoBehaviour
         PlayerMenuBikeRb.transform.localPosition = new Vector2(0, 0.5f);
         MenuPlatformRb.transform.localPosition = new Vector2(-4, 0);
         PlayerMenuBikeRb.isKinematic = false;
-        yield return new WaitForSeconds(0.3f); 
+        yield return new WaitForSeconds(0.3f);
         TweenPauseGame(false);
         TweenGameHUD(false);
         GoToMainMenu();
@@ -1841,7 +1881,7 @@ public class ScreenManager : MonoBehaviour
     {
         Debug.Log("PlayTransition started");
         StartCoroutine(PlayStartTransition());
-        yield return new WaitForSeconds(startTransitionDuration-0.5f);
+        yield return new WaitForSeconds(startTransitionDuration - 0.5f);
         StartCoroutine(PlayEndTransition());
         yield return new WaitForSeconds(GetEndTransitionDuration());
     }

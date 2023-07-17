@@ -51,8 +51,8 @@ public static class SaveSystem
                 // Initialize settings
                 data.SETTINGS_isMuted = false;
                 data.SETTINGS_isHapticEnabled = true;
-                data.SETTINGS_mainVolume = 0.85f; 
-                data.SETTINGS_sfxVolume = 0.55f;
+                data.SETTINGS_mainVolume = 0.45f;
+                data.SETTINGS_sfxVolume = 0.45f;
                 SavePlayerData(data);
                 Debug.Log("New data: " + data.ToString() + " at: " + __filePath.ToString());
                 return data;

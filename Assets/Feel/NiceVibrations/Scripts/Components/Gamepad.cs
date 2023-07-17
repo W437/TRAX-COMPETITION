@@ -1,8 +1,6 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates. 
 
 using System;
-using System.Diagnostics;
-using System.Timers;
 using UnityEngine;
 
 // There are 3 conditions for working gamepad support in Nice Vibrations:

@@ -1,14 +1,14 @@
 // Copyright (c) Meta Platforms, Inc. and affiliates. 
 
-using UnityEngine;
-using System;
 
 #if (UNITY_ANDROID && !UNITY_EDITOR)
 using System.Text;
 using System.Runtime.InteropServices;
+using System;
 #elif (UNITY_IOS && !UNITY_EDITOR)
 using UnityEngine.iOS;
 using System.Runtime.InteropServices;
+using System;
 #endif
 
 namespace Lofelt.NiceVibrations

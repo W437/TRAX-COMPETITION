@@ -142,7 +142,7 @@ namespace PlayFab
             _cachedStringBuilder.Clear();
             return _cachedStringBuilder;
         }
-        
+
         public static string GetFullUrl(string apiCall, Dictionary<string, string> getParams, PlayFabApiSettings apiSettings = null)
         {
             StringBuilder sb = AcquireStringBuilder();
@@ -152,18 +152,18 @@ namespace PlayFab
             if (apiSettings != null)
             {
 
-                    if (!string.IsNullOrEmpty(apiSettings.ProductionEnvironmentUrl))
-                    {
-                        productionEnvironmentUrl = apiSettings.ProductionEnvironmentUrl;
-                    }
-                    if (!string.IsNullOrEmpty(apiSettings.VerticalName))
-                    {
-                        verticalName = apiSettings.VerticalName;
-                    }
-                    if (!string.IsNullOrEmpty(apiSettings.TitleId))
-                    {
-                        titleId = apiSettings.TitleId;
-                    }
+                if (!string.IsNullOrEmpty(apiSettings.ProductionEnvironmentUrl))
+                {
+                    productionEnvironmentUrl = apiSettings.ProductionEnvironmentUrl;
+                }
+                if (!string.IsNullOrEmpty(apiSettings.VerticalName))
+                {
+                    verticalName = apiSettings.VerticalName;
+                }
+                if (!string.IsNullOrEmpty(apiSettings.TitleId))
+                {
+                    titleId = apiSettings.TitleId;
+                }
 
             }
 

@@ -3,7 +3,6 @@ using UnityEngine;
 [System.Serializable]
 public class BikeComponents : MonoBehaviour
 {
-    private float bikeColorAlpha;
     private Color originalBikeColor;
     [SerializeField] private WheelJoint2D backWheel;
     [SerializeField] private WheelJoint2D frontWheel;
@@ -26,8 +25,8 @@ public class BikeComponents : MonoBehaviour
     [SerializeField] private float downwardForce;
     [SerializeField] private float accelerationTime;
     [SerializeField] private float groundCheckDistance;
-    [SerializeField] private float initialMaxTorque; 
-    [SerializeField] private float maxTorque; 
+    [SerializeField] private float initialMaxTorque;
+    [SerializeField] private float maxTorque;
     [SerializeField] private float maxAirRotationSpeed;
     [SerializeField] private float flipTorque;
     [SerializeField] private Color originalFrontWheelColor;
@@ -41,8 +40,8 @@ public class BikeComponents : MonoBehaviour
         {
             BikeColorAlpha = value;
             Color bikeColor = GetBikeBodyColor();
-            bikeColor.a = BikeColorAlpha; 
-            SetBikeBodyColor(bikeColor); 
+            bikeColor.a = BikeColorAlpha;
+            SetBikeBodyColor(bikeColor);
         }
     }
 
@@ -53,8 +52,8 @@ public class BikeComponents : MonoBehaviour
         {
             originalBikeColor = value;
             Color bikeColor = GetBikeBodyColor();
-            bikeColor.a = originalBikeColor.a; 
-            SetBikeBodyColor(bikeColor); 
+            bikeColor.a = originalBikeColor.a;
+            SetBikeBodyColor(bikeColor);
         }
     }
 

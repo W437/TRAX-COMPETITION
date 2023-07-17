@@ -1,7 +1,7 @@
 #if !DISABLE_PLAYFABENTITY_API
+using PlayFab.SharedModels;
 using System;
 using System.Collections.Generic;
-using PlayFab.SharedModels;
 
 namespace PlayFab.EconomyModels
 {
@@ -44,7 +44,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The duration to add to the current item expiration date.
         /// </summary>
@@ -203,7 +203,7 @@ namespace PlayFab.EconomyModels
         /// A dictionary of localized descriptions. Key is language code and localized string is the value. The NEUTRAL locale is
         /// required. Descriptions have a 10000 character limit per country code.
         /// </summary>
-        public Dictionary<string,string> Description;
+        public Dictionary<string, string> Description;
         /// <summary>
         /// Game specific properties for display purposes. This is an arbitrary JSON blob. The Display Properties field has a 10000
         /// byte limit per item.
@@ -243,7 +243,7 @@ namespace PlayFab.EconomyModels
         /// A dictionary of localized keywords. Key is language code and localized list of keywords is the value. Keywords have a 50
         /// character limit per keyword and up to 32 keywords can be added per country code.
         /// </summary>
-        public Dictionary<string,KeywordSet> Keywords;
+        public Dictionary<string, KeywordSet> Keywords;
         /// <summary>
         /// The date and time this item was last updated.
         /// </summary>
@@ -280,7 +280,7 @@ namespace PlayFab.EconomyModels
         /// A dictionary of localized titles. Key is language code and localized string is the value. The NEUTRAL locale is
         /// required. Titles have a 512 character limit per country code.
         /// </summary>
-        public Dictionary<string,string> Title;
+        public Dictionary<string, string> Title;
         /// <summary>
         /// The high-level type of the item. The following item types are supported: bundle, catalogItem, currency, store, ugc,
         /// subscription.
@@ -708,7 +708,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Metadata describing the new catalog item to be created.
         /// </summary>
@@ -739,7 +739,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Description of the files to be uploaded by the client.
         /// </summary>
@@ -787,7 +787,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -812,7 +812,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity the request is about. Set to the caller by default.
         /// </summary>
@@ -852,7 +852,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -900,7 +900,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -968,7 +968,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1043,7 +1043,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
     }
 
     [Serializable]
@@ -1065,7 +1065,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1095,7 +1095,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1134,7 +1134,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1169,7 +1169,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1206,7 +1206,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity the request is about. Set to the caller by default.
         /// </summary>
@@ -1248,7 +1248,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1300,7 +1300,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1334,7 +1334,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The unique ID of the item.
         /// </summary>
@@ -1360,7 +1360,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1394,7 +1394,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1435,7 +1435,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The unique ID of the item.
         /// </summary>
@@ -1470,7 +1470,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The unique ID of the item.
         /// </summary>
@@ -1508,7 +1508,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1537,7 +1537,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
     }
 
     [Serializable]
@@ -1575,7 +1575,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1790,7 +1790,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -1874,7 +1874,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Indicates whether stacks reduced to an amount of 0 during the request should be deleted from the inventory.
         /// (Default=false)
@@ -2003,7 +2003,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2044,7 +2044,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2089,7 +2089,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2130,7 +2130,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2175,7 +2175,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2220,7 +2220,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2296,7 +2296,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2333,7 +2333,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2424,7 +2424,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2484,7 +2484,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2540,7 +2540,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The unique ID of the item.
         /// </summary>
@@ -2596,7 +2596,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>
@@ -2669,7 +2669,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Indicates whether stacks reduced to an amount of 0 during the request should be deleted from the inventory.
         /// (Default=false)
@@ -2727,7 +2727,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The set of reviews to take down.
         /// </summary>
@@ -2899,7 +2899,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Indicates whether stacks reduced to an amount of 0 during the request should be deleted from the inventory. (Default =
         /// false)
@@ -2976,7 +2976,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
     }
 
     [Serializable]
@@ -2990,7 +2990,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Updated metadata describing the catalog item to be updated.
         /// </summary>
@@ -3033,7 +3033,7 @@ namespace PlayFab.EconomyModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The entity to perform this action on.
         /// </summary>

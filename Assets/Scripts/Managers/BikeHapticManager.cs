@@ -1,15 +1,15 @@
 
-using UnityEngine;
 using Lofelt.NiceVibrations;
+using UnityEngine;
 public class BikeHapticManager : MonoBehaviour
 {
     public static BikeHapticManager Instance;
-    
+
     [Header("Haptic Settings")]
     public bool HAPTIC_ON = false;
     public float MinimumPower = 0.1f;
     public float MaximumPower = 1.0f;
-    private BikeController _bikeController; 
+    private BikeController _bikeController;
     private float _power;
     private float _targetPower;
     private float BuildUpTime = 3f;
@@ -24,7 +24,7 @@ public class BikeHapticManager : MonoBehaviour
 
     private void Update()
     {
-        if(HAPTIC_ON && (GameManager.Instance.gameState == GameManager.GameState.Playing))
+        if (HAPTIC_ON && (GameManager.Instance.gameState == GameManager.GameState.Playing))
         {
             if (_bikeController.isAccelerating && _bikeController.IsGrounded())
             {
@@ -55,6 +55,6 @@ public class BikeHapticManager : MonoBehaviour
                 HapticController.Stop();
             }
         }
-        
+
     }
 }

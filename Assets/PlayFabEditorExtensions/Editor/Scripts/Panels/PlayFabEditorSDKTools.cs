@@ -255,7 +255,7 @@ namespace PlayFab.PfEditor
                         if (eachType.Name == PlayFabEditorHelper.PLAYFAB_SETTINGS_TYPENAME)
                             playFabSettingsType = eachType;
             }
-	    
+
             //if (playFabSettingsType == typeof(object))
             //    Debug.LogWarning("Should not have gotten here: "  + allAssemblies.Length);
             //else

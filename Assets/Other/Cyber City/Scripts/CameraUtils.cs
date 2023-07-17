@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public static class CameraUtils
@@ -24,7 +22,7 @@ public static class CameraUtils
     /// </summary>
     public static bool rightEdgeIn(SpriteRenderer renderer, Transform playerCam, float threshold = 0.5f)
     {
-        return renderer.bounds.center.x + getWidth(renderer) - threshold < playerCam.position.x + getCamWidth(playerCam) ;
+        return renderer.bounds.center.x + getWidth(renderer) - threshold < playerCam.position.x + getCamWidth(playerCam);
     }
 
     /// <summary>

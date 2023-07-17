@@ -351,13 +351,14 @@ namespace PlayFab.PfEditor
                 var tokenHandler = new JwtSecurityTokenHandler();
                 JwtSecurityToken jwtToken = tokenHandler.ReadJwtToken(authResult.AccessToken);
 
-                foreach(var audience in jwtToken.Audiences)
+                foreach (var audience in jwtToken.Audiences)
                 {
                     if (audience.Contains(PlayFabEditorHelper.ED_EX_AAD_SCOPE))
                     {
                         PlayFabEditorPrefsSO.Instance.AadAuthorization = authResult.AccessToken;
-                        
-                        PlayFabEditorApi.LoginWithAAD(new LoginWithAADRequest() {
+
+                        PlayFabEditorApi.LoginWithAAD(new LoginWithAADRequest()
+                        {
                             DeveloperToolProductName = PlayFabEditorHelper.EDEX_NAME,
                             DeveloperToolProductVersion = PlayFabEditorHelper.EDEX_VERSION
                         }, (result) =>
@@ -373,7 +374,7 @@ namespace PlayFab.PfEditor
                     else
                     {
                         Debug.Log($"Token acquired but for wrong audience: {audience}");
-                    } 
+                    }
                 }
             }
         }

@@ -57,7 +57,7 @@ public class CameraController : MonoBehaviour
 
     void Update()
     {
-        if(GameManager.Instance.gameState == GameManager.GameState.Playing)
+        if (GameManager.Instance.gameState == GameManager.GameState.Playing)
         {
             // Check if the bike is in the air
             bool isJumping = !BikeController.Instance.IsGrounded();
@@ -70,7 +70,7 @@ public class CameraController : MonoBehaviour
                 {
                     StartCoroutine(DelayedVelocityCheck(isJumping));
                 }
-                else if(!isJumping)
+                else if (!isJumping)
                 {
                     targetOrthographicSize = 5.5f;
                     targetScreenX = 0.13f;
@@ -193,7 +193,7 @@ public class CameraController : MonoBehaviour
     private IEnumerator RevertDefaultBlend()
     {
         yield return new WaitForSeconds(1);
-        mainCameraBrain.m_DefaultBlend = originalBlendDefinition;    
+        mainCameraBrain.m_DefaultBlend = originalBlendDefinition;
     }
 
     private IEnumerator DelayedVelocityCheck(bool jumped)

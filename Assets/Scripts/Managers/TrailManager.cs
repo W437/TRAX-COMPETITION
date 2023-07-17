@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -20,7 +19,7 @@ public class TrailManager : MonoBehaviour
         }
     }
 
-     public void ChangeTrailAlpha(GameObject trailPrefab, float alpha)
+    public void ChangeTrailAlpha(GameObject trailPrefab, float alpha)
     {
         // Find the trail prefab's renderer component
         var trailRenderer = trailPrefab.GetComponent<TrailRenderer>();

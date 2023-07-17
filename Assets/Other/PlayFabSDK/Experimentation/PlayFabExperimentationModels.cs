@@ -1,7 +1,7 @@
 #if !DISABLE_PLAYFABENTITY_API
+using PlayFab.SharedModels;
 using System;
 using System.Collections.Generic;
-using PlayFab.SharedModels;
 
 namespace PlayFab.ExperimentationModels
 {
@@ -25,7 +25,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Description of the exclusion group.
         /// </summary>
@@ -54,7 +54,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Description of the experiment.
         /// </summary>
@@ -116,7 +116,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The ID of the exclusion group to delete.
         /// </summary>
@@ -133,7 +133,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The ID of the experiment to delete.
         /// </summary>
@@ -268,7 +268,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
     }
 
     [Serializable]
@@ -290,7 +290,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The ID of the exclusion group.
         /// </summary>
@@ -316,7 +316,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
     }
 
     [Serializable]
@@ -337,7 +337,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The ID of the experiment.
         /// </summary>
@@ -363,7 +363,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The optional entity to perform this action on. Defaults to the currently logged in entity.
         /// </summary>
@@ -483,7 +483,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// Data of the analysis with the internal name of the metric as the key and an object of metric data as value.
         /// </summary>
-        public Dictionary<string,MetricData> MetricDataRows;
+        public Dictionary<string, MetricData> MetricDataRows;
         /// <summary>
         /// Represents the player count in the variant.
         /// </summary>
@@ -503,7 +503,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The ID of the experiment to start.
         /// </summary>
@@ -519,7 +519,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The ID of the experiment to stop.
         /// </summary>
@@ -548,7 +548,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Description of the exclusion group.
         /// </summary>
@@ -573,7 +573,7 @@ namespace PlayFab.ExperimentationModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Description of the experiment.
         /// </summary>

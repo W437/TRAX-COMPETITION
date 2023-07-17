@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance;
     [SerializeField] List<AudioClip> soundTracks;
     private List<AudioClip> shuffledTracks;
-    private Toggle MuteToggle;
     public AudioSource MainAudioSource, SFXAudioSource;
     private int currentTrackIndex = 0;
 
@@ -19,10 +17,21 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
-        ShuffleTracks();
-        if (shuffledTracks.Count > 0)
+        var _data = GameManager.Instance.PlayerData;
+        if (_data.TOTAL_XP <= 150)
         {
-            PlayNextTrack();
+            // It's the first launch, play the specific song
+            Debug.Log("First");
+            MainAudioSource.clip = soundTracks[7];
+            MainAudioSource.Play();
+        }
+        else
+        {
+            ShuffleTracks();
+            if (shuffledTracks.Count > 0)
+            {
+                PlayNextTrack();
+            }
         }
     }
 
@@ -61,4 +70,3 @@ public class AudioManager : MonoBehaviour
         }
     }
 }
-

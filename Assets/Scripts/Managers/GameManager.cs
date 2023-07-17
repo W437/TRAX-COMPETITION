@@ -1,13 +1,8 @@
-using Cinemachine;
 using Lofelt.NiceVibrations;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using static Cinemachine.DocumentationSortingAttribute;
 
 public class GameManager : MonoBehaviour
 {
@@ -49,7 +44,7 @@ public class GameManager : MonoBehaviour
 
 
     [Header("Sound Effects")]
-    public AudioSource countdownAudioSource; 
+    public AudioSource countdownAudioSource;
     public AudioClip countdownClip;
     public AudioClip goClip;
 
@@ -72,7 +67,7 @@ public class GameManager : MonoBehaviour
 
         PlayerData = SaveSystem.LoadPlayerData();
 
-        if(!string.IsNullOrEmpty(PlayerData.PLAYER_NAME)) 
+        if (!string.IsNullOrEmpty(PlayerData.PLAYER_NAME))
         {
             SetGameState(GameState.Menu);
             LeaderboardManager.Instance.PlayFabLogin();
@@ -81,7 +76,7 @@ public class GameManager : MonoBehaviour
         {
             SetGameState(GameState.Welcome);
         }
-        
+
         sessionStartTime = Time.time;
         _initialCountdownTextPosition = countdownText.transform.position;
     }
@@ -242,7 +237,7 @@ public class GameManager : MonoBehaviour
             CameraController.SwitchToMenuCamera();
             ScreenManager.TweenMainMenu(true);
 
-            if(!ScreenManager.MENU_GameLogo.activeSelf)
+            if (!ScreenManager.MENU_GameLogo.activeSelf)
                 ScreenManager.TweenGameLogo(true);
         }
         else if (gameState == GameState.Starting)
@@ -284,7 +279,7 @@ public class GameManager : MonoBehaviour
         {
             countdownText.text = Mathf.CeilToInt(countdownTime).ToString();
 
-            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.25f); 
+            HapticPatterns.PlayConstant(0.35f, 0.35f, 0.25f);
             LeanTween.scale(countdownText.gameObject, Vector3.one * 1.5f, 0.1f)
                      .setOnComplete(() => LeanTween.scale(countdownText.gameObject, Vector3.one, 0.1f));
 
@@ -299,7 +294,7 @@ public class GameManager : MonoBehaviour
         countdownAudioSource.clip = goClip;
         countdownAudioSource.Play();
         countdownText.text = "GO!";
-        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.65f); 
+        HapticPatterns.PlayConstant(0.50f, 0.65f, 0.65f);
 
         LeanTween.scale(countdownText.gameObject, Vector3.one * 1.5f, 0.1f)
                  .setOnComplete(() => LeanTween.scale(countdownText.gameObject, Vector3.one, 0.1f));

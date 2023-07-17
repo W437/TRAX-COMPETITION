@@ -1,11 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Launcher : MonoBehaviour
 {
-    private float launchForce = 10f; 
-    private float launchDelay = 1f; 
+    private float launchForce = 10f;
+    private float launchDelay = 1f;
     private enum LaunchPoint { LeftPivot, Center, RightPivot }
     private LaunchPoint launchPoint;
     private bool flag = false;

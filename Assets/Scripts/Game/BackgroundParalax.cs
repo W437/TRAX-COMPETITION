@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using Cinemachine;
 using UnityEngine;
 using UnityEngine.U2D;
-using static GameManager;
 
 public class BackgroundParalax : MonoBehaviour
 {
@@ -44,7 +42,7 @@ public class BackgroundParalax : MonoBehaviour
         playerCamera = playerCam.GetComponent<Camera>();
 
         lastPos = playerCam.position;
-        initialPlayerY = playerCam.position.y-5;
+        initialPlayerY = playerCam.position.y - 5;
         backgroundLayers = new List<LinkedList<SpriteRenderer>>(backgrounds.Length);
 
         for (int i = 0; i < backgrounds.Length; ++i)
@@ -131,7 +129,7 @@ public class BackgroundParalax : MonoBehaviour
             totalDistance = Mathf.Abs(finishLine.position.x - startPosition.position.x);
             playerStartPosition = startPosition.position;
             initialSunPosition = sun.position;
-            Debug.Log("Sun finish distance: " + totalDistance );
+            Debug.Log("Sun finish distance: " + totalDistance);
         }
     }
 

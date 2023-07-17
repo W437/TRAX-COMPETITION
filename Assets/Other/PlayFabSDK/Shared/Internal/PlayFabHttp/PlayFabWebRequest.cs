@@ -1,14 +1,13 @@
 #if !UNITY_WSA && !UNITY_WP8
 
+using PlayFab.SharedModels;
 using System;
-using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
-using PlayFab.SharedModels;
+using UnityEngine;
 #if !DISABLE_PLAYFABCLIENT_API
-using PlayFab.ClientModels;
 #endif
 
 namespace PlayFab.Internal
@@ -251,7 +250,8 @@ namespace PlayFab.Internal
                             case HttpRequestState.Idle:
                                 Post(localActiveRequests[i]); break;
                             case HttpRequestState.Sent:
-                                if (!localActiveRequests[i].CalledGetResponse) { // Else we'll GetResponse try again next tick
+                                if (!localActiveRequests[i].CalledGetResponse)
+                                { // Else we'll GetResponse try again next tick
                                     localActiveRequests[i].HttpRequest.GetResponseAsync();
                                     localActiveRequests[i].CalledGetResponse = true;
                                 }
@@ -424,7 +424,7 @@ namespace PlayFab.Internal
                 reqContainer.ApiResult.Request = reqContainer.ApiRequest;
                 reqContainer.ApiResult.CustomData = reqContainer.CustomData;
 
-                if(_isApplicationPlaying)
+                if (_isApplicationPlaying)
                 {
                     PlayFabHttp.instance.OnPlayFabApiResult(reqContainer);
                 }

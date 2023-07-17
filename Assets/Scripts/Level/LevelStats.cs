@@ -1,5 +1,3 @@
-using static Level;
-
 [System.Serializable]
 public class LevelStats
 {

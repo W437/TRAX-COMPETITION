@@ -1,10 +1,8 @@
-using static GameManager;
-using UnityEngine;
-using Unity.VisualScripting;
-using UnityEngine.SceneManagement;
-using System.Collections;
 using System;
+using System.Collections;
+using UnityEngine;
 using UnityEngine.U2D;
+using static GameManager;
 
 public class LevelManager : MonoBehaviour
 {
@@ -86,7 +84,7 @@ public class LevelManager : MonoBehaviour
 
         Txt_LevelInfo.gameObject.SetActive(true);
 
-        Txt_LevelInfo.text = Levels[level].LevelCategory.ToString() + " - Level " + (Levels[level].LevelID+1);
+        Txt_LevelInfo.text = Levels[level].LevelCategory.ToString() + " - Level " + (Levels[level].LevelID + 1);
 
         yield return new WaitForSeconds(0.5f);
 

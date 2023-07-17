@@ -1,10 +1,10 @@
-using UnityEngine;
 using PlayFab;
 using PlayFab.ClientModels;
-using System.Collections.Generic;
-using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
+using UnityEngine.UI;
 
 
 public class LeaderboardManager : MonoBehaviour
@@ -55,7 +55,7 @@ public class LeaderboardManager : MonoBehaviour
         ScreenManager = ScreenManager.Instance;
         PlayerDisplayName = SaveSystem.LoadPlayerData().PLAYER_NAME;
         Debug.Log("DisplayName: " + PlayerDisplayName);
-       /* LB_RefreshBtn.onClick.AddListener(OnRefreshBtnClick);*/
+        /* LB_RefreshBtn.onClick.AddListener(OnRefreshBtnClick);*/
         LoadFlags();
 
     }
@@ -75,6 +75,7 @@ public class LeaderboardManager : MonoBehaviour
             PlayFabLogin();
             ScreenManager.TweenWelcomePanel(false);
         }
+
         else
         {
             Debug.Log("Player name cannot be empty. Please enter a valid name.");
@@ -123,7 +124,7 @@ public class LeaderboardManager : MonoBehaviour
             var request = new UpdateUserTitleDisplayNameRequest { DisplayName = PlayerDisplayName };
             PlayerDisplayName = PlayerDisplayName;
             UpdateDisplayName(PlayerDisplayName);
-            Debug.Log("Disp name: " +  PlayerDisplayName);
+            Debug.Log("Disp name: " + PlayerDisplayName);
             PlayFabClientAPI.UpdateUserTitleDisplayName(request, OnDisplayNameUpdate, OnError);
         }
 
@@ -263,7 +264,8 @@ public class LeaderboardManager : MonoBehaviour
                 LBEntry.Txt_Wheelie.text = playerWheelie.ToString("0.00");
                 rank++;
 
-                GetPlayerProfile(playerStats.playerID, countryCode => {
+                GetPlayerProfile(playerStats.playerID, countryCode =>
+                {
 
                     Sprite flagSprite = flagSprites.Find(s => s.name == countryCode + "@2x");
 
@@ -294,7 +296,8 @@ public class LeaderboardManager : MonoBehaviour
                 ShowLocations = true
             }
         },
-        result => {
+        result =>
+        {
             var countryCode = result.PlayerProfile.Locations[result.PlayerProfile.Locations.Count - 1].CountryCode.ToString();
             callback(countryCode);
         },
@@ -435,7 +438,5 @@ public class LeaderboardManager : MonoBehaviour
         DeviceID,
         PlayerName
     }
-
-
 
 }

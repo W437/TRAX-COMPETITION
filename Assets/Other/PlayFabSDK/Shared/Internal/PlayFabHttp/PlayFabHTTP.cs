@@ -1,9 +1,9 @@
+using PlayFab.Public;
+using PlayFab.SharedModels;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using PlayFab.Public;
-using PlayFab.SharedModels;
 using UnityEngine;
 
 namespace PlayFab.Internal

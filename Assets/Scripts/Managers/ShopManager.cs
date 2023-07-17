@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Lofelt.NiceVibrations;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -30,7 +28,7 @@ public class ShopManager : MonoBehaviour
     public int CurrentTrailIndex { get; private set; } = 0;
 
     private float _lastButtonClickTime = 0f;
-    private float _buttonClickCooldown = 0.5f;
+    private float _buttonClickCooldown = 0.25f;
 
 
 
@@ -47,8 +45,8 @@ public class ShopManager : MonoBehaviour
     {
         Btn_SwitchBike.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-                return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             SwitchToBikeMode();
@@ -58,42 +56,42 @@ public class ShopManager : MonoBehaviour
 
         Btn_SwitchTrail.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-                return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             SwitchToTrailMode();
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         });
-        
-        
+
+
         Btn_Next.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-                return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             NextPrefab();
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.Selection);
         });
-            
+
         Btn_Prev.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime < _buttonClickCooldown)
-                return; 
+            if (Time.time - _lastButtonClickTime < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
             PreviousPrefab();
             HapticPatterns.PlayPreset(HapticPatterns.PresetType.Selection);
         });
-        
+
         Btn_Buy.onClick.AddListener(delegate
         {
-            if(Time.time - _lastButtonClickTime/2 < _buttonClickCooldown)
-                return; 
+            if (Time.time - _lastButtonClickTime / 2 < _buttonClickCooldown)
+                return;
             _lastButtonClickTime = Time.time;
 
-            if(isBikeMode)
+            if (isBikeMode)
                 BuyID(CurrentBikeIndex);
             else
                 BuyID(CurrentTrailIndex);
@@ -105,33 +103,33 @@ public class ShopManager : MonoBehaviour
     public void BuyID(int id)
     {
         var _playerData = SaveSystem.LoadPlayerData();
-        if(isBikeMode)
+        if (isBikeMode)
         {
-            if(BuyBike(CurrentBikeIndex) == BuyResult.Success)
+            if (BuyBike(CurrentBikeIndex) == BuyResult.Success)
             {
                 HapticPatterns.PlayPreset(HapticPatterns.PresetType.Success);
                 SelectBike(CurrentBikeIndex);
                 Btn_Buy.GetComponent<Image>().sprite = buyButton_UnlockedImg;
                 BikeStatus.GetComponent<Image>().sprite = UnlockedIcon;
             }
-            else if(BuyBike(CurrentBikeIndex) == BuyResult.InsufficientFunds)
+            else if (BuyBike(CurrentBikeIndex) == BuyResult.InsufficientFunds)
             {
                 HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);
             }
-  
+
         }
         else
         {
-            if(BuyTrail(CurrentTrailIndex) == BuyResult.Success)
+            if (BuyTrail(CurrentTrailIndex) == BuyResult.Success)
             {
                 HapticPatterns.PlayPreset(HapticPatterns.PresetType.Success);
                 SelectTrail(CurrentTrailIndex);
                 Btn_Buy.GetComponent<Image>().sprite = buyButton_UnlockedImg;
                 TrailStatus.GetComponent<Image>().sprite = UnlockedIcon;
             }
-            else if(BuyTrail(CurrentTrailIndex) == BuyResult.InsufficientFunds)
+            else if (BuyTrail(CurrentTrailIndex) == BuyResult.InsufficientFunds)
             {
-                HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);   
+                HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);
             }
         }
 
@@ -178,8 +176,8 @@ public class ShopManager : MonoBehaviour
         _playerData.COINS -= bikeToBuy.PRICE;
         _playerData.UNLOCKED_BIKES = _playerData.UNLOCKED_BIKES.Concat(new int[] { bikeId }).ToArray();
         _playerData.SELECTED_BIKE_ID = bikeId;
-        _playerData.AddXP(bikeToBuy.PRICE*5);
-         _playerData.UpdateLevel();
+        _playerData.AddXP(bikeToBuy.PRICE * 5);
+        _playerData.UpdateLevel();
         SaveSystem.SavePlayerData(_playerData);
 
         Debug.Log("Successfully bought bike with ID: " + bikeId);
@@ -225,7 +223,7 @@ public class ShopManager : MonoBehaviour
 
         _playerData.COINS -= trailToBuy.PRICE;
         _playerData.UNLOCKED_TRAILS = _playerData.UNLOCKED_TRAILS.Concat(new int[] { trailId }).ToArray();
-        _playerData.AddXP(trailToBuy.PRICE*5);
+        _playerData.AddXP(trailToBuy.PRICE * 5);
         _playerData.SELECTED_TRAIL_ID = trailId;
         SaveSystem.SavePlayerData(_playerData);
 
@@ -250,22 +248,18 @@ public class ShopManager : MonoBehaviour
     private void SwitchToBikeMode()
     {
         isBikeMode = true;
-        Btn_SwitchBike.GetComponent<Image>().color = new Color(0,0,0,0.8f);
-        Btn_SwitchTrail.GetComponent<Image>().color = new Color(0,0,0,0.4f);
+        float rgb = 255;
+        Btn_SwitchBike.GetComponent<Image>().color = new Color(255 / rgb, 186 / rgb, 0, 0.85f);
+        Btn_SwitchTrail.GetComponent<Image>().color = new Color(0, 0, 0, 0.4f);
         DisplayBikePrefab(BikeController.Instance.GetAllBikes()[CurrentBikeIndex].BikePrefab);
     }
 
     private void SwitchToTrailMode()
     {
-        Debug.Log("SwitchToTrailMode called");
-        Debug.Log("TrailManager.Instance: " + (TrailManager.Instance == null ? "null" : "exists"));
-        Debug.Log("GetAllTrails: " + (TrailManager.Instance.GetAllTrails() == null ? "null" : "exists"));
-        Debug.Log("GetAllTrails[currentTrailIndex]: " + (TrailManager.Instance.GetAllTrails()[CurrentTrailIndex] == null ? "null" : "exists"));
-        Debug.Log("trailPrefab: " + (TrailManager.Instance.GetAllTrails()[CurrentTrailIndex].TrailPrefab == null ? "null" : "exists"));
-        
         isBikeMode = false;
-        Btn_SwitchBike.GetComponent<Image>().color = new Color(0,0,0,0.4f);
-        Btn_SwitchTrail.GetComponent<Image>().color = new Color(0,0,0,0.8f);
+        float rgb = 255;
+        Btn_SwitchBike.GetComponent<Image>().color = new Color(0, 0, 0, 0.4f);
+        Btn_SwitchTrail.GetComponent<Image>().color = new Color(255 / rgb, 186 / rgb, 0, 0.85f);
         DisplayTrailPrefab(TrailManager.Instance.GetAllTrails()[CurrentTrailIndex].TrailPrefab);
     }
 
@@ -428,7 +422,7 @@ public class ShopManager : MonoBehaviour
 
         // Exclude unnecessary components from the instantiated bike (for Menu Only)
         BikeComponents bikeComponents = _currentBike.GetComponent<BikeComponents>();
-        
+
         if (bikeComponents != null)
         {
             Destroy(bikeComponents);
@@ -442,7 +436,7 @@ public class ShopManager : MonoBehaviour
         }
 
         bool isUnlocked = _playerData.UNLOCKED_BIKES.Contains(CurrentBikeIndex);
-       
+
         // Debug.Log("BikeID: " + bikeId + " Is Unlocked?:" + isUnlocked);
         // Debug.Log("Number of Bikes: " + BikeController.Instance.GetAllBikes().Length);
 
@@ -484,13 +478,13 @@ public class ShopManager : MonoBehaviour
         var _currentBike = ScreenManager.Instance.PlayerMenuBike;
         Transform _trailPosition = (_currentBike != null) ? _currentBike.transform.Find("Bike Trail") : null;
 
-        if (prefab == null) 
+        if (prefab == null)
         {
             Debug.LogError("Prefab is null.");
             return null;
         }
 
-        if (_currentBike == null) 
+        if (_currentBike == null)
         {
             Debug.LogError("Current player bike is null.");
             return null;

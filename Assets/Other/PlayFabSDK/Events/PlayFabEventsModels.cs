@@ -1,7 +1,7 @@
 #if !DISABLE_PLAYFABENTITY_API
+using PlayFab.SharedModels;
 using System;
 using System.Collections.Generic;
-using PlayFab.SharedModels;
 
 namespace PlayFab.EventsModels
 {
@@ -29,7 +29,7 @@ namespace PlayFab.EventsModels
         /// event is written, this collection and the base request custom tags will be merged, but not overriden. This enables the
         /// caller to specify static tags and per event tags.
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// Entity associated with the event. If null, the event will apply to the calling entity.
         /// </summary>
@@ -69,7 +69,7 @@ namespace PlayFab.EventsModels
         /// <summary>
         /// The optional custom tags associated with the request (e.g. build number, external trace identifiers, etc.).
         /// </summary>
-        public Dictionary<string,string> CustomTags;
+        public Dictionary<string, string> CustomTags;
         /// <summary>
         /// The collection of events to write. Up to 200 events can be written per request.
         /// </summary>
