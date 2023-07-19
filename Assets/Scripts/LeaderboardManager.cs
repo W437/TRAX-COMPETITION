@@ -228,11 +228,12 @@ public class LeaderboardManager : MonoBehaviour
 
     public void UpdateLeaderboardUI(string level_key)
     {
-        Debug.Log("LB Key: " + level_key);
+        //Debug.Log("LB Key: " + level_key);
         ResetLeaderboardEntries();
         int rank = 1;
         GetAllPlayerStats(level_key, result =>
         {
+            // Prioritize less faults and best time
             result = result.OrderBy(r => r.faults).ThenBy(r => r.time).ToList();
 
             foreach (var playerStats in result)
@@ -247,10 +248,9 @@ public class LeaderboardManager : MonoBehaviour
                 int playerFlips = playerStats.flips;
                 float playerWheelie = playerStats.wheelie / 100f;
 
-                // Check if the playerName matches the PlayerDisplayName
                 if (playerName == PlayerDisplayName)
                 {
-                    // If it does, highlight the player's record
+                    // highlight the local player's record
                     LBEntry.Txt_PlayerName.text = $"<size=30><color=#ff9910>{rank}.</color></size> <color=#ff9910>{playerName}</color>";
                 }
                 else

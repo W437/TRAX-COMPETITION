@@ -29,7 +29,7 @@ public class PlayerData
     public float BEST_LEVEL_WHEELIE; // DONE
     public float TOTAL_WHEELIE; // DONE
     public float TOTAL_FAULTS_ALL_LEVELS;
-    public int TOTAL_LEVELS_FINISHED;
+    public int TOTAL_LEVELS_FINISHED; // not LINKED! MUST LINK! CURRENTLY BASED ON STAT DICTIONARY
     public int PLAYER_LEVEL;
 
     // XP SYSTEM

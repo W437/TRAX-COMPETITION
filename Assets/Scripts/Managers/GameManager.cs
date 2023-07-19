@@ -343,5 +343,17 @@ public class GameManager : MonoBehaviour
         return milliseconds / 1000f;
     }
 
+    public int GetFinishedLevelsCount(PlayerData data)
+    {
+        int count = 0;
+        foreach (var levelStatEntry in data.levelStatsDictionary)
+        {
+            LevelStats level = levelStatEntry.Value;
+            if(level.Time > 0)
+                count++;
+        }
+        return count;
+    }
+
 
 }

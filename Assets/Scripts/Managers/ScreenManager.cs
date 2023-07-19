@@ -100,9 +100,11 @@ public class ScreenManager : MonoBehaviour
     public GameObject MENU_GameLogo;
     public GameObject MENU_LvlsFinishedBar;
     public GameObject MENU_XP;
+    public GameObject MENU_Level;
     public GameObject Overlay_Menu;
     public TextMeshProUGUI Txt_Menu_Coins;
     public TextMeshProUGUI Txt_Menu_XP;
+    public TextMeshProUGUI Txt_Menu_Level;
     public TextMeshProUGUI Txt_Menu_LvlsFinished;
     public GameObject AboutPanel;
     public Button Btn_About_Back;
@@ -384,6 +386,14 @@ public class ScreenManager : MonoBehaviour
         MENU_LvlsFinishedBar.transform.position =
             new Vector2(obj.x - 400f, obj.y);
 
+        obj = MENU_Level.transform.position;
+        MENU_Level.transform.position =
+            new Vector2(obj.x + 400f, obj.y);
+
+        obj = MENU_XP.transform.position;
+        MENU_XP.transform.position =
+            new Vector2(obj.x + 400f, obj.y);
+
         obj = MENU_GameLogo.transform.localPosition;
         MENU_GameLogo.transform.localPosition =
             new Vector2(obj.x, obj.y + 450);
@@ -549,6 +559,7 @@ public class ScreenManager : MonoBehaviour
         /////// ASSIGN BUTTON LISTENERS
         /////////////////////////////////////////////////////////////////////////////////////
 
+        #region Button Listeners
         ///// Main Menu
         //////////////////////
         ///
@@ -924,7 +935,8 @@ public class ScreenManager : MonoBehaviour
         Btn_SyncOfflineData.onClick.AddListener(delegate
         {
             LeaderboardManager.Instance.UpdateLeaderboardFromOfflinePlay();
-        });
+        }); 
+        #endregion
 
     }
 
@@ -1117,10 +1129,10 @@ public class ScreenManager : MonoBehaviour
 
         // Menu
         Txt_Menu_Coins.text = PlayerData.COINS + "";
+        Txt_Menu_XP.text = PlayerData.TOTAL_XP + "";
+        Txt_Menu_Level.text = PlayerData.PLAYER_LEVEL + "";
 
-
-
-        Txt_Menu_LvlsFinished.text = PlayerData.TOTAL_LEVELS_FINISHED + "/" + LevelManager.Levels.Length;
+        Txt_Menu_LvlsFinished.text = GameManager.GetFinishedLevelsCount(PlayerData) + "/" + LevelManager.Levels.Length;
 
         // Shop
         ShopManager.T_Coins.text = PlayerData.COINS + "";
@@ -1133,7 +1145,7 @@ public class ScreenManager : MonoBehaviour
         // stats1
         string text1 = $"Bikes owned: {PlayerData.UNLOCKED_BIKES.Length}/{BikeController.GetAllBikes().Length}\n";
         text1 += $"Trails owned: {PlayerData.UNLOCKED_TRAILS.Length}/{TrailManager.GetAllTrails().Length}\n";
-        text1 += $"Levels finished: {PlayerData.TOTAL_LEVELS_FINISHED}/{LevelManager.Levels.Length}\n";
+        text1 += $"Levels finished: {GameManager.GetFinishedLevelsCount(PlayerData)}/{LevelManager.Levels.Length}\n";
         text1 += $"Level Faults: {PlayerData.TOTAL_FAULTS_ALL_LEVELS}\n";
         text1 += $"Distance: {PlayerData.TOTAL_DISTANCE.ToString("F2")}km\n";
         text1 += $"Playtime: {((int)(PlayerData.TOTAL_PLAYTIME / 3600))}h {((int)(PlayerData.TOTAL_PLAYTIME % 3600 / 60))}min\n";
@@ -1325,7 +1337,7 @@ public class ScreenManager : MonoBehaviour
         foreach (var item in LevelManager.Levels)
         {
             GameObject levelUnitInstance = Instantiate(levelUnitPrefab, LevelsView);
-            TMPro.TextMeshProUGUI[] childTexts = levelUnitInstance.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+            TextMeshProUGUI[] childTexts = levelUnitInstance.GetComponentsInChildren<TextMeshProUGUI>();
 
             LevelEntry levelEntry = levelUnitInstance.GetComponent<LevelEntry>();
 
@@ -1525,17 +1537,21 @@ public class ScreenManager : MonoBehaviour
             LeanTween.moveX(MENU_LvlsFinishedBar.GetComponent<RectTransform>(), -154f, 0.75f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -130f, 0.55f).setEase(LeanTweenType.easeInOutSine).setDelay(0.2f);
             LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 0, 0.55f).setEase(LeanTweenType.easeInOutSine);
+            LeanTween.moveX(MENU_XP.GetComponent<RectTransform>(), 50, 0.55f).setEase(LeanTweenType.easeInOutSine);
+            LeanTween.moveX(MENU_Level.GetComponent<RectTransform>(), 119, 0.55f).setEase(LeanTweenType.easeInOutSine);
         }
         else
         {
             LeanTween.alpha(Overlay_Menu.GetComponent<RectTransform>(), 0f, 0.5f);
-            LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 400f, 0.15f).setEase(LeanTweenType.easeInOutSine);
             LeanTween.moveX(MENU_CoinsBar.GetComponent<RectTransform>(), -550f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_About.GetComponent<RectTransform>(), -450f, 0.35f).setEase(LeanTweenType.easeInOutExpo);
             LeanTween.moveX(MENU_LvlsFinishedBar.GetComponent<RectTransform>(), -550f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_Shop.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_Settings.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
             LeanTween.moveY(Btn_Menu_MainLeaderboard.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo);
+            LeanTween.moveX(PlayFabStatusParent.GetComponent<RectTransform>(), 400f, 0.15f).setEase(LeanTweenType.easeInOutSine);
+            LeanTween.moveX(MENU_XP.GetComponent<RectTransform>(), 450, 0.15f).setEase(LeanTweenType.easeInOutSine);
+            LeanTween.moveX(MENU_Level.GetComponent<RectTransform>(), 400, 0.15f).setEase(LeanTweenType.easeInOutSine);
             LeanTween.moveY(Btn_Menu_Start.GetComponent<RectTransform>(), -1350f, 0.35f).setEase(LeanTweenType.easeOutExpo).setOnComplete(
                 delegate ()
                 {
@@ -1875,11 +1891,11 @@ public class ScreenManager : MonoBehaviour
         GoToMainMenu();
         GameManager.ResetLevelStats();
         RefreshTextValuesFromPlayerData();
+        BackgroundParalax.ResetParallax();
     }
 
     public IEnumerator PlayTransition()
     {
-        Debug.Log("PlayTransition started");
         StartCoroutine(PlayStartTransition());
         yield return new WaitForSeconds(startTransitionDuration - 0.5f);
         StartCoroutine(PlayEndTransition());
