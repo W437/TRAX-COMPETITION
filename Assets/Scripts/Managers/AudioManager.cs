@@ -9,19 +9,21 @@ public class AudioManager : MonoBehaviour
     public AudioSource MainAudioSource, SFXAudioSource;
     private int currentTrackIndex = 0;
 
+    PlayerData _data;
+
     void Awake()
     {
         Instance = this;
         shuffledTracks = new List<AudioClip>(soundTracks);
+        _data = SaveSystem.LoadPlayerData();
     }
 
     void Start()
     {
-        var _data = GameManager.Instance.PlayerData;
         if (_data.TOTAL_XP <= 150)
         {
             // It's the first launch, play the specific song
-            Debug.Log("First");
+            Debug.Log("First: " + _data.TOTAL_XP);
             MainAudioSource.clip = soundTracks[7];
             MainAudioSource.Play();
         }
@@ -37,9 +39,11 @@ public class AudioManager : MonoBehaviour
 
     void Update()
     {
+        var _data = GameManager.Instance.PlayerData;
         if (!MainAudioSource.isPlaying)
         {
             PlayNextTrack();
+
         }
     }
 

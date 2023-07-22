@@ -1,11 +1,13 @@
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.Video;
+using static GameManager;
 
 public class LeaderboardManager : MonoBehaviour
 {
@@ -21,6 +23,9 @@ public class LeaderboardManager : MonoBehaviour
     }
 
     private ScreenManager ScreenManager;
+    [SerializeField] private VideoPlayer VideoTutorial;
+    private float transitionOffset = 0.5f;
+
 
     [SerializeField] private GameObject LB_EntryBar;
     [SerializeField] private Transform LB_EntryParent;
@@ -52,6 +57,9 @@ public class LeaderboardManager : MonoBehaviour
 
     private void Start()
     {
+        VideoTutorial.loopPointReached += OnVideoEnd;
+        VideoTutorial.prepareCompleted += OnVideoPrepared;
+
         ScreenManager = ScreenManager.Instance;
         PlayerDisplayName = SaveSystem.LoadPlayerData().PLAYER_NAME;
         Debug.Log("DisplayName: " + PlayerDisplayName);
@@ -74,6 +82,7 @@ public class LeaderboardManager : MonoBehaviour
             PlayerDisplayName = playerName;
             PlayFabLogin();
             ScreenManager.TweenWelcomePanel(false);
+            PlayVideo();
         }
 
         else
@@ -82,6 +91,43 @@ public class LeaderboardManager : MonoBehaviour
         }
     }
 
+
+    private void OnVideoPrepared(VideoPlayer source)
+    {
+        StartCoroutine(StartTransition());
+    }
+
+    IEnumerator StartTransition()
+    {
+        // Wait for the video duration minus the transition offset
+        yield return new WaitForSeconds((float)VideoTutorial.clip.length - transitionOffset);
+
+        StartCoroutine(ScreenManager.PlayTransition());
+    }
+
+    private void OnVideoEnd(VideoPlayer source)
+    {
+        VideoTutorial.gameObject.SetActive(false);
+        ScreenManager.Panel_PlayerProfile.SetActive(false);
+        GameManager.Instance.SetGameState(GameState.Menu);
+    }
+
+    public void PlayVideo()
+    {
+        if (VideoTutorial != null)
+        {
+            VideoTutorial.gameObject.SetActive(true);
+            VideoTutorial.Play();
+        }
+    }
+
+    public void StopVideo()
+    {
+        if (VideoTutorial != null)
+        {
+            VideoTutorial.Stop();
+        }
+    }
 
     // Modified PlayFab login function
     public void PlayFabLogin()
@@ -111,9 +157,6 @@ public class LeaderboardManager : MonoBehaviour
             }
         });
     }
-
-
-
 
     private void OnLoginSuccess(LoginResult result)
     {
