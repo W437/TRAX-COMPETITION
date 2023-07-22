@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98d391a382d122541899c54697e16728, type: 3}
+  m_Name: BikeData 8
+  m_EditorClassIdentifier: 
+  BikePrefab: {fileID: 7845807050704558627, guid: f21607422a53c3540a9fb38474c64782, type: 3}
+  ID: 7
+  PRICE: 1000
+  MaxSpeed: 0
+  Mass: 0

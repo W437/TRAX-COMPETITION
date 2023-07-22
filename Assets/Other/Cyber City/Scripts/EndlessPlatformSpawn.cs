@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -104,7 +103,7 @@ public class EndlessPlatformSpawn : MonoBehaviour
 
         newObject.transform.position = new Vector3(position.x, sprite.transform.position.y, position.z);
         newObject.SetActive(true);
-        
+
         //newObject.transform.position = sample.transform.position;
         newObject.transform.Translate(shift * (CameraUtils.getWidth(sprite) + CameraUtils.getWidth(sample)), 0, 0,
             Space.Self);
