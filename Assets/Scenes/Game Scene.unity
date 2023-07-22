@@ -9471,7 +9471,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5.7483606, y: -4.1157846, z: 0}
+  m_LocalPosition: {x: -6.1566677, y: -4.1157846, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -11798,6 +11798,7 @@ RectTransform:
   - {fileID: 1831701441}
   - {fileID: 1688082808}
   - {fileID: 2114761407}
+  - {fileID: 1964579341}
   - {fileID: 744106435}
   - {fileID: 1227539639}
   m_Father: {fileID: 0}
@@ -12498,7 +12499,7 @@ RectTransform:
   - {fileID: 1511079719}
   - {fileID: 828021901}
   m_Father: {fileID: 711042689}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -22160,6 +22161,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21fa9862ac1a11049acf464382c6c1c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  VideoTutorial: {fileID: 1964579342}
   LB_EntryBar: {fileID: 8790979404134662425, guid: 4023164931515ab4884298c64d9eb4fa, type: 3}
   LB_EntryParent: {fileID: 1894658737}
   LB_RefreshBtn: {fileID: 0}
@@ -24879,7 +24881,7 @@ RectTransform:
   - {fileID: 264792301}
   - {fileID: 624790799}
   m_Father: {fileID: 711042689}
-  m_RootOrder: 11
+  m_RootOrder: 12
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -42517,7 +42519,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1746515281}
   m_Direction: 2
   m_Value: 1
-  m_Size: 0.45358673
+  m_Size: 0.45358676
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -42560,6 +42562,78 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1960711402}
   m_CullTransparentMesh: 1
+--- !u!1 &1964579340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1964579341}
+  - component: {fileID: 1964579342}
+  m_Layer: 5
+  m_Name: Tutorial Video
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1964579341
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964579340}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 711042689}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0.010012433, y: 11.568152}
+  m_SizeDelta: {x: 1021.9, y: 2212.2}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!328 &1964579342
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1964579340}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: e01182405d8cb784bbc9938e10ce34a1, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 552943425}
+  m_TargetTexture: {fileID: 0}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 1
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 2
+  m_TargetAudioSources:
+  - {fileID: 0}
+  m_DirectAudioVolumes:
+  - 1
+  m_Url: 
+  m_EnabledAudioTracks: 01
+  m_DirectAudioMutes: 00
+  m_ControlledAudioTrackCount: 1
+  m_PlayOnAwake: 1
+  m_SkipOnDrop: 1
+  m_Looping: 0
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
 --- !u!1 &1964805037
 GameObject:
   m_ObjectHideFlags: 0

@@ -290,8 +290,6 @@ public class ScreenManager : MonoBehaviour
         /////// INITIATE SETTINGS DATA
         /////////////////////////////////////////////////////////////////////////////////////
 
-        Debug.Log("Ismuted?: " + PlayerData.SETTINGS_isMuted);
-
         if (PlayerData.SETTINGS_isMuted)
         {
             Settings_Toggle_Mute.isOn = true;
@@ -1592,26 +1590,12 @@ public class ScreenManager : MonoBehaviour
         }
         else
         {
-            LeanTween.rotateX(UsernamePanel, 90, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f)
-                .setOnComplete(delegate ()
-                {
-                    StartCoroutine(PlayTransition());
-                    StartCoroutine(DelayedAlphaTransition());
-                });
+            LeanTween.rotateX(UsernamePanel, 90, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
+            LeanTween.alpha(UsernamePanel, 0, 0.5f).setDelay(0.1f);
+            LeanTween.alpha(OverlayUsernamePanel.GetComponent<RectTransform>(), 0f, 0.5f).setDelay(0.1f).setEaseInExpo();
         }
     }
 
-    IEnumerator DelayedAlphaTransition()
-    {
-        yield return new WaitForSeconds(0.1f); // Wait for 1.5 seconds
-
-        LeanTween.alpha(OverlayUsernamePanel.GetComponent<RectTransform>(), 0f, 0.5f).setEaseInExpo()
-            .setOnComplete(delegate ()
-            {
-                Panel_PlayerProfile.SetActive(false);
-                GameManager.SetGameState(GameState.Menu);
-            });
-    }
 
     public void TweenAboutSection(bool In)
     {

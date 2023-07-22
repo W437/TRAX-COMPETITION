@@ -2,6 +2,7 @@ using Cinemachine;
 using Lofelt.NiceVibrations;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static GameManager;
@@ -20,6 +21,17 @@ public class BikeController : MonoBehaviour
 
     public BikeParticles CurrentBikeParticles { get; private set; }
     public BikeComponents CurrentBikeComponents { get; private set; }
+
+    // Recording input for (tutorial)
+    public static List<(float time, bool isAccelerating)> inputRecording = new List<(float time, bool isAccelerating)>();
+    private float recordingStartTime;
+    private bool lastFrameIsAccelerating = false;
+    private bool isRecording = false;
+    // Variable to store the current position in the recording
+    private int playbackIndex;
+    // Boolean flag to check if the recording is being played
+    private bool isPlayingBack;
+
 
     // Distance counter system
     private float previousXPosition;
@@ -138,6 +150,7 @@ public class BikeController : MonoBehaviour
     {
         GameManager = GameManager.Instance;
         TrailManager = TrailManager.Instance;
+        recordingStartTime = Time.time;
 
         if (bikeRb != null)
         {
@@ -151,11 +164,61 @@ public class BikeController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (isAccelerating && GameManager.gameState == GameState.Playing)
-            HandleBike();
-        else if (bikeRearWheelJoint != null)
-            bikeRearWheelJoint.useMotor = false;
+        if (GameManager.gameState == GameState.Playing && isRecording)
+        {
+            if (isAccelerating)
+            {
+                HandleBike();
+
+                // Check if was not accelerating in the last frame
+                if (!lastFrameIsAccelerating)
+                {
+                    // Record the start of acceleration and the time it occurred
+                    inputRecording.Add((Time.time - recordingStartTime, true));
+                }
+            }
+            else
+            {
+                // Check if was accelerating in the last frame
+                if (lastFrameIsAccelerating)
+                {
+                    // Record the stop of acceleration and the time it occurred
+                    inputRecording.Add((Time.time - recordingStartTime, false));
+                }
+
+                if (bikeRearWheelJoint != null)
+                    bikeRearWheelJoint.useMotor = false;
+            }
+
+            // Remember whether we were accelerating in this frame for the next frame's comparison
+            lastFrameIsAccelerating = isAccelerating;
+        }
     }
+
+    public List<(float, bool)> GetRecording()
+    {
+        return inputRecording;
+    }
+
+
+    public void StartRecording()
+    {
+        recordingStartTime = Time.time;
+        isRecording = true;
+        inputRecording.Clear();
+    }
+
+    public void StopRecording()
+    {
+        isRecording = false;
+    }
+
+    public void PlayRecording()
+    {
+        playbackIndex = 0;
+        isPlayingBack = true;
+    }
+
 
 
     // Height from ground check
