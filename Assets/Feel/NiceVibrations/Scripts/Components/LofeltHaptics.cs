@@ -2,6 +2,7 @@
 
 
 #if (UNITY_ANDROID && !UNITY_EDITOR)
+using UnityEngine;
 using System.Text;
 using System.Runtime.InteropServices;
 using System;
@@ -9,7 +10,9 @@ using System;
 using UnityEngine.iOS;
 using System.Runtime.InteropServices;
 using System;
+
 #endif
+
 
 namespace Lofelt.NiceVibrations
 {
