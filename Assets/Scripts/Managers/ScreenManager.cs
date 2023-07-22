@@ -1591,7 +1591,7 @@ public class ScreenManager : MonoBehaviour
         else
         {
             LeanTween.rotateX(UsernamePanel, 90, 0.5f).setEase(LeanTweenType.easeOutExpo).setDelay(0.1f);
-            LeanTween.alpha(UsernamePanel, 0, 0.5f).setDelay(0.1f);
+            LeanTween.scale(UsernamePanel, new Vector3(0,0,0), 0.5f).setDelay(0.1f);
             LeanTween.alpha(OverlayUsernamePanel.GetComponent<RectTransform>(), 0f, 0.5f).setDelay(0.1f).setEaseInExpo();
         }
     }
