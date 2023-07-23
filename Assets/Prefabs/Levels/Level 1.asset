@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e5ab2374cc40514d8fd171ef5423523, type: 3}
   m_Name: Level 1
   m_EditorClassIdentifier: 
-  LevelPrefab: {fileID: 8065877448607636436, guid: 43344954e3576d448b6002e8b614d75f, type: 3}
+  LevelPrefab: {fileID: 8065877448607636436, guid: 6a422b90f33ba224b8e67b94d75ad1e9, type: 3}
   LevelID: 0
   Trophy1Time: 250
   Trophy2Time: 200

@@ -9237,7 +9237,7 @@ MonoBehaviour:
   m_YDamping: 12.27
   m_ZDamping: 1
   m_TargetMovementOnly: 1
-  m_ScreenX: 0.1350082
+  m_ScreenX: 0.13
   m_ScreenY: 0.7039999
   m_CameraDistance: 10
   m_DeadZoneWidth: 0.08
@@ -9471,7 +9471,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 595812096}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -6.1544623, y: -4.1157846, z: 0}
+  m_LocalPosition: {x: -6.1374526, y: -4.1260014, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9501,7 +9501,7 @@ MonoBehaviour:
   m_Follow: {fileID: 628274119}
   m_Lens:
     FieldOfView: 6.7
-    OrthographicSize: 5.525041
+    OrthographicSize: 5.5
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -27019,11 +27019,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   soundTracks:
-  - {fileID: 8300000, guid: 4a530adef8a5c1c4891af2010d40bfa2, type: 3}
   - {fileID: 8300000, guid: ec5679b9e7eec2741a0d362134b6b5ea, type: 3}
-  - {fileID: 8300000, guid: f9325f5947ce59a4b9d0eb24e8a397d0, type: 3}
   - {fileID: 8300000, guid: 0d35449105416a24eb29598ada8efed3, type: 3}
-  - {fileID: 8300000, guid: 3cee71fd3d419f54f91ab6090aaea51a, type: 3}
   - {fileID: 8300000, guid: 2c175287b17c3ed45989f2f4db322dd4, type: 3}
   - {fileID: 8300000, guid: ebc40386dd716094dbae9c48b83a49cf, type: 3}
   - {fileID: 8300000, guid: ed2deac2723c75046bf1c59b39c5349e, type: 3}
@@ -27426,6 +27423,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 13c6aa912c3bc74489c22f576a23c845, type: 2}
   - {fileID: 11400000, guid: a546880061c35a841a36a40922e57e67, type: 2}
   - {fileID: 11400000, guid: 9f8c90ceeb47d3841b880e27a1d85114, type: 2}
+  BikeRB: {fileID: 0}
   _acceleration: 0
   bikeMotorSpeed: 0
   bikeMaxTorque: 0
@@ -36078,7 +36076,7 @@ MonoBehaviour:
   m_YDamping: 12.27
   m_ZDamping: 1
   m_TargetMovementOnly: 1
-  m_ScreenX: 0.8608492
+  m_ScreenX: 0.5
   m_ScreenY: 0.76
   m_CameraDistance: 10
   m_DeadZoneWidth: 0

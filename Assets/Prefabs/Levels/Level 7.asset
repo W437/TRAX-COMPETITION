@@ -20,4 +20,4 @@ MonoBehaviour:
   LeaderboardID: 0
   MaxFault2Trophies: 10
   MaxFaults1Trophy: 15
-  LevelCategory: 0
+  LevelCategory: 1

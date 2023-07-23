@@ -1623,6 +1623,7 @@ public class ScreenManager : MonoBehaviour
         GameManager.SetGameState(GameState.Finished);
         // TODO: Stop player in a nicer way. Smooth out velocity to 0.
         BikeController.bikeRearWheelJoint.useMotor = false;
+        StartCoroutine(SlowDownBike());
 
         HapticPatterns.PlayPreset(HapticPatterns.PresetType.HeavyImpact);
         var _playerData = SaveSystem.LoadPlayerData();
@@ -1734,6 +1735,12 @@ public class ScreenManager : MonoBehaviour
         Txt_LevelFinish_Faults.text = GameManager.faultCountText.text;
         Txt_LevelFinish_Wheelie.text = GameManager.wheelieTimeText.text;
         Txt_LevelFinish_Flips.text = GameManager.flipCountText.text;
+    }
+
+    private IEnumerator SlowDownBike()
+    {
+        yield return new WaitForSeconds(0.1f);
+        BikeController.BikeRB.drag = 10f;
     }
 
     private void TrophyAnimation(GameObject trophy, float targetScale, float delay)

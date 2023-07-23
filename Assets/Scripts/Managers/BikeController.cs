@@ -45,7 +45,7 @@ public class BikeController : MonoBehaviour
     private GameObject currentTrailInstance;
 
     private TrailRenderer trailRenderer;
-    private Rigidbody2D bikeRb;
+    public Rigidbody2D BikeRB;
     private WheelJoint2D rearWheel, frontWheel;
     private Rigidbody2D rearWheelRb, frontWheelRb;
     private CircleCollider2D rearWheelCol;
@@ -96,6 +96,9 @@ public class BikeController : MonoBehaviour
     public int faults = 0;
     private float lastAirTime;
     private float maxAirHeight;
+    // Height from ground check
+    private readonly float maxDistance = 100f;
+    private RaycastHit2D bikeAltitude;
 
     [SerializeField] private float doublePressTime = 0.3f; // Double Mouse Press System
     private int mouseClicks = 0;
@@ -152,10 +155,10 @@ public class BikeController : MonoBehaviour
         TrailManager = TrailManager.Instance;
         recordingStartTime = Time.time;
 
-        if (bikeRb != null)
+        if (BikeRB != null)
         {
             previousXPosition = GameManager.InGAME_PlayerBike.transform.position.x;
-            lastZRotation = bikeRb.transform.eulerAngles.z;
+            lastZRotation = BikeRB.transform.eulerAngles.z;
             /*            saveDistanceCoroutine = SaveDistanceEveryFewSeconds(30.0f);
                         StartCoroutine(saveDistanceCoroutine);*/
         }
@@ -164,14 +167,14 @@ public class BikeController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (GameManager.gameState == GameState.Playing && isRecording)
+        if (GameManager.gameState == GameState.Playing)
         {
             if (isAccelerating)
             {
                 HandleBike();
 
                 // Check if was not accelerating in the last frame
-                if (!lastFrameIsAccelerating)
+                if (!lastFrameIsAccelerating && isRecording)
                 {
                     // Record the start of acceleration and the time it occurred
                     inputRecording.Add((Time.time - recordingStartTime, true));
@@ -180,7 +183,7 @@ public class BikeController : MonoBehaviour
             else
             {
                 // Check if was accelerating in the last frame
-                if (lastFrameIsAccelerating)
+                if (lastFrameIsAccelerating && isRecording)
                 {
                     // Record the stop of acceleration and the time it occurred
                     inputRecording.Add((Time.time - recordingStartTime, false));
@@ -195,36 +198,6 @@ public class BikeController : MonoBehaviour
         }
     }
 
-    public List<(float, bool)> GetRecording()
-    {
-        return inputRecording;
-    }
-
-
-    public void StartRecording()
-    {
-        recordingStartTime = Time.time;
-        isRecording = true;
-        inputRecording.Clear();
-    }
-
-    public void StopRecording()
-    {
-        isRecording = false;
-    }
-
-    public void PlayRecording()
-    {
-        playbackIndex = 0;
-        isPlayingBack = true;
-    }
-
-
-
-    // Height from ground check
-    readonly float maxDistance = 100f;
-    RaycastHit2D bikeAltitude;
-
     void Update()
     {
         // For Haptic System
@@ -235,17 +208,17 @@ public class BikeController : MonoBehaviour
         var _gameState = GameManager.gameState;
         if (_gameState == GameState.Playing)
         {
-            bikeAltitude = Physics2D.Raycast(bikeRb.position, Vector2.down, maxDistance, GameManager.GroundLayer);
-            Debug.DrawRay(bikeRb.position, Vector2.down * maxDistance, Color.red);
+            bikeAltitude = Physics2D.Raycast(BikeRB.position, Vector2.down, maxDistance, GameManager.GroundLayer);
+            Debug.DrawRay(BikeRB.position, Vector2.down * maxDistance, Color.red);
 
             if (bikeAltitude.collider != null)
             {
                 // If the ray hit a collider, calculate the distance
-                float distance = Vector2.Distance(bikeRb.position, bikeAltitude.point);
+                float distance = Vector2.Distance(BikeRB.position, bikeAltitude.point);
 
                 // Display the distance
                 Debug.Log("Distance: " + distance);
-                Debug.DrawRay(bikeRb.position, Vector2.down * maxDistance, Color.green);
+                Debug.DrawRay(BikeRB.position, Vector2.down * maxDistance, Color.green);
             }
 
             maxAirHeight = Mathf.Max(maxAirHeight, transform.position.y);
@@ -282,15 +255,15 @@ public class BikeController : MonoBehaviour
                     doubleClickRotation = transform.rotation;
                     isDoubleMousePressed = true;
                     isBeingPushedForward = true;
-                    originalAngularDrag = bikeRb.angularDrag;
-                    bikeRb.angularDrag = 1f; // resist rotation
+                    originalAngularDrag = BikeRB.angularDrag;
+                    BikeRB.angularDrag = 1f; // resist rotation
                     //bikeRb.constraints = RigidbodyConstraints2D.FreezeRotation;
                 }
             }
 
             if (isDoubleMousePressed)
             {
-                bikeRb.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
+                BikeRB.AddForce(doubleClickForceDirection * 2.5f, ForceMode2D.Impulse);
                 isDoubleMousePressed = false;
                 isBeingPushedForward = true;
                 bikeBoostTime = Time.time; // Set the flick start time
@@ -307,9 +280,9 @@ public class BikeController : MonoBehaviour
                 if (Time.time >= bikeBoostTime + 0.05f)
                 {
                     isBeingPushedForward = false; // Stop pushing forward
-                    bikeRb.angularDrag = originalAngularDrag; // reset angularDrag to its original value
-                    bikeRb.angularVelocity = 0f;
-                    bikeRb.constraints = RigidbodyConstraints2D.None;
+                    BikeRB.angularDrag = originalAngularDrag; // reset angularDrag to its original value
+                    BikeRB.angularVelocity = 0f;
+                    BikeRB.constraints = RigidbodyConstraints2D.None;
 
                 }
             }
@@ -395,7 +368,29 @@ public class BikeController : MonoBehaviour
         }
     }
 
+    public List<(float, bool)> GetRecording()
+    {
+        return inputRecording;
+    }
 
+
+    public void StartRecording()
+    {
+        recordingStartTime = Time.time;
+        isRecording = true;
+        inputRecording.Clear();
+    }
+
+    public void StopRecording()
+    {
+        isRecording = false;
+    }
+
+    public void PlayRecording()
+    {
+        playbackIndex = 0;
+        isPlayingBack = true;
+    }
 
     public float GetBikeAcceleration()
     {
@@ -406,7 +401,6 @@ public class BikeController : MonoBehaviour
     {
         return totalDistance / 2000f;
     }
-
 
     public void LoadPlayerBike(int bikeId)
     {
@@ -443,7 +437,7 @@ public class BikeController : MonoBehaviour
         }
         else
         {
-            bikeRb = CurrentBikeComponents.RB_Bike;
+            BikeRB = CurrentBikeComponents.RB_Bike;
             rearWheel = CurrentBikeComponents.BackWheel;
             frontWheel = CurrentBikeComponents.FrontWheel;
             rearWheelRb = CurrentBikeComponents.RB_BackWheel;
@@ -547,7 +541,7 @@ public class BikeController : MonoBehaviour
 
     private void HandleBike()
     {
-        bool isGrounded = IsGrounded();
+        bool isGrounded = IsRearWheelGrounded();
         if (isBeingPushedForward)
         {
             //rb.angularVelocity = 0; // Reset angular velocity
@@ -574,18 +568,18 @@ public class BikeController : MonoBehaviour
         else if (!isBeingPushedForward)
         {
             // Limit the flipping speed when in the air
-            float currentRotationSpeed = bikeRb.angularVelocity;
+            float currentRotationSpeed = BikeRB.angularVelocity;
 
             if (Mathf.Abs(currentRotationSpeed) > maxAirRotationSpeed)
             {
                 //Debug.Log("Rotation Speed: " + currentRotationSpeed);
-                bikeRb.angularVelocity = Mathf.Sign(currentRotationSpeed) * maxAirRotationSpeed;
+                BikeRB.angularVelocity = Mathf.Sign(currentRotationSpeed) * maxAirRotationSpeed;
             }
-            bikeRb.AddTorque(flipTorque);
+            BikeRB.AddTorque(flipTorque);
         }
     }
 
-    void ChangeEasingFunction(int index)
+    private void ChangeEasingFunction(int index)
     {
         if (GameManager.InGAME_PlayerBike != null)
         {
@@ -643,34 +637,32 @@ public class BikeController : MonoBehaviour
 
     public void PauseBike()
     {
-        prevPlayerVelocity = bikeRb.velocity;
-        bikeRb.velocity = Vector2.zero;
-        prevPlayerRotation = bikeRb.rotation;
-        prevAngularVelocity = bikeRb.angularVelocity;
-        bikeRb.angularVelocity = 0;
+        prevPlayerVelocity = BikeRB.velocity;
+        BikeRB.velocity = Vector2.zero;
+        prevPlayerRotation = BikeRB.rotation;
+        prevAngularVelocity = BikeRB.angularVelocity;
+        BikeRB.angularVelocity = 0;
         prevMotorSpeed = bikeMotor.motorSpeed;
         bikeMotor.motorSpeed = 0;
         prevRearWheelVelocity = rearWheelRb.velocity;
         prevFrontWheelVelocity = frontWheelRb.velocity;
         prevRearWheelAngularVelocity = rearWheelRb.angularVelocity;
         prevFrontWheelAngularVelocity = frontWheelRb.angularVelocity;
-        bikeRb.isKinematic = true;
+        BikeRB.isKinematic = true;
     }
 
     public void ResumeBike()
     {
-        bikeRb.isKinematic = false;
+        BikeRB.isKinematic = false;
         rearWheelRb.velocity = prevRearWheelVelocity;
         frontWheelRb.velocity = prevFrontWheelVelocity;
         rearWheelRb.angularVelocity = prevRearWheelAngularVelocity;
         frontWheelRb.angularVelocity = prevFrontWheelAngularVelocity;
-        bikeRb.velocity = prevPlayerVelocity;
-        bikeRb.rotation = prevPlayerRotation;
-        bikeRb.angularVelocity = prevAngularVelocity;
+        BikeRB.velocity = prevPlayerVelocity;
+        BikeRB.rotation = prevPlayerRotation;
+        BikeRB.angularVelocity = prevAngularVelocity;
         bikeMotor.motorSpeed = prevMotorSpeed;
     }
-
-
 
     private void CheckGroundContact()
     {
@@ -689,7 +681,6 @@ public class BikeController : MonoBehaviour
 
     private void HandleFlips()
     {
-        bool isGrounded = IsGrounded();
         if (hasLanded)
         {
             hasLanded = false;
@@ -711,14 +702,14 @@ public class BikeController : MonoBehaviour
         }
         else if (!IsFrontWheelGrounded())
         {
-            float rotationDiff = bikeRb.transform.eulerAngles.z - lastZRotation;
+            float rotationDiff = BikeRB.transform.eulerAngles.z - lastZRotation;
             if (rotationDiff > 180f) rotationDiff -= 360f;
             else if (rotationDiff < -180f) rotationDiff += 360f;
 
             rotationCounter += rotationDiff;
 
             // Check if the bike has been upside down
-            if (bikeRb.transform.eulerAngles.z > 90 && bikeRb.transform.eulerAngles.z < 270)
+            if (BikeRB.transform.eulerAngles.z > 90 && BikeRB.transform.eulerAngles.z < 270)
             {
                 hasBeenUpsideDown = true;
             }
@@ -747,7 +738,7 @@ public class BikeController : MonoBehaviour
         {
             hasLanded = true;
         }
-        lastZRotation = bikeRb.transform.eulerAngles.z;
+        lastZRotation = BikeRB.transform.eulerAngles.z;
     }
 
     private void StartWheelie()
@@ -832,7 +823,7 @@ public class BikeController : MonoBehaviour
 
     private void HandleTrail()
     {
-        bool isMovingForward = bikeRb.velocity.x > 0;
+        bool isMovingForward = BikeRB.velocity.x > 0;
         bool isGrounded = IsGrounded();
 
         // Start fading in if moving forward and not currently fading in or out
@@ -843,14 +834,14 @@ public class BikeController : MonoBehaviour
         // Start fading out if not moving forward or not grounded, and not currently fading in or out
         else if ((!isMovingForward || !isGrounded) && trailFadeCoroutine == null && trailRenderer.emitting)
         {
-            trailFadeCoroutine = StartCoroutine(FadeTrail(false, 1.5f));
+            trailFadeCoroutine = StartCoroutine(FadeTrail(false, 0.5f));
         }
     }
 
     public float GetBikeSpeed()
     {
-        if (bikeRb)
-            return bikeRb.velocity.magnitude;
+        if (BikeRB)
+            return BikeRB.velocity.magnitude;
         else return 0;
     }
 
@@ -888,8 +879,10 @@ public class BikeController : MonoBehaviour
         var _data = SaveSystem.LoadPlayerData();
         _data.TOTAL_FAULTS += faults;
 
-        // reset flip counter due to fault
+        // reset flip counter
         internalFlipCount = 0;
+        rotationCounter = 0;
+        hasBeenUpsideDown = false;
 
         SaveSystem.SavePlayerData(_data);
 
@@ -916,7 +909,7 @@ public class BikeController : MonoBehaviour
 
     public float GetVerticalVelocity()
     {
-        return bikeRb.velocity.y;
+        return BikeRB.velocity.y;
     }
 
     public void ApplySpeedBoost(SpeedBoost.SpeedBoostData data)
@@ -1014,16 +1007,16 @@ public class BikeController : MonoBehaviour
             Vector2 boostDirection = transform.right;
 
             // Apply the boost force to the bike's rigidbody at the boost position
-            bikeRb.AddForceAtPosition(boostDirection * amount * bikeRb.mass, boostPosition, ForceMode2D.Force);
+            BikeRB.AddForceAtPosition(boostDirection * amount * BikeRB.mass, boostPosition, ForceMode2D.Force);
 
             // Counteract the leaning effect by applying an opposite force
             Vector2 currentUpVector = transform.up;
-            Vector2 leanForce = -Vector2.Dot(currentUpVector, initialUpVector) * transform.forward * amount * bikeRb.mass;
-            bikeRb.AddForceAtPosition(leanForce, boostPosition, ForceMode2D.Force);
+            Vector2 leanForce = -Vector2.Dot(currentUpVector, initialUpVector) * transform.forward * amount * BikeRB.mass;
+            BikeRB.AddForceAtPosition(leanForce, boostPosition, ForceMode2D.Force);
 
             // Apply limited rotation force during the boost
             float rotationForceMultiplier = isSpeedBoosted ? 0.3f : 1f;
-            bikeRb.AddTorque(-flipTorque * rotationForceMultiplier);
+            BikeRB.AddTorque(-flipTorque * rotationForceMultiplier);
 
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -1051,7 +1044,7 @@ public class BikeController : MonoBehaviour
         }
 
         transform.eulerAngles = endRotation;
-        bikeRb.angularVelocity = 0f; // Stop any rotational movement
+        BikeRB.angularVelocity = 0f; // Stop any rotational movement
     }
 
     public Bike[] GetAllBikes()
