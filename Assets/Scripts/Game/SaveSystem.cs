@@ -26,7 +26,7 @@ public static class SaveSystem
                 PlayerData data = new()
                 {
                     PLAYER_NAME = null,
-                    COINS = 150,
+                    COINS = 24147,
                     UNLOCKED_BIKES = new int[] { 0 },
                     SELECTED_BIKE_ID = 0,
                     UNLOCKED_TRAILS = new int[] { 0 },

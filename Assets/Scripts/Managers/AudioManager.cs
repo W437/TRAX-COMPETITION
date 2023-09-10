@@ -24,7 +24,7 @@ public class AudioManager : MonoBehaviour
         {
             // It's the first launch, play the specific song
             Debug.Log("First: " + _data.TOTAL_XP);
-            MainAudioSource.clip = soundTracks[7];
+            MainAudioSource.clip = soundTracks[4];
             MainAudioSource.Play();
         }
         else
