@@ -1132,8 +1132,9 @@ public class ScreenManager : MonoBehaviour
 
         Txt_Menu_LvlsFinished.text = GameManager.GetFinishedLevelsCount(PlayerData) + "/" + LevelManager.Levels.Length;
 
+
         // Shop
-        ShopManager.T_Coins.text = PlayerData.COINS + "";
+        Txt_Shop_Coins.text = PlayerData.COINS + "";
         ShopManager.T_UnlockedBikes.text = _unlockedBikes
         + "/" + BikeController.GetAllBikes().Length + "";
         ShopManager.T_UnlockedTrails.text = _unlockedTrails

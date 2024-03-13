@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class ShopManager : MonoBehaviour
 {
     public static ShopManager Instance;
+    public static ScreenManager ScreenManager;
     public Button Btn_SwitchBike;
     public Button Btn_SwitchTrail;
     public Button Btn_Next;
@@ -116,8 +117,8 @@ public class ShopManager : MonoBehaviour
             {
                 HapticPatterns.PlayPreset(HapticPatterns.PresetType.Failure);
             }
-
         }
+
         else
         {
             if (BuyTrail(CurrentTrailIndex) == BuyResult.Success)
@@ -134,6 +135,7 @@ public class ShopManager : MonoBehaviour
         }
 
         ScreenManager.Instance.RefreshTextValuesFromPlayerData();
+
     }
 
     public enum BuyResult
@@ -173,7 +175,16 @@ public class ShopManager : MonoBehaviour
             return BuyResult.Owned;
         }
 
+        // tween coins
+        int startValue = _playerData.COINS;
         _playerData.COINS -= bikeToBuy.PRICE;
+        int endValue = _playerData.COINS;
+
+        LeanTween.value(gameObject, startValue, endValue, 2f).setEaseInOutSine().setOnUpdate((float value) =>
+        {
+            ScreenManager.Instance.Txt_Shop_Coins.text = "" + Mathf.RoundToInt(value);
+        });
+
         _playerData.UNLOCKED_BIKES = _playerData.UNLOCKED_BIKES.Concat(new int[] { bikeId }).ToArray();
         _playerData.SELECTED_BIKE_ID = bikeId;
         _playerData.AddXP(bikeToBuy.PRICE * 5);
@@ -221,7 +232,16 @@ public class ShopManager : MonoBehaviour
             return BuyResult.Owned;
         }
 
+        // tween coins
+        int startValue = _playerData.COINS;
         _playerData.COINS -= trailToBuy.PRICE;
+        int endValue = _playerData.COINS;
+
+        LeanTween.value(gameObject, startValue, endValue, 2f).setEaseInOutSine().setOnUpdate((float value) =>
+        {
+            ScreenManager.Instance.Txt_Shop_Coins.text = "" + Mathf.RoundToInt(value);
+        });
+
         _playerData.UNLOCKED_TRAILS = _playerData.UNLOCKED_TRAILS.Concat(new int[] { trailId }).ToArray();
         _playerData.AddXP(trailToBuy.PRICE * 5);
         _playerData.SELECTED_TRAIL_ID = trailId;
